@@ -64,6 +64,237 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-afnetworking" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/afnetworking/" class="article-date">
+  <time datetime="2017-04-16T13:05:57.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/afnetworking/">iOS网络框架－AFNetworking3.1.0源码解读</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>AFNetworking基本是iOS开发中的网络第三方库标配,本文基于<a href="https://github.com/AFNetworking/AFNetworking/tree/3.1.0" target="_blank" rel="external">AFNetworking3.1.0</a>版本。废话不多说，这篇文章主要从使用的角度来介绍AFNetworking的发起Get请求的过程，偏重于解读过程，解读当你使用AFNetworking发起一个Get请求的时候，AFNetworking内部的处理过程。而不是对AFNetworking源代码的各个类的代码进行深入解析，在源码深度解析方面，网络上已经有很多不错的文章，在文章的末尾我会给出参考链接。</p>
+<h2 id="Get请求流程图"><a href="#Get请求流程图" class="headerlink" title="Get请求流程图"></a>Get请求流程图</h2><p>这是AFNetworking发起一个Get请求的流程图，大概可以分为这几个步骤，我会逐个解读这个流程。<br><img src="http://upload-images.jianshu.io/upload_images/656644-c84285077d0bc2dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Get请求流程图"></p>
+<h2 id="AFHTTPSessionManager发起Get请求"><a href="#AFHTTPSessionManager发起Get请求" class="headerlink" title="AFHTTPSessionManager发起Get请求"></a>AFHTTPSessionManager发起Get请求</h2><p><img src="http://upload-images.jianshu.io/upload_images/656644-ed1b79622cb906f3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="发起Get请求"></p>
+<p>这个方法是AFN的Get请求的起点，其他Get请求的方法也都是直接或者间接调用这个方法来发起Get请求。这个方法的代码量很少也很直观，就是调用其他方法生成NSURLSessionDataTask对象的实例,然后调用NSURLSessionDataTask的resume方法发起请求。</p>
+<h2 id="创建NSURLSessionDataTask"><a href="#创建NSURLSessionDataTask" class="headerlink" title="创建NSURLSessionDataTask"></a>创建NSURLSessionDataTask</h2><p><img src="http://upload-images.jianshu.io/upload_images/656644-8b6f04a59622ed09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="创建NSURLSessionDataTask"><br>这个方法是创建NSURLSessionDataTask对象实例并返回这个实例。首先创建一个NSMutableURLRequest对象的实例，然后配置。之后是使用NSMutableURLRequest对象的实例创建NSURLSessionDataTask对象实例，然后配置，可以选择性地传入各类Block回调，用于监听网络请求的进度比如上传进度，下载进度，请求成功，请求失败。</p>
+<h3 id="配置NSMutableURLRequest对象"><a href="#配置NSMutableURLRequest对象" class="headerlink" title="配置NSMutableURLRequest对象"></a>配置NSMutableURLRequest对象</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-de1239b098d78a0a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="配置NSMutableURLRequest对象"></p>
+<p>在这个方法中先使用了url创建了一个NSMutableURLRequest对象的实例,并且设置了HTTPMethod为Get方法（如果是Post方法，那么这里就是设置Post方法，以此类推）然后使用KVC的方法设置了NSMutableURLRequest的一些属性。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//设置NSMutableURLRequest的属性</span></div><div class="line"> <span class="function"><span class="keyword">static</span> NSArray * <span class="title">AFHTTPRequestSerializerObservedKeyPaths</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">static</span> NSArray *_AFHTTPRequestSerializerObservedKeyPaths = nil;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">dispatch_once_t</span> onceToken;</div><div class="line">    dispatch_once(&amp;onceToken, ^&#123;</div><div class="line">        <span class="comment">//allowsCellularAccess 允许使用数据流量</span></div><div class="line">        <span class="comment">//cachePolicy 缓存策略</span></div><div class="line">        <span class="comment">//HTTPShouldHandleCookies 处理Cookie</span></div><div class="line">        <span class="comment">//HTTPShouldUsePipelining 批量请求</span></div><div class="line">        <span class="comment">//networkServiceType 网络状态</span></div><div class="line">        <span class="comment">//timeoutInterval 超时</span></div><div class="line">        _AFHTTPRequestSerializerObservedKeyPaths = @[NSStringFromSelector(@selector(allowsCellularAccess)), NSStringFromSelector(@selector(cachePolicy)), NSStringFromSelector(@selector(HTTPShouldHandleCookies)), NSStringFromSelector(@selector(HTTPShouldUsePipelining)), NSStringFromSelector(@selector(networkServiceType)), NSStringFromSelector(@selector(timeoutInterval))];</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> _AFHTTPRequestSerializerObservedKeyPaths;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-a228e54cc99ab038.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="配置NSMutableURLRequest对象"><br>先设置HTTP header，之后格式化请求参数，设置参数的编码类型。这个是这个方法的基本操作流程。对于Get操作来说，参数是直接拼接在请求地址后面。</p>
+<h3 id="配置NSURLSessionDataTask对象"><a href="#配置NSURLSessionDataTask对象" class="headerlink" title="配置NSURLSessionDataTask对象"></a>配置NSURLSessionDataTask对象</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-df139131c05cc9b8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="配置NSURLSessionDataTask对象"></p>
+<p>之后配置NSMutableURLRequest对象就需要配置NSURLSessionDataTask对象了。主要分为2个步骤，第一个步骤是创建NSURLSessionDataTask对象实例，第二个步骤是给NSURLSessionDataTask对象实例设置Delegate。用于实时了解网络请求的过程。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-d75418e6972979c8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="给NSURLSessionDataTask对象实例设置Delegate"></p>
+<p>AFN的代理统一使用AFURLSessionManagerTaskDelegate对象来管理，使用AFURLSessionManagerTaskDelegate对象来接管NSURLSessionTask网络请求过程中的回调，然后再传入AFN内部进行管理。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">@interface AFURLSessionManagerTaskDelegate : NSObject &lt;NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate&gt;</div></pre></td></tr></table></figure>
+<p>如代码所示AFURLSessionManagerTaskDelegate接管了NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate的各种回调，然后做内部处理。这也是第三方网络请求框架的重点，让网络请求更加易用，好用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//通过task的标识符管理代理</span></div><div class="line">- (<span class="keyword">void</span>)setDelegate:(AFURLSessionManagerTaskDelegate *)delegate</div><div class="line">            forTask:(NSURLSessionTask *)task</div><div class="line">&#123;</div><div class="line">    NSParameterAssert(task);</div><div class="line">    NSParameterAssert(delegate);</div><div class="line"></div><div class="line">    [self.lock lock];</div><div class="line">    self.mutableTaskDelegatesKeyedByTaskIdentifier[@(task.taskIdentifier)] = delegate;</div><div class="line">    [delegate setupProgressForTask:task];</div><div class="line">    [self addNotificationObserverForTask:task];</div><div class="line">    [self.lock unlock];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>通过NSURLSessionTask的taskIdentifier标识符对delegate进行管理，只要是用于识别该NSURLSessionTask的代理，</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-fe190c5709659451.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="NSURLSessionTask设置进度回调"></p>
+<p>设置各类回调Block,给NSURLSessionTask使用KVO进行各种过程进度监听。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//给task添加暂停和恢复的通知</span></div><div class="line">- (<span class="keyword">void</span>)addNotificationObserverForTask:(NSURLSessionTask *)task &#123;</div><div class="line">    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(taskDidResume:) name:AFNSURLSessionTaskDidResumeNotification object:task];</div><div class="line">    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(taskDidSuspend:) name:AFNSURLSessionTaskDidSuspendNotification object:task];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>监听NSURLSessionTask被挂起和恢复的通知</p>
+<h2 id="网络请求开始"><a href="#网络请求开始" class="headerlink" title="网络请求开始"></a>网络请求开始</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">- (NSURLSessionDataTask *)GET:(NSString *)URLString</div><div class="line">                   parameters:(id)parameters</div><div class="line">                     progress:(<span class="keyword">void</span> (^)(NSProgress * _Nonnull))downloadProgress</div><div class="line">                      success:(<span class="keyword">void</span> (^)(NSURLSessionDataTask * _Nonnull, id _Nullable))success</div><div class="line">                      failure:(<span class="keyword">void</span> (^)(NSURLSessionDataTask * _Nullable, NSError * _Nonnull))failure</div><div class="line">&#123;</div><div class="line"></div><div class="line">    NSURLSessionDataTask *dataTask = [self dataTaskWithHTTPMethod:@<span class="string">"GET"</span></div><div class="line">                                                        URLString:URLString</div><div class="line">                                                       parameters:parameters</div><div class="line">                                                   uploadProgress:nil</div><div class="line">                                                 downloadProgress:downloadProgress</div><div class="line">                                                          success:success</div><div class="line">                                                          failure:failure];</div><div class="line"></div><div class="line">    [dataTask resume];</div><div class="line"></div><div class="line">    <span class="keyword">return</span> dataTask;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当NSURLSessionTask创建和配置完毕之后，它并不会主动执行，而是需要我们主动调用resume方法，NSURLSessionTask才会开始执行。</p>
+<h2 id="网络请求回调"><a href="#网络请求回调" class="headerlink" title="网络请求回调"></a>网络请求回调</h2><p><img src="http://upload-images.jianshu.io/upload_images/656644-d878f18a69ce6812.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="NSURLSessionDelegate方法"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-ea458e63a7399bf7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="NSURLSessionTaskDelegate方法"></p>
+<p>AFN里面有关NSURLSessionDelegate的回调方法非常的多，这里我们只调和NSURLSessionTask相关的部分方法和KVO处理来进行说明，其他的大家可以参考源码细看。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-c7fce2eef7fedf45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="KVO监听请求过程"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-fdad6daecccf52a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="收到响应数据"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-eea04bd37ffef1ae.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="请求完成"></p>
+<p>对于我们的Get请求来说，我们最关注的莫过于关注请求过程进度，收到响应数据和请求完成这2个回调。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//KVO监听的属性值发生变化</span></div><div class="line">- (<span class="keyword">void</span>)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary&lt;NSString *,id&gt; *)change context:(<span class="keyword">void</span> *)context &#123;</div><div class="line">    <span class="keyword">if</span> ([object isKindOfClass:[NSURLSessionTask <span class="keyword">class</span>]] || [object isKindOfClass:[NSURLSessionDownloadTask <span class="keyword">class</span>]]) &#123;</div><div class="line">        <span class="keyword">if</span> ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesReceived))]) &#123;</div><div class="line">            NSLog(@<span class="string">"countOfBytesReceived"</span>);</div><div class="line"><span class="comment">//这个是在Get请求下，网络响应过程中已经收到的数据量</span></div><div class="line">            self.downloadProgress.completedUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];<span class="comment">//已经收到</span></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesExpectedToReceive))]) &#123;</div><div class="line">              NSLog(@<span class="string">"countOfBytesExpectedToReceive"</span>);</div><div class="line"><span class="comment">//这个是在Get请求下，网络响应过程中期待收到的数据量</span></div><div class="line">            self.downloadProgress.totalUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];<span class="comment">//期待收到</span></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesSent))]) &#123;</div><div class="line">             NSLog(@<span class="string">"countOfBytesSent"</span>);</div><div class="line">            self.uploadProgress.completedUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];<span class="comment">//已经发送</span></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([keyPath isEqualToString:NSStringFromSelector(@selector(countOfBytesExpectedToSend))]) &#123;</div><div class="line">              NSLog(@<span class="string">"countOfBytesExpectedToSend"</span>);</div><div class="line">            self.uploadProgress.totalUnitCount = [change[NSKeyValueChangeNewKey] longLongValue];<span class="comment">//期待发送</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ([object isEqual:self.downloadProgress]) &#123;</div><div class="line">        <span class="comment">//下载进度变化</span></div><div class="line">        <span class="keyword">if</span> (self.downloadProgressBlock) &#123;</div><div class="line">            self.downloadProgressBlock(object);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ([object isEqual:self.uploadProgress]) &#123;</div><div class="line">        <span class="comment">//上传进度变化</span></div><div class="line">        <span class="keyword">if</span> (self.uploadProgressBlock) &#123;</div><div class="line">            self.uploadProgressBlock(object);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//收到请求响应</span></div><div class="line">- (<span class="keyword">void</span>)URLSession:(NSURLSession *)session</div><div class="line">          dataTask:(NSURLSessionDataTask *)dataTask</div><div class="line">didReceiveResponse:(NSURLResponse *)response</div><div class="line"> completionHandler:(<span class="keyword">void</span> (^)(NSURLSessionResponseDisposition disposition))completionHandler</div><div class="line">&#123;</div><div class="line">    NSLog(@<span class="string">"收到请求响应"</span>);</div><div class="line">    NSURLSessionResponseDisposition disposition = NSURLSessionResponseAllow;<span class="comment">//允许继续加载</span></div><div class="line"></div><div class="line"><span class="comment">//是否有收到请求响应的回调Block</span></div><div class="line">    <span class="keyword">if</span> (self.dataTaskDidReceiveResponse) &#123;</div><div class="line"><span class="comment">//若有调用该Block</span></div><div class="line">        disposition = self.dataTaskDidReceiveResponse(session, dataTask, response);</div><div class="line">    &#125;</div><div class="line"><span class="comment">//是否有请求响应完成的回调Block</span></div><div class="line">    <span class="keyword">if</span> (completionHandler) &#123;</div><div class="line"><span class="comment">//若有调用该Block</span></div><div class="line">        completionHandler(disposition);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//请求完成</span></div><div class="line">- (<span class="keyword">void</span>)URLSession:(NSURLSession *)session</div><div class="line">              task:(NSURLSessionTask *)task</div><div class="line">didCompleteWithError:(NSError *)error</div><div class="line">&#123;</div><div class="line">    NSLog(@<span class="string">"请求完成"</span>);</div><div class="line"><span class="comment">//取出该NSURLSessionTask的代理对象</span></div><div class="line">    AFURLSessionManagerTaskDelegate *delegate = [self delegateForTask:task];</div><div class="line"></div><div class="line">    <span class="comment">// delegate may be nil when completing a task in the background</span></div><div class="line">    <span class="keyword">if</span> (delegate) &#123;</div><div class="line"><span class="comment">//若是该代理对象存在，那么将对应数据转给该代理对象处理</span></div><div class="line">        [delegate URLSession:session task:task didCompleteWithError:error];</div><div class="line"><span class="comment">//NSURLSessionTask任务完成之后，移除该NSURLSessionTask的代理对象</span></div><div class="line">        [self removeDelegateForTask:task];</div><div class="line">    &#125;</div><div class="line"><span class="comment">//是否有请求完成的回调Block</span></div><div class="line">    <span class="keyword">if</span> (self.taskDidComplete) &#123;</div><div class="line"><span class="comment">//若有调用改Block</span></div><div class="line">        self.taskDidComplete(session, task, error);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因为在配置NSURLSessionDataTask对象的时候我们有给NSURLSessionTask做了一系列配置，那么当NSURLSessionDataTask任务完成之后，我们需要将该NSURLSessionDataTask的一系列配置全部清理掉。</p>
+<p>这个是我们的配置过程<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//通过task的标识符管理代理</span></div><div class="line">- (<span class="keyword">void</span>)setDelegate:(AFURLSessionManagerTaskDelegate *)delegate</div><div class="line">            forTask:(NSURLSessionTask *)task</div><div class="line">&#123;</div><div class="line">    NSParameterAssert(task);</div><div class="line">    NSParameterAssert(delegate);</div><div class="line"></div><div class="line">    [self.lock lock];</div><div class="line">    self.mutableTaskDelegatesKeyedByTaskIdentifier[@(task.taskIdentifier)] = delegate;</div><div class="line">    [delegate setupProgressForTask:task];</div><div class="line">    [self addNotificationObserverForTask:task];</div><div class="line">    [self.lock unlock];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>那么对应的清理过程是这样的，就是设置过程中做了什么，在清理过程中就需要去掉什么。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//给task移除delegate</span></div><div class="line">- (<span class="keyword">void</span>)removeDelegateForTask:(NSURLSessionTask *)task &#123;</div><div class="line">    NSParameterAssert(task);</div><div class="line"></div><div class="line">    AFURLSessionManagerTaskDelegate *delegate = [self delegateForTask:task];</div><div class="line">    [self.lock lock];</div><div class="line">    [delegate cleanUpProgressForTask:task];</div><div class="line">    [self removeNotificationObserverForTask:task];</div><div class="line">    [self.mutableTaskDelegatesKeyedByTaskIdentifier removeObjectForKey:@(task.taskIdentifier)];</div><div class="line">    [self.lock unlock];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-883a51e8b5be88b0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="cleanUpProgressForTask"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-6c7a92a8a2388461.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="removeNotificationObserverForTask"></p>
+<h2 id="关于Post请求"><a href="#关于Post请求" class="headerlink" title="关于Post请求"></a>关于Post请求</h2><p><img src="http://upload-images.jianshu.io/upload_images/656644-26e5dd78a4fb6d82.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="请求序列化方法"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">pragma</span> mark - AFURLRequestSerialization</span></div><div class="line"><span class="comment">//设置Header和请求参数</span></div><div class="line">- (NSURLRequest *)requestBySerializingRequest:(NSURLRequest *)request</div><div class="line">                               withParameters:(id)parameters</div><div class="line">                                        error:(NSError *__autoreleasing *)error</div><div class="line">&#123;</div><div class="line">    NSParameterAssert(request);</div><div class="line"></div><div class="line">    NSMutableURLRequest *mutableRequest = [request mutableCopy];</div><div class="line">    [self.HTTPRequestHeaders enumerateKeysAndObjectsUsingBlock:^(id field, id value, BOOL * __unused stop) &#123;</div><div class="line">        <span class="comment">//判断header的field是否存在,如果不存在则设置，存在则跳过</span></div><div class="line">        <span class="keyword">if</span> (![request valueForHTTPHeaderField:field]) &#123;</div><div class="line">            <span class="comment">//设置 header</span></div><div class="line">            [mutableRequest setValue:value forHTTPHeaderField:field];</div><div class="line">        &#125;</div><div class="line">    &#125;];</div><div class="line"></div><div class="line">    NSString *query = nil;</div><div class="line">    <span class="keyword">if</span> (parameters) &#123;</div><div class="line">        <span class="comment">//用传进来的自定义block格式化请求参数</span></div><div class="line">        <span class="keyword">if</span> (self.queryStringSerialization) &#123;</div><div class="line">            NSError *serializationError;</div><div class="line">            query = self.queryStringSerialization(request, parameters, &amp;serializationError);</div><div class="line">            <span class="keyword">if</span> (serializationError) &#123;</div><div class="line">                <span class="keyword">if</span> (error) &#123;</div><div class="line">                    *error = serializationError;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">return</span> nil;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">switch</span> (self.queryStringSerializationStyle) &#123;</div><div class="line">                <span class="keyword">case</span> AFHTTPRequestQueryStringDefaultStyle:</div><div class="line">                    <span class="comment">//默认的格式化方式</span></div><div class="line">                    query = AFQueryStringFromParameters(parameters);</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//判断是否是GET/HEAD/DELETE方法， 对于GET/HEAD/DELETE方法，把参数加到URL后面</span></div><div class="line">    <span class="keyword">if</span> ([self.HTTPMethodsEncodingParametersInURI containsObject:[[request HTTPMethod] uppercaseString]]) &#123;</div><div class="line">       <span class="comment">//判断是否有参数</span></div><div class="line">        <span class="keyword">if</span> (query &amp;&amp; query.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            <span class="comment">//拼接请求参数</span></div><div class="line">            NSLog(@<span class="string">"query--&gt;%@"</span>,query);</div><div class="line">            mutableRequest.URL = [NSURL URLWithString:[[mutableRequest.URL absoluteString] stringByAppendingFormat:mutableRequest.URL.query ? @<span class="string">"&amp;%@"</span> : @<span class="string">"?%@"</span>, query]];</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">// #2864: an empty string is a valid x-www-form-urlencoded payload</span></div><div class="line">        <span class="keyword">if</span> (!query) &#123;</div><div class="line">            query = @<span class="string">""</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//参数带在body上，大多是POST PUT</span></div><div class="line">        <span class="keyword">if</span> (![mutableRequest valueForHTTPHeaderField:@<span class="string">"Content-Type"</span>]) &#123;</div><div class="line">            <span class="comment">//设置Content-Type HTTP头，告诉服务端body的参数编码类型</span></div><div class="line">            [mutableRequest setValue:@<span class="string">"application/x-www-form-urlencoded"</span> forHTTPHeaderField:@<span class="string">"Content-Type"</span>];</div><div class="line">        &#125;</div><div class="line">        [mutableRequest setHTTPBody:[query dataUsingEncoding:self.stringEncoding]];</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> mutableRequest;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果是Post请求，那么请求参数是没有拼接在URL上面，而是放在body上，这个是Post和Get请求的最大区别了，其他过程和Get请求并没有太多区别。</p>
+<h2 id="关于HTTPS请求"><a href="#关于HTTPS请求" class="headerlink" title="关于HTTPS请求"></a>关于HTTPS请求</h2><p><img src="http://upload-images.jianshu.io/upload_images/656644-caee53a1c035de81.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="HTTPS认证1"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-808700367b4530de.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="HTTPS认证2"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//Http认证处理</span></div><div class="line"><span class="comment">//认证处理</span></div><div class="line"><span class="comment">/*</span></div><div class="line"> *http://www.cnblogs.com/polobymulberry/p/5140806.html</div><div class="line"> *web服务器接收到客户端请求时，有时候需要先验证客户端是否为正常用户，再决定是够返回真实数据。</div><div class="line"> *这种情况称之为服务端要求客户端接收挑战（NSURLAuthenticationChallenge *challenge）。</div><div class="line"> *接收到挑战后，</div><div class="line"> *客户端要根据服务端传来的challenge来生成completionHandler所需的NSURLSessionAuthChallengeDisposition disposition和NSURLCredential *credential</div><div class="line"> *（disposition指定应对这个挑战的方法，而credential是客户端生成的挑战证书，注意只有challenge中认证方法为NSURLAuthenticationMethodServerTrust的时候，才需要生成挑战证书）。</div><div class="line"> *最后调用completionHandler回应服务器端的挑战。</div><div class="line"> */</div><div class="line">- (<span class="keyword">void</span>)URLSession:(NSURLSession *)session</div><div class="line">didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge</div><div class="line"> completionHandler:(<span class="keyword">void</span> (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler</div><div class="line">&#123;</div><div class="line">    <span class="comment">//NSURLAuthenticationChallenge 挑战处理类型为 默认</span></div><div class="line">    <span class="comment">/*</span></div><div class="line">     *NSURLSessionAuthChallengePerformDefaultHandling：默认方式处理</div><div class="line">     *NSURLSessionAuthChallengeUseCredential：使用指定的证书</div><div class="line">     *NSURLSessionAuthChallengeCancelAuthenticationChallenge：取消挑战</div><div class="line">     */</div><div class="line">    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;</div><div class="line">    __block NSURLCredential *credential = nil;</div><div class="line">    <span class="comment">//自定义方法，用来如何应对服务器端的认证挑战</span></div><div class="line">    <span class="keyword">if</span> (self.sessionDidReceiveAuthenticationChallenge) &#123;</div><div class="line">        disposition = self.sessionDidReceiveAuthenticationChallenge(session, challenge, &amp;credential);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">//服务端要求客户端提供证书</span></div><div class="line">        <span class="keyword">if</span> ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) &#123;</div><div class="line">            <span class="comment">//客户端评估服务端的安全性</span></div><div class="line">            <span class="keyword">if</span> ([self.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) &#123;</div><div class="line">                <span class="comment">//客户端产生证书</span></div><div class="line">                credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];</div><div class="line">                <span class="keyword">if</span> (credential) &#123;</div><div class="line">                    <span class="comment">//使用指定的证书</span></div><div class="line">                    disposition = NSURLSessionAuthChallengeUseCredential;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    <span class="comment">//默认处理</span></div><div class="line">                    disposition = NSURLSessionAuthChallengePerformDefaultHandling;</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">//不处理服务端的认证要求</span></div><div class="line">                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            disposition = NSURLSessionAuthChallengePerformDefaultHandling;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (completionHandler) &#123;</div><div class="line">        completionHandler(disposition, credential);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//如果没有实现方法</span></div><div class="line"><span class="comment">/*</span></div><div class="line"> *- (void)URLSession:(NSURLSession *)session</div><div class="line"> *didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge</div><div class="line"> *completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler</div><div class="line"> */</div><div class="line"><span class="comment">//那么URLSession会调用下面的方法进入认证处理</span></div><div class="line">- (<span class="keyword">void</span>)URLSession:(NSURLSession *)session</div><div class="line">              task:(NSURLSessionTask *)task</div><div class="line">didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge</div><div class="line"> completionHandler:(<span class="keyword">void</span> (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler</div><div class="line">&#123;</div><div class="line">    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;</div><div class="line">    __block NSURLCredential *credential = nil;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (self.taskDidReceiveAuthenticationChallenge) &#123;</div><div class="line">        disposition = self.taskDidReceiveAuthenticationChallenge(session, task, challenge, &amp;credential);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">if</span> ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) &#123;</div><div class="line">            <span class="keyword">if</span> ([self.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) &#123;</div><div class="line">                disposition = NSURLSessionAuthChallengeUseCredential;</div><div class="line">                credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            disposition = NSURLSessionAuthChallengePerformDefaultHandling;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (completionHandler) &#123;</div><div class="line">        completionHandler(disposition, credential);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果是HTTPS请求的话，那么会先走上面的2个代理方法进行HTTPS认证，之后继续其他操作。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>AFN发起Get请求主要分为以下步骤：<br>1.创建NSURLSessionDataTask<br>2.配置NSURLSessionDataTask<br>3.设置NSURLSessionDataTask的Delegate<br>4.调用NSURLSessionDataTask的resume方法开始请求<br>5.在Delegate的方法里面处理网络请求的各个过程<br>6.清理NSURLSessionDataTask的配置<br>其实也就是使用NSURLSessionDataTask的步骤，AFN在这几个步骤加了一些封装，让整个请求过程更加好用，易用。</p>
+<p>对于AFN这类几乎是iOS开发网络库标配的开源项目来说，肯定已经有许多非常优秀的源码解析文章了。所以这篇文章是着重讲解和介绍AFN的整个网络请求的处理流程而且很多的技术细节。相信如果对流程熟悉的话，那么要想找对应的细节处理过程也就比较简单的，再配合一些调试手段的话，基本上对于AFN的细节处理的理解也就不再话下了。由于个人水平有限，文章有不对之处恳请指出，我稍作修改，大家共同进步。<strong>如果你觉得我的这篇文章对你有帮助，请在下方点个赞，让我知道这文章起了作用,谢谢!</strong></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a href="http://blog.cnbang.net/tech/2320/" target="_blank" rel="external">http://blog.cnbang.net/tech/2320/</a></li>
+<li><a href="http://blog.cnbang.net/tech/2371/" target="_blank" rel="external">http://blog.cnbang.net/tech/2371/</a></li>
+<li><a href="http://blog.cnbang.net/tech/2416/" target="_blank" rel="external">http://blog.cnbang.net/tech/2416/</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html</a></li>
+<li><a href="http://bugly.qq.com/bbs/forum.php?" target="_blank" rel="external">http://bugly.qq.com/bbs/forum.php?</a></li>
+<li><a href="http://www.guokr.com/post/114121/mod=viewthread&amp;tid=417&amp;fromuid=6" target="_blank" rel="external">http://www.guokr.com/post/114121/mod=viewthread&amp;tid=417&amp;fromuid=6</a></li>
+<li><a href="http://www.guokr.com/post/116169/" target="_blank" rel="external">http://www.guokr.com/post/116169/</a></li>
+<li><a href="http://www.guokr.com/blog/148613/" target="_blank" rel="external">http://www.guokr.com/blog/148613/</a></li>
+<li><a href="http://www.cnblogs.com/hyddd/archive/2009/01/07/1371292.html" target="_blank" rel="external">http://www.cnblogs.com/hyddd/archive/2009/01/07/1371292.html</a></li>
+<li><a href="http://www.cnblogs.com/polobymulberry/p/5140806.html" target="_blank" rel="external">http://www.cnblogs.com/polobymulberry/p/5140806.html</a></li>
+<li><a href="https://github.com/AFNetworking/AFNetworking/tree/3.1.0" target="_blank" rel="external">https://github.com/AFNetworking/AFNetworking/tree/3.1.0</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj1kpipaz0001tsfymy9wybg4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-learn-how-to-learn-two" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/learn-how-to-learn-two/" class="article-date">
+  <time datetime="2017-04-16T13:02:35.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/learn-how-to-learn-two/">学习困难科目的实用思维方法之理解组块</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文为 Coursera 课程 <a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/" target="_blank" rel="external">如何学习：学习困难科目的实用思维方法课程</a> 第二周学习笔记</p>
+<h3 id="组块是什么"><a href="#组块是什么" class="headerlink" title="组块是什么"></a>组块是什么</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-b1d4d6dd6ac5983c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="组块示意图"></p>
+<p>从神经科学的角度来讲，<strong>组块是一个信息片段</strong>。组块的信息可以通过经常使用联系在一起，举个例子，比如吃饭使用筷子夹东西往嘴里送这个过程就是一个组块，这个组块的信息有包括如何用手拿筷子，如何用筷子夹食物，如何用筷子将食物送到嘴边，嘴巴如何张开并接收食物。组块的信息也可以通过实际意义联系在一起，举个例子，比如树的信息就是一个组块，这个组块的信息包括树的高度，树的叶子形状，树的树干分支等。</p>
+<h3 id="组块的作用"><a href="#组块的作用" class="headerlink" title="组块的作用"></a>组块的作用</h3><p>组块可以被理解成闪烁的神经网络，这个神经网络包含了系列关键的想法，一旦被触发，组块内的信息会源源不断的涌现。这个过程我们可以看成是写作过程中的文思泉涌。这个神经网络也可以包含一系列关键动作，比如篮球运动员的投篮动作，接球–&gt;下蹲–&gt;抬手–&gt;瞄准–&gt;弹跳–&gt;投球。组块是调动记忆内容的捷径。篮球运动员有投篮想法的时候，执行投篮动作不必去思考如何做动作，而是一气呵成。这是因为组块被直接调入工作记忆，大脑指挥身体立即执行组块内的动作。</p>
+<h3 id="组块的构建"><a href="#组块的构建" class="headerlink" title="组块的构建"></a>组块的构建</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-888903b39728de95.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="回忆"></p>
+<p>组块可以被扩大，也可以被复杂化，但是怎么构建组块呢？<br>构建组块有以下几个关键步骤：</p>
+<ol>
+<li>进入专注模式</li>
+<li>理解基本概念</li>
+<li>练习内容</li>
+<li>回忆内容</li>
+</ol>
+<p>对以上的内容是不是有种似曾相识的感觉？没错，这个就是比较科学的学习方式。<br>其中第4个步骤是<strong>单纯的回忆</strong>。那什么是单纯的回忆呢？和我们平常的回忆有什么不同呢？单纯的回忆就是脱离资料，努力回想关键点。这个是促进组块化的最佳方式之一，可以帮助我们更好的理解资料。在学习这个资料的场所之外可以取得更好的学习效果，因为大脑下意识情况下，会将学习场所和学习的资料进行联系，如果在学习场所之外回忆学习资料，可以减少这个影响。这样会使记忆更加牢固，理解更加深刻，更容易调用这个记忆。</p>
+<h3 id="组块的迁移"><a href="#组块的迁移" class="headerlink" title="组块的迁移"></a>组块的迁移</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-87bb324efa0d7d9b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="组块的迁移"></p>
+<p>我们经常会看到这么一种说法，即使是不同的领域，也有一些互通的内容，在另外一个领域的经验往往可以应用到其他领域。这个互通的概念其实就是<strong>组块的迁移</strong>。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-001e21aa1ba5d29c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="交替学习"></p>
+<p>你在某个领域掌握的组块 可以帮助你学习另一个领域的组块 两个领域可能具有惊人的共通性 交替学习 选出的各种不同概念 方法与技术 在同一段时间全部加以练习 组块非常重要 但并不意味着能提高灵活性。但是这个交替学习的方式可以培养跳跃性思维，培养创造性想法。比如同一天时间内，你花一部分时间学习文学，花一部分时间学习科学，如此交替学习。</p>
+<h3 id="组块的欺骗"><a href="#组块的欺骗" class="headerlink" title="组块的欺骗"></a>组块的欺骗</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-dcca1f97fce8f52b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="学习方法"></p>
+<ol>
+<li><strong>你是否真的是在学习？</strong> 我们在学习完一个材料，有时候觉得自己已经完全理解了这个材料了，觉得自己已经学完了这个材料。那么这个时候我们要千万小心，千万不要被自己的错觉欺骗了，误以为我们自己是在学习这个材料，误以为我们自己已经完全理解这个材料了。那要怎么证明自己已经理解了这个材料了，一个简单的方法是用一些小测验来证明自己是否真的掌握了这个材料，也可以采用回忆的方式。</li>
+<li><strong>你是否记住了标记的内容？</strong> 在学习材料的过程中，会给一些材料的内容进行标记，这会让自己以为记住了那些内容，实际上并没有掌握。那么怎么避免这个缺陷呢？那就是尽量少做标记。</li>
+<li><p><strong>只练习简单的部分你就懂了？</strong>只练习简单的部分会给你造成一种错觉，就是你已经全部掌握了这个材料，有意练习困难的部分，可以让你更好的掌握材料。</p>
+</li>
+<li><p><strong>没有犯错你就会了？</strong>学习过程中不要害怕犯错误，犯错误可以让自己察觉到自己对自己能力的评估错觉。</p>
+</li>
+</ol>
+<h3 id="思维定势"><a href="#思维定势" class="headerlink" title="思维定势"></a>思维定势</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-d5cac7390e5a426e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="思维定势"></p>
+<p> 思维定势，是对事物已有的看法 或者说是你已经充分发展巩固了的神经模式这会妨碍你产生更好的想法或者让你不能灵活地接受那些更好或更合适的新方法。那么如何尽量避免思维定势呢？一个比较好的方法是利用<strong>组块的迁移</strong> 交替学习不同学科的内容，培养创造性思维和跳跃性思维。给你的思维更多的思考方式。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/2" target="_blank" rel="external">如何学习：学习困难科目的实用思维方法课程 第二周 </a></li>
+<li>文章图示的原图均来自于该 Coursera 课程</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj1kpipbo0005tsfydrw905rr" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-learn-how-to-learn-three" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/learn-how-to-learn-three/" class="article-date">
+  <time datetime="2017-04-16T13:01:01.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/learn-how-to-learn-three/">学习困难科目的实用思维方法之对抗拖延</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文为 Coursera 课程 <a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/" target="_blank" rel="external">如何学习：学习困难科目的实用思维方法课程</a> 第三周学习笔记</p>
+<h3 id="为什么喜欢拖延"><a href="#为什么喜欢拖延" class="headerlink" title="为什么喜欢拖延"></a>为什么喜欢拖延</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-0938076e972e3d15.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="拖延的原因"><br>当做一件我们不喜欢的事情的时候，会触发我们大脑的痛苦意识，这个时候我们下意识会转而去做令我们愉悦的事情，比如玩手机，玩游戏。但是这样做真的会令我们更加愉悦么？只能说这个是愉悦是暂时的，时间消逝之后，我们的痛苦会加倍，因为我们需要做的事情没有完成。拖延就像是温水煮青蛙，每天都拖延，每天的水都在慢慢加热，等到水开了之后，我们发现自己的拖延症已经晚期了。</p>
+<h3 id="有一种模式叫做僵尸模式"><a href="#有一种模式叫做僵尸模式" class="headerlink" title="有一种模式叫做僵尸模式"></a>有一种模式叫做僵尸模式</h3><p>僵尸模式就是一种惯性，也就是习惯。比如刚开始学倒车的时候，你会觉得非常难。但是当你学会了之后，倒车这件事则变得非常简单。因为你开始学习倒车的时候相对紧张，你面对着各种各样的复杂信息，觉得这项任务变得异常艰巨。但是，一旦你学会了之后，也就是倒车这个行为在你的大脑里面形成了组块。你只需要触发这个倒车的想法，你的大脑就会进入僵尸模式，它只处理关键信息，不会因为要全面兼顾而力不从心。<br>习惯可以分为4个阶段。</p>
+<ol>
+<li>第一个阶段是信号（cue），这个是进入僵尸模式的触发器。这个信号可能是一个微信消息，一个电话。信号没有好坏之分，重要的是我们接受信号之后的反应。</li>
+<li>第二个阶段是惯性（routine），也就是僵尸模式，你的大脑在接受到信号之后做出的习惯性反应。</li>
+<li>第三个阶段是奖励（reward）,任何一种习惯得以养成都是因为它们可以回报我们，它会立即带给我们愉悦感。拖延是极易产生的习惯，因为你将关注点转向了更令人愉悦的事情后所带来的奖励更加迅速而简单。但是好习惯也是有奖励的，想办法奖励好习惯有助于养成习惯。</li>
+<li>第四个阶段是信念，坚信习惯，习惯就会强大起来。</li>
+</ol>
+<h3 id="关注过程而不是结果"><a href="#关注过程而不是结果" class="headerlink" title="关注过程而不是结果"></a>关注过程而不是结果</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-6c3561ad1a2dc445.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="关注过程"></p>
+<p>当你开始学习新东西的时候总是会有一些负面情绪，甚至是你喜欢的东西也是会这样的。对于这些负面情绪，不同的处理方式会带来不同的效果。研究者们发现，不拖延的人会把负面情绪放到一边并对自己说，别浪费时间了，马上动工。 一旦你开始了，就会感觉好多了。<strong>注重过程而不是结果是一个非常好的方法。即学会把注意力集中在过程而不是结果上</strong>，过程就是指流动的时间，以及这段时间里的习惯和行动。比如 我要花60分钟来工作，而结果是工作产出。专注于过程的最简单方法就是把注意力集中在一个番茄工作周期，即25分钟的时间片段上，而不是完成某一项任务上。这里的基本思想在于你大脑中的僵尸习惯部分喜欢过程，因为它能够毫不费力的前进，要让友好的僵尸习惯来帮助过程的进行，这样做出结果就比较简单了。专注于过程而不是结果 ，你便不会总是去想还有多久才能做完，从而使自己在工作或者学习的过程中放松下来。</p>
+<h3 id="你想要对抗拖延的方法"><a href="#你想要对抗拖延的方法" class="headerlink" title="你想要对抗拖延的方法"></a>你想要对抗拖延的方法</h3><ol>
+<li>写下本周重要任务列表。</li>
+<li>在前一晚写下第二天的每日任务，研究表明，这可以让你在潜意识下设法解决任务，从而找到完成方法 。睡前写好任务清单，征召僵尸，帮助你完成第二天列表里的项目。 如果不把任务写下来 它们就会潜伏在四个工作记忆插槽的边缘，在寸土寸金的工作记忆区里尸位素餐，但将任务写到纸上，工作记忆就可以用来想别的事情了 。</li>
+<li>将任务划分成小块任务，使用番茄工作法工作。确保完成任务后，你和你的僵尸可以得到奖励，完成任务后细细品味你的成功和喜悦，放大你的愉悦感。</li>
+</ol>
+<p>4.时刻留意并记录触发你进入拖延模式的信号，尽量避免这些信号的干扰。比如手机消息会使你进入拖延模式，那么是否可以将你的手机收起来，或者不带在身上。</p>
+<p>5.信任你的体系。在一个番茄时间内集中精力做好工作或者学习，在完成任务后毫无负罪感地尽情放松。</p>
+<p>6.当你依旧拖延的时候，采用B计划，慢慢实践新体系。</p>
+<p>7.每天先做你最不喜欢的工作。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/3" target="_blank" rel="external">如何学习：学习困难科目的实用思维方法课程 第三周 </a></li>
+<li>文章图示的原图均来自于该 Coursera 课程</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-three/" data-id="cj1kpipbi0004tsfyu5vfpphi" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-learn-how-to-learn-one" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/04/16/learn-how-to-learn-one/" class="article-date">
@@ -78,7 +309,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/learn-how-to-learn-one/">learn-how-to-learn-one</a>
+      <a class="article-title" href="/2017/04/16/learn-how-to-learn-one/">学习困难科目的实用思维方法之认识大脑</a>
     </h1>
   
 
@@ -108,7 +339,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-one/" data-id="cj1kp4axy0001pqfybhq7q29u" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-one/" data-id="cj1kpipat0000tsfyekqn7l1h" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
@@ -195,7 +426,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/flanimatedimage/" data-id="cj1kp4axr0000pqfyv8012zjh" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/flanimatedimage/" data-id="cj1kpipbg0003tsfy02w0clzi" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -286,7 +517,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/mantle/" data-id="cj1kp4ay70003pqfy71m7ciyu" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/mantle/" data-id="cj1kpipbs0007tsfy6rnzrjlg" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -359,7 +590,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/sdwebimage-download/" data-id="cj1kp4ayq000apqfyru0u5i3y" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/sdwebimage-download/" data-id="cj1kpipcb000gtsfypbq421h1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -468,7 +699,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1kp4ays000cpqfyt5ktj8r0" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1kpipch000itsfyx4g2hcne" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -533,7 +764,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1kp4ayh0007pqfy7w8w9j4g" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1kpipc3000ctsfynrusm5uh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -587,119 +818,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-signature-invocation/" data-id="cj1kp4ayk0008pqfylibuihnu" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-oc-dynamic" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/oc-dynamic/" class="article-date">
-  <time datetime="2017-04-16T05:45:15.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/oc-dynamic/">Objective-C 动态实现</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；</p>
-<p>在 Objective-C 中，我们偶尔会看到一个属性被声明为 @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了。那么 @dynamic 合成属性的方法是怎么样的呢？ 我们这里使用一个 Demo 来说明这个过程。<br>这个 Demo 使用动态实现来为 NSMutableDictionary 中存储的属性动态创建获取方法和设置方法。</p>
-<p>创建一个 Person 对象，该对象有 firstName 和 lastName 这两个属性。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Person.h</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Person</span> : <span class="title">NSObject</span></span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSString</span> *firstName;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSString</span> *lastName;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
-<p>接下来看 Person.m 文件<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">"Person.h"</span></span></div><div class="line"><span class="meta">#import <span class="meta-string">&lt;objc/runtime.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Person</span> ()</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">NSMutableDictionary</span> *properties;</div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">Person</span></span></div><div class="line"><span class="comment">// @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，</span></div><div class="line"><span class="comment">// 但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了</span></div><div class="line"><span class="keyword">@dynamic</span> firstName,lastName;</div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)init&#123;</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span> = [<span class="keyword">super</span> init]) &#123;</div><div class="line">        _properties = [[<span class="built_in">NSMutableDictionary</span> alloc] init];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// getter 方法</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">id</span> propertyIMP(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd)&#123;</div><div class="line">    <span class="keyword">return</span> [[<span class="keyword">self</span> properties] valueForKey:<span class="built_in">NSStringFromSelector</span>(_cmd)];</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// setter 方法</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">void</span> setPropertyIMP(<span class="keyword">id</span> <span class="keyword">self</span>,SEL _cmd, <span class="keyword">id</span> aValue)&#123;</div><div class="line">    <span class="keyword">id</span> value = [aValue <span class="keyword">copy</span>];</div><div class="line">    <span class="comment">// 使用 mutableCopy 而不是 copy</span></div><div class="line">    <span class="built_in">NSMutableString</span> *key = [<span class="built_in">NSStringFromSelector</span>(_cmd) mutableCopy];</div><div class="line">    <span class="comment">// 删除 “set”</span></div><div class="line">    [key deleteCharactersInRange:<span class="built_in">NSMakeRange</span>(<span class="number">0</span>, <span class="number">3</span>)];</div><div class="line">    <span class="comment">// 删除 “：”</span></div><div class="line">    [key deleteCharactersInRange:<span class="built_in">NSMakeRange</span>([key length] <span class="number">-1</span>, <span class="number">1</span>)];</div><div class="line">    <span class="comment">// 将第一个字母变为小写</span></div><div class="line">    <span class="built_in">NSString</span> *firstC = [key substringToIndex:<span class="number">1</span>];</div><div class="line">    [key replaceCharactersInRange:<span class="built_in">NSMakeRange</span>(<span class="number">0</span>, <span class="number">1</span>) withString:[firstC lowercaseString]];</div><div class="line">    <span class="comment">// 保存对应属性的值</span></div><div class="line">    [[<span class="keyword">self</span> properties] setValue:value forKey:key];</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 这里假设所有不能识别的方法都是 setter 方法或者 getter 方法</span></div><div class="line">+ (<span class="built_in">BOOL</span>)resolveInstanceMethod:(SEL)sel&#123;</div><div class="line">    <span class="keyword">if</span> ([<span class="built_in">NSStringFromSelector</span>(sel) hasPrefix:<span class="string">@"set"</span>]) &#123;</div><div class="line">        <span class="comment">// 第一个字符 v 表明返回值是一个 void。</span></div><div class="line">        <span class="comment">// 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL</span></div><div class="line">        <span class="comment">// 最后一个字符是方法的显式参数 @ 表示是一个 id</span></div><div class="line">        class_addMethod([<span class="keyword">self</span> <span class="keyword">class</span>], sel, (IMP)setPropertyIMP, <span class="string">"v@:@"</span>);</div><div class="line">    &#125;<span class="keyword">else</span>&#123;</div><div class="line">        <span class="comment">// 第一个字符 @ 表明返回值是一个 id。</span></div><div class="line">        <span class="comment">// 对于消息传递系统来说，所以的 Objective-C 对象都是 id 类型。</span></div><div class="line">        <span class="comment">// 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL</span></div><div class="line">        class_addMethod([<span class="keyword">self</span> <span class="keyword">class</span>], sel, (IMP)propertyIMP, <span class="string">"@:@"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">&#125;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
-<p>从代码中可以看到，我们将 firstName,lastName 这2个属性设置成 @dynamic 。然后提供了 <code> static void setPropertyIMP(id self,SEL _cmd, id aValue)  </code> 这个 setter 方法，也提供了 <code> static id propertyIMP(id self, SEL _cmd) </code> 这个 getter 方法。在 setter 和 getter 中使用了 NSMutableDictionary 来存储和读取属性。</p>
-<p>当 Person 无法识别一些方法的时候，Objective-C 的消息分派就会调用 Person 类的 <code>+ (BOOL)resolveInstanceMethod:(SEL)sel </code> 方法。那么我们在这个方法里面 为 Person 这个类动态的添加属性的 setter 和 getter 方法。这样 Person 就可以正确的响应属性的 setter 和 getter。这个就是 Objective-C 的动态实现，在运行过程中提供方法实现。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
-<li><a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1" target="_blank" rel="external">Runtime Type Encoding</a></li>
-<li><a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">《iOS编程实战》第24章</a></li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj1kp4ay90004pqfysqne5ve3" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-oc-fast-forwarding" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/oc-fast-forwarding/" class="article-date">
-  <time datetime="2017-04-16T04:49:01.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/oc-fast-forwarding/">Objective-C 快速转发</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；</p>
-<p>什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那么我们可以利用这个快速转发的特性来代理对象。</p>
-<p>我们使用 CacheProxy 这个对象来说明如何利用快速转发的特性来缓存其他对象的 setter 和 getter 方法。</p>
-<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// CacheProxy.h</span></div><div class="line"><span class="meta">#import <span class="meta-string">&lt;Foundation/Foundation.h&gt;</span></span></div><div class="line"><span class="comment">// 快速转发 ：若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象。</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">CacheProxy</span> : <span class="title">NSProxy</span></span></div><div class="line"><span class="comment">// 初始化方法 ，返回类型为 id 类型，可以避免编译器报错</span></div><div class="line">- (<span class="keyword">id</span>)initWithObject:(<span class="keyword">id</span>)anObject properties:(<span class="built_in">NSArray</span> *)properties;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-<p>值的注意的是  CacheProxy 并不是 NSObject 的子类，而是 NSProxy 的子类，NSProxy 是一个轻量级的根类，是为那些转发大部分方法调用的类而设计的。CacheProxy 本身就是一个代理对象，适合成为 NSProxy 的子类。</p>
-<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// CacheProxy.m</span></div><div class="line"><span class="meta">#import <span class="meta-string">"CacheProxy.h"</span></span></div><div class="line"><span class="meta">#import <span class="meta-string">&lt;objc/runtime.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">CacheProxy</span> ()</span></div><div class="line"></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="keyword">id</span> object;<span class="comment">//被代理的对象</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">NSMutableDictionary</span> *valueForProperty;<span class="comment">// 用于保存被代理对象的属性值</span></div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">CacheProxy</span></span></div><div class="line"></div><div class="line"><span class="comment">// setFoo: -&gt; foo</span></div><div class="line"><span class="comment">// 通过 selector 得到属性名</span></div><div class="line"><span class="keyword">static</span> <span class="built_in">NSString</span> *propertyNameForSelector(SEL selector)&#123;</div><div class="line"><span class="comment">// 省略代码</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// foo -&gt; setFoo:</span></div><div class="line"><span class="comment">// 通过属性名得到 selector</span></div><div class="line"><span class="keyword">static</span> SEL setterForPropertyName(<span class="built_in">NSString</span> *property)&#123;</div><div class="line"><span class="comment">// 省略代码</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// getter 方法实现</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">id</span> propertyIMP(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd)&#123;</div><div class="line">    <span class="built_in">NSString</span> *propertyName = <span class="built_in">NSStringFromSelector</span>(_cmd);</div><div class="line">    <span class="keyword">id</span> value = [[<span class="keyword">self</span> valueForProperty] valueForKey:propertyName];</div><div class="line">    <span class="comment">// NSMutableDictionary 不能存储 nil，所以使用 NSNull 来处理 nil</span></div><div class="line">    <span class="keyword">if</span> (value == [<span class="built_in">NSNull</span> null]) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (value) &#123;</div><div class="line">        <span class="keyword">return</span> value;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 从缓存对象取不到属性值的话，那么从原对象取属性值</span></div><div class="line">    value = [[<span class="keyword">self</span> object] valueForKey:propertyName];</div><div class="line">    <span class="comment">// 从原对象取属性值之后，将属性值缓存到缓存对象</span></div><div class="line">    [[<span class="keyword">self</span> valueForProperty] setValue:value forKey:propertyName];</div><div class="line"></div><div class="line">    <span class="keyword">return</span> value;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// setter 方法实现</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">void</span> setPropertyIMP(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd, <span class="keyword">id</span> aValue)&#123;</div><div class="line">    <span class="keyword">id</span> value = [aValue <span class="keyword">copy</span>];</div><div class="line">    <span class="built_in">NSString</span> *propertyName = propertyNameForSelector(_cmd);</div><div class="line">    <span class="comment">// 先将属性值设置到缓存对象，再将属性值设置到原对象</span></div><div class="line">    [[<span class="keyword">self</span> valueForProperty] setValue:(value != <span class="literal">nil</span> ? value : [<span class="built_in">NSNull</span> null]) forKey:propertyName];</div><div class="line">    [[<span class="keyword">self</span> object] setValue:value forKey:propertyName];</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)initWithObject:(<span class="keyword">id</span>)anObject properties:(<span class="built_in">NSArray</span> *)properties&#123;</div><div class="line">    _object = anObject;</div><div class="line">    _valueForProperty = [<span class="built_in">NSMutableDictionary</span> new];</div><div class="line">    <span class="comment">// 缓存对象为 anObject 的所有属性生成 setter 和 getter 方法</span></div><div class="line">    <span class="keyword">for</span>(<span class="built_in">NSString</span> *property <span class="keyword">in</span> properties)&#123;</div><div class="line">        <span class="comment">// 添加 getter 方法</span></div><div class="line">        class_addMethod([<span class="keyword">self</span> <span class="keyword">class</span>], <span class="built_in">NSSelectorFromString</span>(property), (IMP)propertyIMP, <span class="string">"@@:"</span>);</div><div class="line">        <span class="comment">// 添加 setter 方法</span></div><div class="line">        class_addMethod([<span class="keyword">self</span> <span class="keyword">class</span>], setterForPropertyName(property), (IMP)setPropertyIMP, <span class="string">"v@:@"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 覆写以下方法，CacheProxy 缓存对象对外可以被识别为 object 对象</span></div><div class="line">- (<span class="built_in">NSString</span> *)description&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@ (%@)"</span>,[<span class="keyword">super</span> description],<span class="keyword">self</span>.object];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)isEqual:(<span class="keyword">id</span>)object&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object isEqual:object];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">NSUInteger</span>)hash&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object hash];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)respondsToSelector:(SEL)aSelector&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object respondsToSelector:aSelector];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)isKindOfClass:(Class)aClass&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object isKindOfClass:aClass];</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">// 如果有未知的选择器发送到 CacheProxy 缓存对象，在这里把所有的未知选择器都发送给代理对象。</span></div><div class="line"><span class="comment">// 快速转发</span></div><div class="line">- (<span class="keyword">id</span>)forwardingTargetForSelector:(SEL)aSelector&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>.object;</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">NSMethodSignature</span> *)methodSignatureForSelector:(SEL)sel&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object methodSignatureForSelector:sel];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)forwardInvocation:(<span class="built_in">NSInvocation</span> *)invocation&#123;</div><div class="line">    [invocation setTarget:<span class="keyword">self</span>.object];</div><div class="line">    [invocation invoke];</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
-<ol>
-<li>方法 static NSString *propertyNameForSelector(SEL selector) 用于通过 selector 得到属性名。</li>
-<li>方法 static SEL setterForPropertyName(NSString *property)用于通过属性名得到 selector。</li>
-<li>方法 static id propertyIMP(id self, SEL _cmd) 是一个 getter 方法实现。由于 NSMutableDictionary 不能存储 nil，所以使用 NSNull 来处理 nil。从 CacheProxy 这个缓存对象对象取不到属性值的话，那么从被代理对象取属性值。 从被代理对象取属性值之后，将属性值缓存到缓存对象。</li>
-<li>方法 static void setPropertyIMP(id self, SEL _cmd, id aValue) 是一个 setter 方法实现。 先将属性值设置到缓存对象，再将属性值设置到被代理对象。</li>
-<li>forwardingTargetForSelector: 方法，如果有未知的选择器发送到 CacheProxy 缓存对象，在这里把所有的未知选择器都发送给被代理对象。</li>
-<li>如果被代理的对象不响应 CacheProxy 发送过来的未知选择器，那么 objc_msgSend会调用 methodSignatureForSelector: 和 forwardInvocation: 进行普通转发。</li>
-<li><p>初始化方法 initWithObject: properties: 做的工作是代理对象生成被代理对象的属性 setter 和 getter 方法。</p>
-</li>
-<li><p>由于 NSProxy 有一些方法的默认实现，有默认实现的方法则不会被转发到代理对象，所以需要覆写以下方法。</p>
-</li>
-</ol>
-<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">NSString</span> *)description&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@ (%@)"</span>,[<span class="keyword">super</span> description],<span class="keyword">self</span>.object];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)isEqual:(<span class="keyword">id</span>)object&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object isEqual:object];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">NSUInteger</span>)hash&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object hash];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)respondsToSelector:(SEL)aSelector&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object respondsToSelector:aSelector];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)isKindOfClass:(Class)aClass&#123;</div><div class="line">    <span class="keyword">return</span> [<span class="keyword">self</span>.object isKindOfClass:aClass];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>创建完了 CacheProxy 这个代理对象，我们再创建一个 被代理对象 CachePerson<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">&lt;Foundation/Foundation.h&gt;</span></span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">CachePerson</span> : <span class="title">NSObject</span></span></div><div class="line"><span class="comment">// 2个属性</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSString</span> *firstName;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSString</span> *lastName;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
-<p>接下来看看如何使用 CacheProxy 这个代理对象<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 说明 CacheProxy 如何缓存其他对象的 setter 和 getter 方法</span></div><div class="line"><span class="built_in">NSLog</span>(<span class="string">@"------------------------------------------"</span>);</div><div class="line"><span class="keyword">id</span> cachePerson = [[CachePerson alloc] init];</div><div class="line"><span class="keyword">id</span> cacheProxy = [[CacheProxy alloc] initWithObject:cachePerson properties:@[<span class="string">@"firstName"</span>,<span class="string">@"lastName"</span>]];</div><div class="line"><span class="comment">// 设置 CacheProxy 对象的属性， cachePerson 这个被代理对象的属性也有值</span></div><div class="line">[cacheProxy setFirstName:<span class="string">@"CCCC"</span>];</div><div class="line">[cacheProxy setLastName:<span class="string">@"DDDD"</span>];</div><div class="line"><span class="built_in">NSLog</span>(<span class="string">@"CacheProxy : firstName--&gt;%@,  lastName---&gt;%@"</span>,[cacheProxy firstName],[cacheProxy lastName]);</div><div class="line"><span class="built_in">NSLog</span>(<span class="string">@"CachePerson : firstName--&gt;%@,  lastName---&gt;%@"</span>,[cachePerson firstName],[cachePerson lastName]);</div><div class="line"></div><div class="line"><span class="comment">// 说明快速转发</span></div><div class="line"><span class="built_in">NSLog</span>(<span class="string">@"------------------------------------------"</span>);</div><div class="line"><span class="comment">// 只设置被代理对象 CachePerson 的属性，利用快速转发的特性 CacheProxy 也能拿到 CachePerson 的属性</span></div><div class="line"><span class="keyword">id</span> cachePerson2 = [[CachePerson alloc] init];</div><div class="line">[cachePerson2 setFirstName:<span class="string">@"EEEE"</span>];</div><div class="line">[cachePerson2 setLastName:<span class="string">@"FFFF"</span>];</div><div class="line"></div><div class="line"><span class="keyword">id</span> cacheProxy2 = [[CacheProxy alloc] initWithObject:cachePerson2 properties:@[<span class="string">@"firstName"</span>]];</div><div class="line"><span class="built_in">NSLog</span>(<span class="string">@"CacheProxy2 : firstName--&gt;%@,  lastName---&gt;%@"</span>,[cacheProxy2 firstName],[cacheProxy2 lastName]);</div><div class="line"><span class="built_in">NSLog</span>(<span class="string">@"CachePerson2 : firstName--&gt;%@,  lastName---&gt;%@"</span>,[cachePerson2 firstName],[cachePerson2 lastName]);</div></pre></td></tr></table></figure></p>
-<p>运行结果：<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"> ------------------------------------------</div><div class="line">CacheProxy : firstName--&gt;CCCC,  lastName---&gt;DDDD</div><div class="line">CachePerson : firstName--&gt;CCCC,  lastName---&gt;DDDD</div><div class="line"> ------------------------------------------</div><div class="line">CacheProxy2 : firstName--&gt;EEEE,  lastName---&gt;FFFF</div><div class="line">CachePerson2 : firstName--&gt;EEEE,  lastName---&gt;FFFF</div></pre></td></tr></table></figure></p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
-<li>demo <a href="https://github.com/junbinchencn/DynamicWork" target="_blank" rel="external">https://github.com/junbinchencn/DynamicWork</a></li>
-<li>iOS编程实战 <a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">https://book.douban.com/subject/25976913/</a></li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj1kp4aye0005pqfyxmqcqtaa" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-signature-invocation/" data-id="cj1kpipc6000ftsfyefkxeeya" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -712,6 +831,10 @@
 
   
 
+
+  <nav id="page-nav">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">__('next') &raquo;</a>
+  </nav>
 </section>
         
           <aside id="sidebar">
@@ -723,7 +846,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
     </div>
   </div>
 
@@ -733,7 +856,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Coursera/" style="font-size: 10px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 20px;">Objective-C</a> <a href="/tags/Runtime/" style="font-size: 20px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 20px;">iOS</a> <a href="/tags/如何学习/" style="font-size: 10px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a>
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Coursera/" style="font-size: 13.33px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16.67px;">Objective-C</a> <a href="/tags/Runtime/" style="font-size: 16.67px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 16.67px;">iOS</a> <a href="/tags/如何学习/" style="font-size: 13.33px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a>
     </div>
   </div>
 
@@ -755,23 +878,23 @@
       <ul>
         
           <li>
-            <a href="/2017/04/16/learn-how-to-learn-one/">learn-how-to-learn-one</a>
+            <a href="/2017/04/16/afnetworking/">iOS网络框架－AFNetworking3.1.0源码解读</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/learn-how-to-learn-two/">学习困难科目的实用思维方法之理解组块</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/learn-how-to-learn-three/">学习困难科目的实用思维方法之对抗拖延</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/learn-how-to-learn-one/">学习困难科目的实用思维方法之认识大脑</a>
           </li>
         
           <li>
             <a href="/2017/04/16/flanimatedimage/">iOS GIF 动画加载框架 - FLAnimatedImage 解读</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/16/mantle/">iOS 模型框架 - Mantle 解读</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/16/sdwebimage-download/">SDWebImage下载模块解析</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/16/spstackednav/">iPad分屏框架-SPStackedNav源码解读</a>
           </li>
         
       </ul>

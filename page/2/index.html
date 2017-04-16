@@ -3,19 +3,17 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Objective-C 快速转发 | 要上班的斌哥</title>
+  <title>要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了； 什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forw">
-<meta name="keywords" content="Runtime,Objective-C,iOS">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Objective-C 快速转发">
-<meta property="og:url" content="http://yoursite.com/2017/04/16/oc-fast-forwarding/index.html">
+  <meta name="description" content="iOS博客，iOS源码解读">
+<meta property="og:type" content="website">
+<meta property="og:title" content="要上班的斌哥">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
-<meta property="og:description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了； 什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forw">
-<meta property="og:updated_time" content="2017-04-16T11:14:06.000Z">
+<meta property="og:description" content="iOS博客，iOS源码解读">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Objective-C 快速转发">
-<meta name="twitter:description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了； 什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forw">
+<meta name="twitter:title" content="要上班的斌哥">
+<meta name="twitter:description" content="iOS博客，iOS源码解读">
   
     <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
   
@@ -64,7 +62,57 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-oc-fast-forwarding" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main">
+  
+    <article id="post-oc-dynamic" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-dynamic/" class="article-date">
+  <time datetime="2017-04-16T05:45:15.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/oc-dynamic/">Objective-C 动态实现</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；</p>
+<p>在 Objective-C 中，我们偶尔会看到一个属性被声明为 @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了。那么 @dynamic 合成属性的方法是怎么样的呢？ 我们这里使用一个 Demo 来说明这个过程。<br>这个 Demo 使用动态实现来为 NSMutableDictionary 中存储的属性动态创建获取方法和设置方法。</p>
+<p>创建一个 Person 对象，该对象有 firstName 和 lastName 这两个属性。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Person.h</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Person</span> : <span class="title">NSObject</span></span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSString</span> *firstName;</div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSString</span> *lastName;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
+<p>接下来看 Person.m 文件<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">"Person.h"</span></span></div><div class="line"><span class="meta">#import <span class="meta-string">&lt;objc/runtime.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Person</span> ()</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">NSMutableDictionary</span> *properties;</div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">Person</span></span></div><div class="line"><span class="comment">// @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，</span></div><div class="line"><span class="comment">// 但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了</span></div><div class="line"><span class="keyword">@dynamic</span> firstName,lastName;</div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)init&#123;</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">self</span> = [<span class="keyword">super</span> init]) &#123;</div><div class="line">        _properties = [[<span class="built_in">NSMutableDictionary</span> alloc] init];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// getter 方法</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">id</span> propertyIMP(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd)&#123;</div><div class="line">    <span class="keyword">return</span> [[<span class="keyword">self</span> properties] valueForKey:<span class="built_in">NSStringFromSelector</span>(_cmd)];</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// setter 方法</span></div><div class="line"><span class="keyword">static</span> <span class="keyword">void</span> setPropertyIMP(<span class="keyword">id</span> <span class="keyword">self</span>,SEL _cmd, <span class="keyword">id</span> aValue)&#123;</div><div class="line">    <span class="keyword">id</span> value = [aValue <span class="keyword">copy</span>];</div><div class="line">    <span class="comment">// 使用 mutableCopy 而不是 copy</span></div><div class="line">    <span class="built_in">NSMutableString</span> *key = [<span class="built_in">NSStringFromSelector</span>(_cmd) mutableCopy];</div><div class="line">    <span class="comment">// 删除 “set”</span></div><div class="line">    [key deleteCharactersInRange:<span class="built_in">NSMakeRange</span>(<span class="number">0</span>, <span class="number">3</span>)];</div><div class="line">    <span class="comment">// 删除 “：”</span></div><div class="line">    [key deleteCharactersInRange:<span class="built_in">NSMakeRange</span>([key length] <span class="number">-1</span>, <span class="number">1</span>)];</div><div class="line">    <span class="comment">// 将第一个字母变为小写</span></div><div class="line">    <span class="built_in">NSString</span> *firstC = [key substringToIndex:<span class="number">1</span>];</div><div class="line">    [key replaceCharactersInRange:<span class="built_in">NSMakeRange</span>(<span class="number">0</span>, <span class="number">1</span>) withString:[firstC lowercaseString]];</div><div class="line">    <span class="comment">// 保存对应属性的值</span></div><div class="line">    [[<span class="keyword">self</span> properties] setValue:value forKey:key];</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 这里假设所有不能识别的方法都是 setter 方法或者 getter 方法</span></div><div class="line">+ (<span class="built_in">BOOL</span>)resolveInstanceMethod:(SEL)sel&#123;</div><div class="line">    <span class="keyword">if</span> ([<span class="built_in">NSStringFromSelector</span>(sel) hasPrefix:<span class="string">@"set"</span>]) &#123;</div><div class="line">        <span class="comment">// 第一个字符 v 表明返回值是一个 void。</span></div><div class="line">        <span class="comment">// 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL</span></div><div class="line">        <span class="comment">// 最后一个字符是方法的显式参数 @ 表示是一个 id</span></div><div class="line">        class_addMethod([<span class="keyword">self</span> <span class="keyword">class</span>], sel, (IMP)setPropertyIMP, <span class="string">"v@:@"</span>);</div><div class="line">    &#125;<span class="keyword">else</span>&#123;</div><div class="line">        <span class="comment">// 第一个字符 @ 表明返回值是一个 id。</span></div><div class="line">        <span class="comment">// 对于消息传递系统来说，所以的 Objective-C 对象都是 id 类型。</span></div><div class="line">        <span class="comment">// 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL</span></div><div class="line">        class_addMethod([<span class="keyword">self</span> <span class="keyword">class</span>], sel, (IMP)propertyIMP, <span class="string">"@:@"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</div><div class="line">&#125;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
+<p>从代码中可以看到，我们将 firstName,lastName 这2个属性设置成 @dynamic 。然后提供了 <code> static void setPropertyIMP(id self,SEL _cmd, id aValue)  </code> 这个 setter 方法，也提供了 <code> static id propertyIMP(id self, SEL _cmd) </code> 这个 getter 方法。在 setter 和 getter 中使用了 NSMutableDictionary 来存储和读取属性。</p>
+<p>当 Person 无法识别一些方法的时候，Objective-C 的消息分派就会调用 Person 类的 <code>+ (BOOL)resolveInstanceMethod:(SEL)sel </code> 方法。那么我们在这个方法里面 为 Person 这个类动态的添加属性的 setter 和 getter 方法。这样 Person 就可以正确的响应属性的 setter 和 getter。这个就是 Objective-C 的动态实现，在运行过程中提供方法实现。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1" target="_blank" rel="external">Runtime Type Encoding</a></li>
+<li><a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">《iOS编程实战》第24章</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj1kpipbv0008tsfywzta1u4s" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-oc-fast-forwarding" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/04/16/oc-fast-forwarding/" class="article-date">
   <time datetime="2017-04-16T04:49:01.000Z" itemprop="datePublished">2017-04-16</time>
@@ -77,8 +125,8 @@
       <header class="article-header">
         
   
-    <h1 class="article-title" itemprop="name">
-      Objective-C 快速转发
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/oc-fast-forwarding/">Objective-C 快速转发</a>
     </h1>
   
 
@@ -124,20 +172,15 @@
     </footer>
   </div>
   
-    
-<nav id="article-nav">
-  
-  
-    <a href="/2017/04/16/oc-dynamic/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Objective-C 动态实现</div>
-    </a>
-  
-</nav>
-
-  
 </article>
 
+
+  
+
+
+  <nav id="page-nav">
+    <a class="extend prev" rel="prev" href="/">&laquo; __('prev')</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
 </section>
         
           <aside id="sidebar">
