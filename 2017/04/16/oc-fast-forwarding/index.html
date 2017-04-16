@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>oc-fast-forwarding | 要上班的斌哥</title>
+  <title>Objective-C 快速转发 | 要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了； 什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forw">
-<meta name="keywords">
+<meta name="keywords" content="Runtime Objective-C iOS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="oc-fast-forwarding">
+<meta property="og:title" content="Objective-C 快速转发">
 <meta property="og:url" content="http://yoursite.com/2017/04/16/oc-fast-forwarding/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
 <meta property="og:description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了； 什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forw">
-<meta property="og:updated_time" content="2017-04-16T05:17:57.000Z">
+<meta property="og:updated_time" content="2017-04-16T05:24:25.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="oc-fast-forwarding">
+<meta name="twitter:title" content="Objective-C 快速转发">
 <meta name="twitter:description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了； 什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forw">
   
     <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
@@ -78,7 +78,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      oc-fast-forwarding
+      Objective-C 快速转发
     </h1>
   
 
@@ -116,27 +116,15 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj1k8lvbw00014kfyor27jbbm" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj1k8ypug000080fyt7nxrx9s" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime-Objective-C-iOS/">Runtime Objective-C iOS</a></li></ul>
+
     </footer>
   </div>
   
     
-<nav id="article-nav">
-  
-    <a href="/2017/04/16/hello-world/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Hello World
-        
-      </div>
-    </a>
-  
-  
-</nav>
-
   
 </article>
 
@@ -148,15 +136,29 @@
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime-Objective-C-iOS/">Runtime Objective-C iOS</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Runtime-Objective-C-iOS/" style="font-size: 10px;">Runtime Objective-C iOS</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li></ul>
     </div>
   </div>
 
@@ -169,11 +171,7 @@
       <ul>
         
           <li>
-            <a href="/2017/04/16/oc-fast-forwarding/">oc-fast-forwarding</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/16/hello-world/">Hello World</a>
+            <a href="/2017/04/16/oc-fast-forwarding/">Objective-C 快速转发</a>
           </li>
         
       </ul>
