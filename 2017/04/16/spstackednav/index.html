@@ -3,19 +3,33 @@
 <head>
   <meta charset="utf-8">
   
-  <title>spstackednav | 要上班的斌哥</title>
+  <title>iPad分屏框架-SPStackedNav源码解读 | 要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：  使用根据 GitHub 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。  创建 SPSideTabController,  SPSideTab">
 <meta name="keywords" content="源码解读,SPStackedNav">
 <meta property="og:type" content="article">
-<meta property="og:title" content="spstackednav">
+<meta property="og:title" content="iPad分屏框架-SPStackedNav源码解读">
 <meta property="og:url" content="http://yoursite.com/2017/04/16/spstackednav/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
 <meta property="og:description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：  使用根据 GitHub 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。  创建 SPSideTabController,  SPSideTab">
-<meta property="og:updated_time" content="2017-04-16T06:38:33.000Z">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-1.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-2.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-3.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-4.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-5.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-6.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-7.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-8.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-9.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-10.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-11.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-12.png">
+<meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-13.png">
+<meta property="og:updated_time" content="2017-04-16T06:57:42.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="spstackednav">
+<meta name="twitter:title" content="iPad分屏框架-SPStackedNav源码解读">
 <meta name="twitter:description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：  使用根据 GitHub 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。  创建 SPSideTabController,  SPSideTab">
+<meta name="twitter:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-1.png">
   
     <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
   
@@ -78,7 +92,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      spstackednav
+      iPad分屏框架-SPStackedNav源码解读
     </h1>
   
 
@@ -87,7 +101,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p><a href="https://github.com/spotify/SPStackedNav" target="_blank" rel="external">SPStackedNav</a> 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：</p>
-
+<p><img src="/images/spstackednav/SPStackedNav-1.png" alt="SPStackedNav实现的交互方式"></p>
 <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>根据 <a href="https://github.com/spotify/SPStackedNav" target="_blank" rel="external">GitHub</a> 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。</p>
 <ol>
 <li><p>创建 SPSideTabController,  SPSideTabController 的用法和UITabController的用法没有什么大的区别。</p>
@@ -101,17 +115,16 @@
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions</div><div class="line">&#123;</div><div class="line">    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];</div><div class="line">    <span class="comment">// Override point for customization after application launch.</span></div><div class="line">    self.window.backgroundColor = [UIColor whiteColor];</div><div class="line"></div><div class="line">    <span class="comment">// 步骤 1 创建 SPSideTabController</span></div><div class="line">    self.tabs = [[SPSideTabController alloc] init];</div><div class="line"></div><div class="line">    <span class="comment">// 步骤 2 分别创建 SPSideTabController 的 RootViewController，设置 UITabBarItem 属性</span></div><div class="line">    RootTestViewController *root1 = [RootTestViewController <span class="keyword">new</span>];</div><div class="line">    root1.title = @<span class="string">"Root 1"</span>;</div><div class="line">    root1.tabBarItem.image = [UIImage imageNamed:@<span class="string">"114-balloon"</span>];</div><div class="line"></div><div class="line">    RootTestViewController *root2 = [RootTestViewController <span class="keyword">new</span>];</div><div class="line">    root2.title = @<span class="string">"Root 2"</span>;</div><div class="line">    root2.tabBarItem.image = [UIImage imageNamed:@<span class="string">"185-printer"</span>];</div><div class="line">    root2.tabBarItem.badgeValue = @<span class="string">"5"</span>;</div><div class="line">    root2.tabBarItem.badgeColor = [UIColor redColor];</div><div class="line"></div><div class="line">    RootTestViewController *root3 = [RootTestViewController <span class="keyword">new</span>];</div><div class="line">    root3.title = @<span class="string">"Root 3"</span>;</div><div class="line">    root3.tabBarItem.image = [UIImage imageNamed:@<span class="string">"114-balloon"</span>];</div><div class="line"></div><div class="line">    <span class="comment">// 步骤 3 给 SPSideTabController 的 viewControllers 属性赋值对应的 RootViewController 数组</span></div><div class="line">    self.tabs.viewControllers = @[</div><div class="line">        [[SPStackedNavigationController alloc] initWithRootViewController:root1],</div><div class="line">        [[SPStackedNavigationController alloc] initWithRootViewController:root2],</div><div class="line">        [[SPStackedNavigationController alloc] initWithRootViewController:root3]</div><div class="line">    ];</div><div class="line"></div><div class="line">    self.window.rootViewController = self.tabs;</div><div class="line">    [self.window makeKeyAndVisible];</div><div class="line"></div><div class="line"></div><div class="line">    <span class="keyword">return</span> YES;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>5.效果图</p>
-
-
-<h3 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h3>
+<p><img src="/images/spstackednav/SPStackedNav-2.png" alt="效果图1"></p>
+<p><img src="/images/spstackednav/SPStackedNav-3.png" alt="效果图2"></p>
+<h3 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h3><p><img src="/images/spstackednav/SPStackedNav-4.png" alt="View的层次结构"></p>
 <p>从图中的 View 层次结构图可以看到，左边的侧边栏 View 是一个  SPSideTabBar,该 SPSideTabBar 包含若干个 SPSideTabItemButton 。右边的容器 View 是一个 SPStackedNavigationScrollView ，该 SPStackedNavigationScrollView 里面包含了若干个 SPStackedPageContainer ， 一个 SPStackedPageContainer 可以简单的看做一个ViewController。</p>
 <p>当我们在 Demo 项目中的 RootTestViewController 里面 push 一个 ViewController 的时候。其实就相当于往 SPStackedNavigationScrollView 添加一个 SPStackedPageContainer 子 view。SPStackedPageContainer的显示内容来自于 ViewController 的 view 属性。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ChildTestViewController *vc = [ChildTestViewController <span class="keyword">new</span>];</div><div class="line">[self.stackedNavigationController pushViewController:vc animated:YES];</div></pre></td></tr></table></figure>
 <h3 id="SPSideTabBar-和-SPSideTabItemButton-解析"><a href="#SPSideTabBar-和-SPSideTabItemButton-解析" class="headerlink" title="SPSideTabBar 和 SPSideTabItemButton 解析"></a>SPSideTabBar 和 SPSideTabItemButton 解析</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">RootTestViewController *root2 = [RootTestViewController <span class="keyword">new</span>];</div><div class="line">    root2.title = @<span class="string">"Root 2"</span>;</div><div class="line">    root2.tabBarItem.image = [UIImage imageNamed:@<span class="string">"185-printer"</span>];</div><div class="line">    root2.tabBarItem.badgeValue = @<span class="string">"5"</span>;</div><div class="line">    root2.tabBarItem.badgeColor = [UIColor redColor];</div></pre></td></tr></table></figure>
 <p>Demo 代码里面的 AppDelegate 设置的明明是 UITabBarItem 的各类属性， 但是为什么在 SPSideTabBar 里面没有看到关于 UITabBarItem 的信息呢？</p>
-
-<p>再来看看 SPSideTabBar 这个 View 的层级结构图，可以猜出 SPSideTabBar 将 UITabBarItem 的属性设置映射成 SPSideTabItemButton 的属性设置了。</p>
-
+<p><img src="/images/spstackednav/SPStackedNav-5.png" alt="SPSideTabBar的层级结构"><br>再来看看 SPSideTabBar 这个 View 的层级结构图，可以猜出 SPSideTabBar 将 UITabBarItem 的属性设置映射成 SPSideTabItemButton 的属性设置了。</p>
+<p><img src="/images/spstackednav/SPStackedNav-6.png" alt="SPSideTabController 的 viewDidLoad 方法"></p>
 <p>查看 SPSideTabController.m 文件的 viewDidLoad 方法，我们可以看到 _tabBar.items = validItems 这个属性设置方法将 SPSideTabController 的 tabBarItem 的对象数组传给SPSideTabBar 的 items属性。</p>
 <p>来到 SPSideTabBar.m 实现文件查看 - (void)setItems:(NSArray*)items 方法</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//将 UITabBarItem 数组转成 SPSideTabItemButton 数组</span></div><div class="line">- (<span class="keyword">void</span>)setItems:(NSArray*)items</div><div class="line">&#123;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> ([items isEqual:_items]) <span class="keyword">return</span>;</div><div class="line"></div><div class="line">    self.selectedItem = nil;</div><div class="line"></div><div class="line">    _items = [items copy];</div><div class="line"></div><div class="line">    <span class="keyword">for</span>(UIView *b in _itemButtons) [b removeFromSuperview];</div><div class="line">    self.itemButtons = nil;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (_items) &#123;</div><div class="line">        NSMutableArray *itemButtons = [NSMutableArray <span class="built_in">array</span>];</div><div class="line">        CGRect pen = CGRectMake(<span class="number">0</span>, <span class="number">10</span>, <span class="number">80</span>, <span class="number">70</span>);</div><div class="line">        <span class="keyword">for</span>(UITabBarItem *item in _items) &#123;</div><div class="line">            <span class="comment">//关键步骤 将 UITabBarItem 转成 SPSideTabItemButton</span></div><div class="line">            UIView *b = [self buttonForItem:item withFrame:pen];</div><div class="line">            [itemButtons addObject:b];</div><div class="line">            [self addSubview:b];</div><div class="line">            pen.origin.y += pen.size.height + <span class="number">10</span>;</div><div class="line">        &#125;</div><div class="line">        self.itemButtons = itemButtons;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -119,7 +132,7 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 设置 SPTabBarItem 的 frame，并返回 SPTabBarItem 的 View</span></div><div class="line">- (UIView*)buttonForItem:(UITabBarItem*)item withFrame:(CGRect)pen</div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> ([item isKindOfClass:[SPTabBarItem <span class="keyword">class</span>]] &amp;&amp; [(SPTabBarItem*)item view]) &#123;</div><div class="line">        UIView *view = [(SPTabBarItem*)item view];</div><div class="line">        [view setFrame:pen];</div><div class="line">        <span class="keyword">return</span> view;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    SPSideTabItemButton *b = [[SPSideTabItemButton alloc] initWithFrame:pen];</div><div class="line"></div><div class="line">     <span class="comment">// 省略 UITabBarItem 的属性转成 SPSideTabItemButton 的属性过程，</span></div><div class="line">     <span class="comment">// 具体细节可以详看源码</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> b;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>使用 SPSideTabBar 自定义 View 来替代系统的 UITabBar, 使用 SPTabBarItem 自定义 View 来替代系统的 UITabBarItem，SPSideTabBar 将 UITabBarItem 的属性设置映射到 SPTabBarItem。这个就是常见的自定义 TabBar  的思路。</p>
 <h3 id="SPStackedNavigationController-解析"><a href="#SPStackedNavigationController-解析" class="headerlink" title="SPStackedNavigationController 解析"></a>SPStackedNavigationController 解析</h3><p>SPStackedNavigationController 继承与 UIViewController，并定义和实现了一系列和 NavigationController 相关的方法,简而言之就是自己实现一个 NavigationController，这里做重讲解2个主要的方法.<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)pushViewController:(UIViewController *)viewController animated:(BOOL)animated activate:(BOOL)activate</div><div class="line"></div><div class="line">- (UIViewController *)popViewControllerAnimated:(BOOL)animated;</div></pre></td></tr></table></figure></p>
-
+<p><img src="/images/spstackednav/SPStackedNav-7.png" alt="SPStackedNavigationController 的示意"></p>
 <p>当 SPStackedNavigationController 做 push 操作的时候，就是往 SPStackedNavigationScrollView 这个仿 ScrollView 的 View 添加一个 SPStackedPageContainer 子View。从上图中的左边的 View 层次结构中可以看到SPStackedNavigationScrollView 里面有2个 SPStackedPageContainer 子 View。而上图中右边的 View 表现正好印证了这个结构。</p>
 <p>查看 SPStackedNavigationController.m 文件的 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated activate:(BOOL)activate 实现方法<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)pushViewController:(UIViewController *)viewController animated:(BOOL)animated activate:(BOOL)activate</div><div class="line">&#123;</div><div class="line">    <span class="comment">// 省略代码</span></div><div class="line">    <span class="comment">// 添加 viewController 到 viewControllers 的数组</span></div><div class="line">    [self willChangeValueForKey:@<span class="string">"viewControllers"</span>];</div><div class="line">    [self addChildViewController:viewController];</div><div class="line"></div><div class="line">    <span class="comment">//将 viewController 添加到 self,</span></div><div class="line">    <span class="keyword">if</span> ([self isViewLoaded])</div><div class="line">    <span class="comment">// 关键步骤 SPStackedNavigationScrollView 添加一个 SPStackedPageContainer 子 View</span></div><div class="line">        [self pushPageContainerWithViewController:viewController];</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (activate)</div><div class="line">        [self setActiveViewController:viewController position:activePosition animated:animated];</div><div class="line">    <span class="comment">// 调用 viewController 生命周期方法</span></div><div class="line">    [viewController didMoveToParentViewController:self];</div><div class="line">    [self didChangeValueForKey:@<span class="string">"viewControllers"</span>];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>接下来看看  SPStackedNavigationController.m 文件  - (void)pushPageContainerWithViewController:(UIViewController*)viewController 的方法</p>
@@ -132,20 +145,17 @@
 <h3 id="SPStackedPageContainer-解析"><a href="#SPStackedPageContainer-解析" class="headerlink" title="SPStackedPageContainer 解析"></a>SPStackedPageContainer 解析</h3><p>SPStackedPageContainer 的作用是承载 ViewController 的 View，并对一些手势动作进行处理，在这里 SPStackedPageContainer 这个概念在这里等同于一个分屏 View。<br>打开 SPStackedPageContainer.m 查看 - (void)setVCVisible:(BOOL)VCVisible 方法。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//将VC的View加到Container里面</span></div><div class="line">- (<span class="keyword">void</span>)setVCVisible:(BOOL)VCVisible</div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span> (VCVisible == self.VCVisible) <span class="keyword">return</span>;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (VCVisible) &#123;</div><div class="line">        [self.screenshot removeFromSuperview];</div><div class="line">        self.screenshot = nil;</div><div class="line">        <span class="keyword">if</span> (!self.markedForSuperviewRemoval || [_vc isViewLoaded])</div><div class="line">        &#123;</div><div class="line">            _vcContainer.backgroundColor = _vc.view.backgroundColor;</div><div class="line">            _vc.view.frame = CGRectMake(<span class="number">0</span>, <span class="number">0</span>, self.bounds.size.width, self.bounds.size.height);</div><div class="line">            <span class="keyword">if</span> (!_vc.view.superview)</div><div class="line">                <span class="comment">// 关键步骤 添加 View</span></div><div class="line">                [_vcContainer insertSubview:_vc.view atIndex:<span class="number">0</span>];</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">if</span> ([_vc isViewLoaded])</div><div class="line">            <span class="comment">// 关键步骤 移除 View</span></div><div class="line">            [_vc.view removeFromSuperview];</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h3 id="SPStackedNavigationScrollView-解析"><a href="#SPStackedNavigationScrollView-解析" class="headerlink" title="SPStackedNavigationScrollView 解析"></a>SPStackedNavigationScrollView 解析</h3><p>SPStackedNavigationScrollView 是一个模仿 UIScrollView 实现的 View。关于 UIScrollView 的深入理解，推荐 ObjC 中国的文章 <a href="https://www.objccn.io/issue-3-2/" target="_blank" rel="external">理解 Scroll Views</a>， 这里就不再详述，默认大家都是能理解 UIScrollView 的相关概念。</p>
 <p>当使用 SPStackedNavigationController 做3次 Push 操作的时候， SPStackedNavigationScrollView 的 View 层次结构是这样的。</p>
-
+<p><img src="/images/spstackednav/SPStackedNav-8.png" alt="SPStackedNavigationScrollView 的层次结构"></p>
 <p>SPStackedNavigationController 的 rootView 就是 Container0 这个 View。而 Push 的 View 分别是 Container1，Container2,Container3。左边的半屏 View 的位置从底往上分别是 Container1 –&gt; Container2。右边的半屏 View 则是 Container3。若是 SPStackedNavigationController 再 Push 一个 View 的话，那么 左边的半屏 View 的位置从底往上分别是 Container1 –&gt; Container2 –&gt; Container3 。右边的半屏 View 则是 Container4，<strong>Container 这个概念在这里等同于一个分屏 View</strong>。 在这个时候 SPStackedNavigationScrollView 的View 的简单示意图如下</p>
-
+<p><img src="/images/spstackednav/SPStackedNav-9.png" alt="SPStackedNavigationController 的 push 操作"></p>
 <p>从上面的 View 结构示意图中可以看出，SPStackedNavigationScrollView 对 UIScrollView 的模仿主要体现在 UIScrollView 的滑动机制上。<br>当 SPStackedNavigationController 做 push 操作的时候，SPStackedNavigationScrollView 右边半屏的 View 会从右向左滑动到左边半屏的位置，而右边半屏则从右向左显示一个新的 push 进来的 View。<br> 当 SPStackedNavigationController 做 pop 操作的时候，SPStackedNavigationScrollView 右边半屏的 View 会从左向右滑动出屏幕显示范围，而左边半屏的 View 则会从左向右滑动到右边半屏。</p>
-
+<p><img src="/images/spstackednav/SPStackedNav-10.png" alt="SPStackedNavigationController 的 pop 操作"></p>
 <p>讲完了 SPStackedNavigationScrollView 的大概表现之后，若是大家还是不怎么了解的话，可以运行 Demo 详细体会SPStackedNavigationScrollView 的UI变化。<br>我们接下来查看 SPStackedNavigationScrollView.h 文件，寻找和 UIScrollView 相关的代码。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">@interface SPStackedNavigationScrollView : UIView</div><div class="line"> <span class="comment">// ...... 省略代码</span></div><div class="line">@property(nonatomic) CGPoint contentOffset;</div><div class="line">- (<span class="keyword">void</span>)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;</div><div class="line">- (NSRange)scrollRange;</div><div class="line"><span class="comment">// ...... 省略代码</span></div><div class="line">@end</div></pre></td></tr></table></figure>
 <p>从 SPStackedNavigationScrollView 的头文件中，我们可以看到  SPStackedNavigationScrollView 继承于 UIView。和 UIScrollView 相关的概念有 contentOffset 和 scrollRange。关于 UIScrollView 的深入理解，推荐 查看 ObjC 中国的文章 <a href="https://www.objccn.io/issue-3-2/" target="_blank" rel="external">理解 Scroll Views</a> ，这里就不再详述，默认大家都是能理解 UIScrollView 的相关概念。</p>
-<p>接下来开始讲解 SPStackedNavigationScrollView 的具体实现。<br>看下面的图，当屏幕上只有 rootView 没有分屏的 View 的时候 SPStackedNavigationScrollView 的 frame 的坐标原点是在 rootView 的左上角，这个时候SPStackedNavigationScrollView 的 contentOffset = 0。</p>
-
-<p>接着看图，当屏幕上出现一个分屏的 View 的时候，我们叫这个 View 为 Container1。 SPStackedNavigationScrollView 的 frame 的坐标原点是在 Container1 的左上角，这个时候SPStackedNavigationScrollView 的 contentOffset = rootView.width / 2。</p>
-
-<p>接着看图，当屏幕上出现二个分屏的 View 的时候，我们分别叫这二个 View 为 Container1 和 Container2。 SPStackedNavigationScrollView 的 frame 的坐标原点是在 Container1 的左上角，这个时候SPStackedNavigationScrollView 的 contentOffset = rootView.width。</p>
-
+<p>接下来开始讲解 SPStackedNavigationScrollView 的具体实现。<br>看下面的图，当屏幕上只有 rootView 没有分屏的 View 的时候 SPStackedNavigationScrollView 的 frame 的坐标原点是在 rootView 的左上角，这个时候SPStackedNavigationScrollView 的 contentOffset = 0。<br><img src="/images/spstackednav/SPStackedNav-11.png" alt="contentOffset = 0"></p>
+<p>接着看图，当屏幕上出现一个分屏的 View 的时候，我们叫这个 View 为 Container1。 SPStackedNavigationScrollView 的 frame 的坐标原点是在 Container1 的左上角，这个时候SPStackedNavigationScrollView 的 contentOffset = rootView.width / 2。<br><img src="/images/spstackednav/SPStackedNav-12.png" alt="contentOffset = rootView.width / 2"></p>
+<p>接着看图，当屏幕上出现二个分屏的 View 的时候，我们分别叫这二个 View 为 Container1 和 Container2。 SPStackedNavigationScrollView 的 frame 的坐标原点是在 Container1 的左上角，这个时候SPStackedNavigationScrollView 的 contentOffset = rootView.width。<br><img src="/images/spstackednav/SPStackedNav-13.png" alt="contentOffset = rootView.width"></p>
 <p>从上面的示意图中不难看出理解 SPStackedNavigationScrollView 的重点在于理解 SPStackedNavigationScrollView 不断变化的 frame 原点 和 contentOffset。只要 contentOffset 发生了变化，那么 SPStackedNavigationScrollView 就会发生滚动。</p>
 <p>查看 SPStackedNavigationScrollView.m 文件，看到了2个和contentOffset相关的变量 _actualOffset 和 _targetOffset，接下来跟踪这2个变量的变化。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@implementation SPStackedNavigationScrollView &#123;</div><div class="line">    CGPoint _actualOffset; <span class="comment">//模拟 ScrollView 当前的 contentOffset</span></div><div class="line">    CGPoint _targetOffset;<span class="comment">// 模拟 ScrollView 将要滚动到的 contentOffset</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>查看 SPStackedNavigationScrollView 的 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated 方法,作用是赋值 _targetOffset 和 _actualOffset 。</p>
@@ -157,15 +167,15 @@
 <p>限于篇幅关系无法一一介绍SPStackedNavigationScrollView 的各种实现。<br>未介绍的细节知识点包括但不限于 NSRunLoop，用于 SPStackedNavigationScrollView 追踪触摸滑动，保证界面滑动时不受其他 Mode 影响。SPStackedNavigationScrollView 的 scrollRange 的计算细节，SPStackedNavigationScrollView 的手势处理等等，大家若是有兴趣可以在我的 <a href="https://github.com/junbinchencn/SPStackedNav-Note" target="_blank" rel="external">GitHub</a> 上下载对应注释版本源码,地址 <a href="https://github.com/junbinchencn/SPStackedNav-Note" target="_blank" rel="external">https://github.com/junbinchencn/SPStackedNav-Note</a> 。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>SPStackedNav 项目是一个用于 iPad 分屏的 UI 解决方案。该方案的核心在于 SPStackedNavigationScrollView 这个类。SPStackedNavigationScrollView 模仿了 UIScrollView 的实现。SPStackedNav 的分屏方案的设计非常精巧，实现思路清晰明确，实现过程中的很多细节还是非常具有参考和学习价值的，一些 contentOffset 的计算方法还是非常巧妙的。本人能力有限，文章难免有不足之处，若是您有发现，请在评论中指出，确认之后马上修改，谢谢！</p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
-<li>理解 Scroll Views <a href="https://www.objccn.io/issue-3-2/" target="_blank" rel="external">https://www.objccn.io/issue-3-2/</a></li>
-<li>SPStackedNav <a href="https://github.com/spotify/SPStackedNav" target="_blank" rel="external">https://github.com/spotify/SPStackedNav</a></li>
-<li>SPStackedNav-Note <a href="https://github.com/junbinchencn/SPStackedNav-Note" target="_blank" rel="external">https://github.com/junbinchencn/SPStackedNav-Note</a></li>
+<li><a href="https://www.objccn.io/issue-3-2/" target="_blank" rel="external">理解 Scroll Views</a></li>
+<li><a href="https://github.com/spotify/SPStackedNav" target="_blank" rel="external">SPStackedNav</a></li>
+<li><a href="https://github.com/junbinchencn/SPStackedNav-Note" target="_blank" rel="external">SPStackedNav-Note</a></li>
 </ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1kbnjpm0005z3fyyfziqen8" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1kcamji000544fys8iyxmr5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -221,7 +231,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
     </div>
   </div>
 
@@ -234,7 +244,7 @@
       <ul>
         
           <li>
-            <a href="/2017/04/16/spstackednav/">spstackednav</a>
+            <a href="/2017/04/16/spstackednav/">iPad分屏框架-SPStackedNav源码解读</a>
           </li>
         
           <li>
