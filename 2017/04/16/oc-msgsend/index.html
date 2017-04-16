@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>oc-msgsend | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
+<meta name="keywords" content="Runtime,Objective-C,iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="oc-msgsend">
+<meta property="og:url" content="http://yoursite.com/2017/04/16/oc-msgsend/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
+<meta property="og:updated_time" content="2017-04-16T06:02:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="oc-msgsend">
+<meta name="twitter:description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-oc-msgsend" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-msgsend/" class="article-date">
+  <time datetime="2017-04-16T05:59:46.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      oc-msgsend
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。<br>Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。</p>
+<h3 id="C-代码实现消息分派器"><a href="#C-代码实现消息分派器" class="headerlink" title="C 代码实现消息分派器"></a>C 代码实现消息分派器</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">void</span> *<span class="title">myMsgSend</span><span class="params">(id receiver, <span class="keyword">const</span> <span class="keyword">char</span> *name)</span></span>&#123;</div><div class="line">    <span class="comment">// selector 是选择器，是方法名的唯一标识符</span></div><div class="line">    SEL selector = sel_registerName(name);</div><div class="line">    <span class="comment">// methodIMP 方法实现，只是一个指向方法某个函数的指针</span></div><div class="line">    IMP methodIMP = class_getMethodImplementation(object_getClass(receiver), selector);</div><div class="line">    <span class="comment">// 执行 methodIMP 方法实现，methodIMP 接受一个对象，一个选择器，可变长参数列表作为参数，并返回一个对象</span></div><div class="line">    <span class="keyword">return</span> methodIMP(receiver,selector);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>定义一个 myMsgSend 函数，该函数的作用类似于 objc_msgSend。</p>
+<ol>
+<li>使用 sel_registerName 获取方法的唯一标识符</li>
+<li>使用 class_getMethodImplementation 获取关于某个类或者对象的方法实现</li>
+<li>给对应得方法实现 methodIMP 传入合适的参数，并返回一个对象。</li>
+</ol>
+<p>接下来我们看看如何使用这个简单的 objc_msgSend 实现。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">RunMyMsgSend</span><span class="params">()</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// NSObject *object = [[NSObject alloc] init];</span></div><div class="line">    <span class="comment">// objectClass 定义了 Objective-C 的类</span></div><div class="line">    Class objectClass = (Class)objc_getClass(<span class="string">"NSObject"</span>);</div><div class="line">    id object = class_createInstance(objectClass, <span class="number">0</span>);</div><div class="line">    myMsgSend(object, <span class="string">"init"</span>);</div><div class="line"></div><div class="line">    <span class="comment">// id description = [object description];</span></div><div class="line">    id description = (id)myMsgSend(object, <span class="string">"description"</span>);</div><div class="line"></div><div class="line">    <span class="comment">// const char *cstr = [description UTF8String];</span></div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *cstr = myMsgSend(description, <span class="string">"UTF8String"</span>);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s\n"</span>,cstr);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从代码中可以看到，我们将 Objective-C 的发送消息过程 ，使用 C 语言来做了简单的类似实现。可以粗略的说，Runtime 真的只是 C 。</p>
+<ol>
+<li><code> NSObject *object = [[NSObject alloc] init] </code> 发送 init 消息使用<code> myMsgSend(object, “init”)</code> 实现</li>
+<li><code>id description = [object description]</code> 发送 description 消息使用 <code> myMsgSend(object, “description”) </code> 实现</li>
+<li><code> [description UTF8String] </code> 发送 UTF8String 消息使用 <code> myMsgSend(description, “UTF8String”)</code> 实现</li>
+</ol>
+<p>运行以下代码<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">printf</span>(<span class="string">"\n\nRunMyMsgSend()\n"</span>);</div><div class="line">RunMyMsgSend();</div><div class="line">NSObject *testObj = [[NSObject alloc] init];</div><div class="line">NSLog(@<span class="string">"%@"</span>, testObj);</div></pre></td></tr></table></figure></p>
+<p>输出运行结果<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RunMyMsgSend()</div><div class="line">&lt;NSObject: <span class="number">0x60800000fd50</span>&gt;</div><div class="line">&lt;NSObject: <span class="number">0x60800000fd60</span>&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="methodForSelector-实现消息分派器"><a href="#methodForSelector-实现消息分派器" class="headerlink" title="methodForSelector: 实现消息分派器"></a>methodForSelector: 实现消息分派器</h3><p>在 Objective-C 中，我们可以使用 methodForSelector: 来实现消息分派,那么使用 methodForSelector: 和 使用 objc_msgSend相比，会有性能提升么？为了这个性能提升直接跳过objc_msgSend值得么? 直接用代码来个测试。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> NSUInteger kTotalCount = <span class="number">100000000</span>;</div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*voidIMP)</span><span class="params">(id,SEL,...)</span></span>;</div><div class="line"></div><div class="line"><span class="comment">// 分别使用objc_msgSend 和 methodForSelector 来做消息分派，对字符串做一亿次操作之后进行耗时比较</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">FastCall</span><span class="params">()</span></span>&#123;</div><div class="line"></div><div class="line">    NSMutableString *<span class="built_in">string</span> = [NSMutableString <span class="built_in">string</span>];</div><div class="line">    NSTimeInterval totalTime = <span class="number">0</span>;</div><div class="line">    NSDate *start = nil;</div><div class="line">    NSUInteger count = <span class="number">0</span>;</div><div class="line"></div><div class="line">    <span class="comment">// 用 objc_msgSend</span></div><div class="line">    start = [NSDate date];</div><div class="line">    <span class="keyword">for</span> (count = <span class="number">0</span>; count &lt; kTotalCount; count ++) &#123;</div><div class="line">        [<span class="built_in">string</span> setString:@<span class="string">"stuff"</span>];</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 计算用 objc_msgSend 耗时时间</span></div><div class="line">    totalTime = -[start timeIntervalSinceNow];</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"w/ objc_msgSend = %f\n"</span>, totalTime);</div><div class="line"></div><div class="line">    <span class="comment">// 跳过 objc_msgSend, 使用 methodForSelector 来做消息分派</span></div><div class="line">    start = [NSDate date];</div><div class="line">    SEL selector = @selector(setString:);</div><div class="line">    voidIMP setStringMethod = (voidIMP)[<span class="built_in">string</span> methodForSelector:selector];</div><div class="line">    <span class="keyword">for</span> (count = <span class="number">0</span>; count &lt; kTotalCount; count ++) &#123;</div><div class="line">        setStringMethod(<span class="built_in">string</span>,selector,@<span class="string">"stuff"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 计算用 跳过 objc_msgSend 耗时时间</span></div><div class="line">    totalTime = -[start timeIntervalSinceNow];</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"w/ objc_msgSend = %f\n"</span>,totalTime);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>多次运行之后，结果如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">用 objc_msgSend 耗时 = <span class="number">6.885367</span></div><div class="line">跳过 objc_msgSend 耗时 = <span class="number">6.475993</span></div></pre></td></tr></table></figure>
+<p>可以为这个例子做个总结。<strong>多数情况下，我们会把 Objective-C 的方法重写成函数，这样可以得到更好更可靠的性能提升，但是不要想着绕过消息分派器 objc_msgSend ，因为 objc_msgSend 的性能开销已经小到可以忽略不计了，不需要再去优化这个过程了</strong>。</p>
+<p>那么什么时候需要绕过消息分派器 objc_msgSend 呢？那就是循环内的大量方法调用，我们以一个<code>setFilled: </code>方法来做示例。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">void</span> (*setter)(id, SEL, BOOL);</div><div class="line"><span class="keyword">int</span> i;</div><div class="line"></div><div class="line">setter = (<span class="keyword">void</span> (*)(id, SEL, BOOL))[target</div><div class="line">methodForSelector:@selector(setFilled:)];</div><div class="line"><span class="keyword">for</span> ( i = <span class="number">0</span> ; i &lt; <span class="number">1000</span> ; i++ )</div><div class="line">    setter(targetList[i], @selector(setFilled:), YES);</div></pre></td></tr></table></figure></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">《iOS编程实战》第二十四章</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1kabw490003o4fytp1ljg53" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/16/oc-signature-invocation/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Objective-C 方法签名和调用
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Objective-C/" style="font-size: 10px;">Objective-C</a> <a href="/tags/Runtime/" style="font-size: 10px;">Runtime</a> <a href="/tags/iOS/" style="font-size: 10px;">iOS</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/04/16/oc-msgsend/">oc-msgsend</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/oc-signature-invocation/">Objective-C 方法签名和调用</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/oc-dynamic/">Objective-C 动态实现</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/oc-fast-forwarding/">Objective-C 快速转发</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 junbinchen<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
