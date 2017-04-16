@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>oc-msgsend | 要上班的斌哥</title>
+  <title>Objective-C 之 objc_msgSend 简单实现 | 要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
 <meta name="keywords" content="Runtime,Objective-C,iOS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="oc-msgsend">
+<meta property="og:title" content="Objective-C 之 objc_msgSend 简单实现">
 <meta property="og:url" content="http://yoursite.com/2017/04/16/oc-msgsend/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
 <meta property="og:description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
-<meta property="og:updated_time" content="2017-04-16T06:02:46.000Z">
+<meta property="og:updated_time" content="2017-04-16T06:39:47.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="oc-msgsend">
+<meta name="twitter:title" content="Objective-C 之 objc_msgSend 简单实现">
 <meta name="twitter:description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
   
     <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
@@ -78,7 +78,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      oc-msgsend
+      Objective-C 之 objc_msgSend 简单实现
     </h1>
   
 
@@ -117,7 +117,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1kbm1n60003ygfy7dikujoi" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1kbnjpg0003z3fyehtfkosh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -195,7 +195,7 @@
           </li>
         
           <li>
-            <a href="/2017/04/16/oc-msgsend/">oc-msgsend</a>
+            <a href="/2017/04/16/oc-msgsend/">Objective-C 之 objc_msgSend 简单实现</a>
           </li>
         
           <li>
