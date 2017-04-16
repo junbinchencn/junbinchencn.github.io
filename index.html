@@ -93,13 +93,14 @@
 <p>从代码中可以看到，我们将 firstName,lastName 这2个属性设置成 @dynamic 。然后提供了 <code> static void setPropertyIMP(id self,SEL _cmd, id aValue)  </code> 这个 setter 方法，也提供了 <code> static id propertyIMP(id self, SEL _cmd) </code> 这个 getter 方法。在 setter 和 getter 中使用了 NSMutableDictionary 来存储和读取属性。</p>
 <p>当 Person 无法识别一些方法的时候，Objective-C 的消息分派就会调用 Person 类的 <code>+ (BOOL)resolveInstanceMethod:(SEL)sel </code> 方法。那么我们在这个方法里面 为 Person 这个类动态的添加属性的 setter 和 getter 方法。这样 Person 就可以正确的响应属性的 setter 和 getter。这个就是 Objective-C 的动态实现，在运行过程中提供方法实现。</p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
-<li>Runtime Type Encoding <a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1" target="_blank" rel="external">https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1</a>)<br>2.《iOS编程实战》第24章 <a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">https://book.douban.com/subject/25976913/</a></li>
+<li><a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1" target="_blank" rel="external">Runtime Type Encoding</a></li>
+<li><a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">《iOS编程实战》第24章</a></li>
 </ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj1k9rr3z0001hnfy1ebp3ya2" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj1k9uop10001ilfyrglwegim" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -163,7 +164,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj1k9rr3r0000hnfyr0g6s3ms" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj1k9uoot0000ilfy9amqadrn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
