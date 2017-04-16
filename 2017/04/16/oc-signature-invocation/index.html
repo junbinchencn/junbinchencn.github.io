@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Objective-C 方法签名和调用 | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；NSInvocation 是命令模式的一种实现。它把一个目标、一个选择器、一个方法签名、所有的参数都放到一个对象里面。当 NSInvocation 被调用的时候，Objective-C">
+<meta name="keywords" content="Runtime,Objective-C,iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Objective-C 方法签名和调用">
+<meta property="og:url" content="http://yoursite.com/2017/04/16/oc-signature-invocation/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；NSInvocation 是命令模式的一种实现。它把一个目标、一个选择器、一个方法签名、所有的参数都放到一个对象里面。当 NSInvocation 被调用的时候，Objective-C">
+<meta property="og:updated_time" content="2017-04-16T05:58:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Objective-C 方法签名和调用">
+<meta name="twitter:description" content="本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；NSInvocation 是命令模式的一种实现。它把一个目标、一个选择器、一个方法签名、所有的参数都放到一个对象里面。当 NSInvocation 被调用的时候，Objective-C">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-oc-signature-invocation" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-signature-invocation/" class="article-date">
+  <time datetime="2017-04-16T05:51:14.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Objective-C 方法签名和调用
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；<br>NSInvocation 是命令模式的一种实现。它把一个目标、一个选择器、一个方法签名、所有的参数都放到一个对象里面。当 NSInvocation 被调用的时候，Objective-C Runtime会执行正确的方法实现。<br>NSInvocation 包含的一个目标是一个接受消息的对象，包含的选择器是被发送的消息。在这里我们可以把选择器看成一个方法的名称，也就是一个字符串。那 NSInvocation 包含的方法签名是什么呢？方法签名 NSMethodSignature 是一个方法的返回类型和参数类型，不包括方法名称。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">//  -[NSString  initWithUTF8String:] 的方法签名</div><div class="line">NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:&quot;@@:*&quot;];</div></pre></td></tr></table></figure></p>
+<p>方法签名的 “ @@:<em> “ 字符串怎么理解呢？ 第一个字符 @ 表明返回值是一个 id。对于消息传递系统来说，所以的 Objective-C 对象都是 id 类型。 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL 。其实每个 Objective-C 方法都把 id 和 SEL 作为头2个参数。最后一个字符 \</em>   表示该方法的一个显式的参数是一个字符串（char *）。那如何获取这些类型编码呢，可以参考官方文档 <a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1" target="_blank" rel="external">Type Encodings</a> ，也可以直接使用类型编码 @encode(type) 获取表示该类型的字符串，而不必硬编码。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">NSLog(@<span class="string">"id Type encoding --&gt;%s"</span>,@encode(id));</div><div class="line"><span class="comment">//  输出结果 id Type encoding --&gt;@</span></div></pre></td></tr></table></figure></p>
+<p>在平常的开发中我们基本是不需要去使用 signatureWithObjCTypes： 方法去手动创建一个方法签名的，我们可以直接使用 methodSignatureForSelector: 来获取类方法的签名或者实例方法的签名，对于实例方法的签名获取也可以直接使用 instanceMethodForSelector: 获取。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">SEL initSEL = @selector(init);// init 方法的选择器</div><div class="line">SEL allocSEL = @selector(alloc);// alloc 方法的选择器</div><div class="line"></div><div class="line">NSMethodSignature *initSignature, *allocSignature;</div><div class="line">// 从实例中获取实例方法签名</div><div class="line">initSignature = [@&quot;Signature&quot; methodSignatureForSelector:initSEL];</div><div class="line">// 从类中获取实例方法签名</div><div class="line">initSignature = [NSString instanceMethodSignatureForSelector:initSEL];</div><div class="line">// 从类中获取类方法签名</div><div class="line">allocSignature = [NSString methodSignatureForSelector:allocSEL];</div></pre></td></tr></table></figure></p>
+<p>知道了方法签名的概念之后，我们可以构建一个 NSInvocation 对象。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">//  创建数组</div><div class="line">    NSMutableArray *array = [NSMutableArray array];</div><div class="line">    NSLog(@&quot;array.count---&gt;%ld&quot;,array.count);</div><div class="line">//  创建一个 NSString 对象，该对象后面加入 array</div><div class="line">    NSString *stuff = @&quot;Stuff&quot;;</div><div class="line">//  获取 NSMutableArray 的 addObject: 方法签名</div><div class="line">    SEL selector = @selector(addObject:);</div><div class="line">    NSMethodSignature *signature = [array methodSignatureForSelector:selector];</div><div class="line"></div><div class="line">//  创建 NSInvocation 对象</div><div class="line">    //  使用方法签名</div><div class="line">    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];</div><div class="line">    // array 是接收消息的对象</div><div class="line">    [invocation setTarget:array];</div><div class="line">    // 被 invocation 发送的消息 selector</div><div class="line">    [invocation setSelector:selector];</div><div class="line">    // 默认 index = 0 位置的参数是 目标（self）， index = 1 位置的参数是 selector（_cmd）,从 index =2 开始才是第一个参数</div><div class="line">    [invocation setArgument:&amp;stuff atIndex:2];</div><div class="line">    // 调用 NSInvocation</div><div class="line">    [invocation invoke];</div><div class="line"></div><div class="line">    NSLog(@&quot;array.count---&gt;%ld&quot;,array.count);</div><div class="line">//  运行结果</div><div class="line">//   array.count---&gt;0</div><div class="line">//   array.count---&gt;1</div></pre></td></tr></table></figure></p>
+<p>Objective-C 的蹦床技术<br>蹦床顾名思义就是把一个消息从一个对象反弹到另一个对象。蹦床技术一般使用 forwardInvocation: 方法来处理消息。如果一个对象在 Objective-C 提示错误之前不响应一个选择器，那么就会创建一个 NSInvocation 对象 并且传递给该对象的 forwardInvocation: 。我们可以使用这个 NSInvocation 对象做消息转发。</p>
+<p>接下来使用蹦床这个技术实现一个类似 NSNotification 的功能。我们创建一个 RNObserverManager 的蹦床，把发送到 RNObserverManager 的消息转发到响应选择器的已注册观察者。</p>
+<p>第一步创建 RNObserverManager<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">// RNObserverManager.h</div><div class="line">#import &lt;Foundation/Foundation.h&gt;</div><div class="line">#import &lt;objc/runtime.h&gt;</div><div class="line"></div><div class="line">@interface RNObserverManager : NSObject</div><div class="line"></div><div class="line">// 初始化的时候 需要一个协议和一组观察者</div><div class="line">- (id)initWithProtocol:(Protocol *)protocol observers:(NSSet *)observers;</div><div class="line">// 添加观察者</div><div class="line">- (void)addObserver:(id)observer;</div><div class="line">// 删除观察者</div><div class="line">- (void)removeObserver:(id)observer;</div><div class="line">@end</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line">#import &quot;RNObserverManager.h&quot;</div><div class="line"></div><div class="line">@interface RNObserverManager ()</div><div class="line">@property (nonatomic, strong) NSMutableSet *observers;</div><div class="line">@property (nonatomic, strong) Protocol *protocol;</div><div class="line"></div><div class="line">@end</div><div class="line">// 蹦床把一条消息从一个对象反弹到另一个对象。</div><div class="line">@implementation RNObserverManager</div><div class="line"></div><div class="line">- (id)initWithProtocol:(Protocol *)protocol observers:(NSSet *)observers&#123;</div><div class="line">    if (self = [super init]) &#123;</div><div class="line">        self.protocol = protocol;</div><div class="line">        self.observers = [NSMutableSet setWithSet:observers];</div><div class="line">    &#125;</div><div class="line">    return self;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">- (void)addObserver:(id)observer&#123;</div><div class="line">    if ([observer conformsToProtocol:self.protocol]) &#123;</div><div class="line">        [self.observers addObject:observer];</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (void)removeObserver:(id)observer&#123;</div><div class="line">    [self.observers removeObject:observer];</div><div class="line">&#125;</div><div class="line"></div><div class="line">// Objective-C 的消息分派器使用这个方法为未知的选择器构造一个 NSInvocation</div><div class="line">- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector&#123;</div><div class="line">    NSMethodSignature *result = [super methodSignatureForSelector:aSelector];</div><div class="line">    if (result) &#123;</div><div class="line">        return result;</div><div class="line">    &#125;</div><div class="line">    // 查找所需方法</div><div class="line">    struct objc_method_description desc = protocol_getMethodDescription(self.protocol, aSelector, YES, YES);</div><div class="line"></div><div class="line">    if(desc.name == NULL)&#123;</div><div class="line">        // 有可能是协议的可选方法</div><div class="line">        desc = protocol_getMethodDescription(self.protocol, aSelector, NO, YES);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if(desc.name == NULL)&#123;</div><div class="line">        // 找不到方法，那么抛出异常</div><div class="line">        [self doesNotRecognizeSelector:aSelector];</div><div class="line">        return nil;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return [NSMethodSignature signatureWithObjCTypes:desc.types];</div><div class="line">&#125;</div><div class="line">// 把方法调用转发到响应选择器的观察者</div><div class="line">- (void)forwardInvocation:(NSInvocation *)anInvocation&#123;</div><div class="line">    SEL selector = [anInvocation selector];</div><div class="line">    for(id responder in self.observers)&#123;</div><div class="line">        if ([responder respondsToSelector:selector]) &#123;</div><div class="line">            [anInvocation setTarget:responder];</div><div class="line">            [anInvocation invoke];</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<p>RNObserverManager 对象在 Objective-C 提示错误之前不响应一个选择器的话， Objective-C 会用 NSObject 类的 <code> - (NSMethodSignature <em>)methodSignatureForSelector:(SEL)aSelector  </em></code> 方法获取该未知选择器的方法签名， 然后为这个未知的选择器构造一个 NSInvocation 对象，最后将这个 NSInvocation 对象传递给 NSObject 的 <code>- (void)forwardInvocation:(NSInvocation )anInvocation </code> 方法。</p>
+<p>那么怎么使用 RNObserverManager 这个蹦床呢？我们先定义协议，观察者实现协议。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">// 观察者需要实现的协议</div><div class="line">@protocol MyProtocol &lt;NSObject&gt;</div><div class="line">- (void)doSomething;</div><div class="line">@end</div><div class="line"></div><div class="line">// 观察者</div><div class="line">@interface MyClass : NSObject &lt;MyProtocol&gt;</div><div class="line">@end</div><div class="line">@implementation MyClass</div><div class="line">// 观测者实现协议方法</div><div class="line">- (void)doSomething&#123;</div><div class="line">    NSLog(@&quot;doSomething :%@&quot;, self);</div><div class="line">&#125;</div><div class="line">@end</div></pre></td></tr></table></figure></p>
+<p>接下来在 ViewController 里面使用这些内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">@interface ViewController ()</div><div class="line">// 使用 id 类型可以避免编译器警告</div><div class="line">@property (nonatomic,strong) id observerManager;</div><div class="line">@end</div><div class="line"></div><div class="line">@implementation ViewController</div><div class="line">- (void)viewDidLoad &#123;</div><div class="line">    [super viewDidLoad];</div><div class="line">    // 创建消息观察者集合</div><div class="line">    NSSet  *observers = [NSSet setWithObjects:[MyClass new],[MyClass new], nil];</div><div class="line">    // 创建 RNObserverManager 蹦床</div><div class="line">    self.observerManager = [[RNObserverManager alloc]</div><div class="line">                            initWithProtocol:@protocol(MyProtocol) observers:observers];</div><div class="line">    // 给 RNObserverManager 发送 doSomething 消息，实际上都会被转发到 MyClass 的 doSomething 方法</div><div class="line">    [self.observerManager doSomething];</div><div class="line">&#125;</div><div class="line">@end</div></pre></td></tr></table></figure></p>
+<p>查看控制台输出结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">doSomething :&lt;MyClass: 0x6080000157c0&gt;</div><div class="line">doSomething :&lt;MyClass: 0x6080000157f0&gt;</div></pre></td></tr></table></figure></p>
+<p>从结果上看，我们给 RNObserverManager 发送 doSomething 消息，实际上都会被转发到 MyClass 的 doSomething 方法。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">《iOS编程实战》第24章</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-signature-invocation/" data-id="cj1ka62ru0000mmfy2ke7cpff" class="article-share-link">Partager</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/04/16/oc-dynamic/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Récent</strong>
+      <div class="article-nav-title">
+        
+          Objective-C 动态实现
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Mot-clés</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Nuage de mot-clés</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Objective-C/" style="font-size: 10px;">Objective-C</a> <a href="/tags/Runtime/" style="font-size: 10px;">Runtime</a> <a href="/tags/iOS/" style="font-size: 10px;">iOS</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">四月 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Articles récents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/04/16/oc-signature-invocation/">Objective-C 方法签名和调用</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/oc-dynamic/">Objective-C 动态实现</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/16/oc-fast-forwarding/">Objective-C 快速转发</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 junbinchen<br>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
