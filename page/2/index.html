@@ -51,9 +51,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -96,7 +96,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1p0updr000mm9fycrrlejye" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1p3u1yw000nbkfy4anph5hw" class="article-share-link">Partager</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -140,7 +140,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1p0updb000cm9fydjyhlla4" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1p3u1ya000abkfy09ag5rwv" class="article-share-link">Partager</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -184,7 +184,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-signature-invocation/" data-id="cj1p0upd8000am9fyyu3m418r" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-signature-invocation/" data-id="cj1p3u1yh000fbkfyef258fvu" class="article-share-link">Partager</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -228,7 +228,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj1p0upcr0004m9fya2dmbunh" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj1p3u1y10008bkfy6rhkaman" class="article-share-link">Partager</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -254,7 +254,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/oc-fast-forwarding/">Objective-C 快速转发</a>
+      <a class="article-title" href="/2017/04/16/oc-fast-forwarding/">Objective-C 消息转发</a>
     </h1>
   
 
@@ -263,8 +263,10 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；</p>
-<p>什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那么我们可以利用这个快速转发的特性来代理对象。</p>
+<h3 id="快速转发"><a href="#快速转发" class="headerlink" title="快速转发"></a>快速转发</h3><p>什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那么我们可以利用这个快速转发的特性来代理对象。</p>
 <p>我们使用 CacheProxy 这个对象来说明如何利用快速转发的特性来缓存其他对象的 setter 和 getter 方法。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// CacheProxy.h</span></div><div class="line"><span class="meta">#import <span class="meta-string">&lt;Foundation/Foundation.h&gt;</span></span></div><div class="line"><span class="comment">// 快速转发 ：若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象。</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">CacheProxy</span> : <span class="title">NSProxy</span></span></div><div class="line"><span class="comment">// 初始化方法 ，返回类型为 id 类型，可以避免编译器报错</span></div><div class="line">- (<span class="keyword">id</span>)initWithObject:(<span class="keyword">id</span>)anObject properties:(<span class="built_in">NSArray</span> *)properties;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
+<p>值的注意的是  CacheProxy 并不是 NSObject 的子类，而是 NSProxy 的子类，NSProxy 是一个轻量级的根类，是为那些转发大部分方法调用的类而设计的。CacheProxy 本身就是一个代理对象，适合成为 NSProxy 的子类。</p>
         
           <p class="article-more-link">
             <a href="/2017/04/16/oc-fast-forwarding/#more">Read More</a>
@@ -273,10 +275,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj1p0upcu0005m9fyffpv4h5f" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj1p3u1xt0005bkfyluaq44sn" class="article-share-link">Partager</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
 
     </footer>
   </div>
@@ -299,7 +301,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
+    <h3 class="widget-title">Mot-clés</h3>
     <div class="widget">
       <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
     </div>
@@ -309,9 +311,9 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
+    <h3 class="widget-title">Nuage de mot-clés</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Coursera/" style="font-size: 13.33px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16.67px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16.67px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 16.67px;">iOS</a> <a href="/tags/如何学习/" style="font-size: 13.33px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Coursera/" style="font-size: 13.33px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16.67px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16.67px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 13.33px;">iOS</a> <a href="/tags/如何学习/" style="font-size: 13.33px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -328,7 +330,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
         
@@ -365,7 +367,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 要上班的斌哥<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
