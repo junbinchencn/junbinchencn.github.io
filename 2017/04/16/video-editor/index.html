@@ -22,7 +22,7 @@
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-3956a4d9160d407a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-e6f63d2aeb3c9cc8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-a8d123c300234c03.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-04-16T13:20:10.000Z">
+<meta property="og:updated_time" content="2017-04-17T14:53:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS 视频剪切、旋转，视频添加音频、添加水印，视频导出">
 <meta name="twitter:description" content="概述视频处理主要是用到以下这几个类AVMutableComposition、AVMutableVideoComposition、AVMutableAudioMix、AVMutableVideoCompositionInstruction、AVMutableVideoCompositionLayerInstruction、AVAssetExportSession 等。其中 AVMutableComp">
@@ -98,6 +98,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>视频处理主要是用到以下这几个类<br><strong>AVMutableComposition</strong>、<strong>AVMutableVideoComposition</strong>、<strong>AVMutableAudioMix</strong>、<strong>AVMutableVideoCompositionInstruction</strong>、<strong>AVMutableVideoCompositionLayerInstruction</strong>、<strong>AVAssetExportSession</strong> 等。其中 AVMutableComposition 可以用来操作音频和视频的组合，AVMutableVideoComposition 可以用来对视频进行操作，AVMutableAudioMix 类是给视频添加音频的，AVMutableVideoCompositionInstruction和AVMutableVideoCompositionLayerInstruction 一般都是配合使用，用来给视频添加水印或者旋转视频方向，AVAssetExportSession 是用来进行视频导出操作的。需要值得注意的是当App进入后台之后，会对使用到GPU的代码操作进行限制，会造成崩溃，而视频处理这些功能多数会使用到GPU,所以需要做对应的防错处理。<br>在这里我会使用Apple的官方Demo “<a href="https://developer.apple.com/library/ios/samplecode/AVSimpleEditoriOS/Introduction/Intro.html" target="_blank" rel="external">AVSimpleEditoriOS</a>“ 作为讲解案例，该案例采用Command设计模式来组织代码，其中基类的AVSECommand包含了一些各个子类Command共用的属性。本文就视频相关操作做简要介绍，说明一些相关的操作，并标注一些重点代码，希望本文可以起到抛砖引玉的效果,让大家对视频剪辑处理有个初步印象，然后可以根据Apple官方Demo的内容进行相应的修改。大家可以下载相应的Apple官方Demo运行查看结果。</p>
+<a id="more"></a> 
 <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">@property</span> <span class="built_in">AVMutableComposition</span> *mutableComposition;</div><div class="line"><span class="keyword">@property</span> <span class="built_in">AVMutableVideoComposition</span> *mutableVideoComposition;</div><div class="line"><span class="keyword">@property</span> <span class="built_in">AVMutableAudioMix</span> *mutableAudioMix;</div><div class="line"><span class="keyword">@property</span> <span class="built_in">CALayer</span> *watermarkLayer;</div></pre></td></tr></table></figure>
 <p><img src="http://upload-images.jianshu.io/upload_images/656644-0fb3d7619e3753d1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Command设计模式"></p>
 <h2 id="视频剪切"><a href="#视频剪切" class="headerlink" title="视频剪切"></a>视频剪切</h2><p><img src="http://upload-images.jianshu.io/upload_images/656644-f717fbfa050cf02c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="视频头部剪切代码图"></p>
@@ -159,7 +160,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj1kpyhe0000oy5fybftxjrqk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj1p0updm000im9fy1hvck76l" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
@@ -264,7 +265,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 junbinchen<br>
+      &copy; 2017 要上班的斌哥<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

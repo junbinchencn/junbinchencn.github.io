@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/16/oc-msgsend/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
 <meta property="og:description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
-<meta property="og:updated_time" content="2017-04-16T11:15:00.000Z">
+<meta property="og:updated_time" content="2017-04-17T14:55:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Objective-C 之 objc_msgSend 简单实现">
 <meta name="twitter:description" content="孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。 C 代码实现消息分派器12345678static c">
@@ -88,6 +88,7 @@
       
         <p>孔子曰，学而时习之，不亦乐乎。以前看《iOS编程实战》这书的时候都没有系统的整理一下读书笔记。最近正好需要 Runtime 的知识，那就温习一下这块的内容，顺手做个笔记。<br>Runtime的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。</p>
 <h3 id="C-代码实现消息分派器"><a href="#C-代码实现消息分派器" class="headerlink" title="C 代码实现消息分派器"></a>C 代码实现消息分派器</h3><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">void</span> *myMsgSend(<span class="keyword">id</span> receiver, <span class="keyword">const</span> <span class="keyword">char</span> *name)&#123;</div><div class="line">    <span class="comment">// selector 是选择器，是方法名的唯一标识符</span></div><div class="line">    SEL selector = sel_registerName(name);</div><div class="line">    <span class="comment">// methodIMP 方法实现，只是一个指向方法某个函数的指针</span></div><div class="line">    IMP methodIMP = class_getMethodImplementation(object_getClass(receiver), selector);</div><div class="line">    <span class="comment">// 执行 methodIMP 方法实现，methodIMP 接受一个对象，一个选择器，可变长参数列表作为参数，并返回一个对象</span></div><div class="line">    <span class="keyword">return</span> methodIMP(receiver,selector);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<a id="more"></a> 
 <p>定义一个 myMsgSend 函数，该函数的作用类似于 objc_msgSend。</p>
 <ol>
 <li>使用 sel_registerName 获取方法的唯一标识符</li>
@@ -117,7 +118,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1kpyhdi000cy5fyy6jhcji7" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj1p0updb000cm9fydjyhlla4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
@@ -222,7 +223,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 junbinchen<br>
+      &copy; 2017 要上班的斌哥<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

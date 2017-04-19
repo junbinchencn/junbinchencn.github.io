@@ -5,19 +5,19 @@
   
   <title>iOS GIF 动画加载框架 - FLAnimatedImage 解读 | 要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="FLAnimatedImage 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。文章不免有不足或者错误之处，请大家在下方评论指出，我会尽快修正，若是觉得文章还不错，请点个赞">
+  <meta name="description" content="FLAnimatedImage 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。">
 <meta name="keywords" content="源码解读,FLAnimatedImage">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS GIF 动画加载框架 - FLAnimatedImage 解读">
 <meta property="og:url" content="http://yoursite.com/2017/04/16/flanimatedimage/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
-<meta property="og:description" content="FLAnimatedImage 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。文章不免有不足或者错误之处，请大家在下方评论指出，我会尽快修正，若是觉得文章还不错，请点个赞">
+<meta property="og:description" content="FLAnimatedImage 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。">
 <meta property="og:image" content="http://yoursite.com/images/flanimatedimage/image-1.png">
 <meta property="og:image" content="http://yoursite.com/images/flanimatedimage/image-2.png">
-<meta property="og:updated_time" content="2017-04-16T12:51:41.000Z">
+<meta property="og:updated_time" content="2017-04-17T14:56:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS GIF 动画加载框架 - FLAnimatedImage 解读">
-<meta name="twitter:description" content="FLAnimatedImage 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。文章不免有不足或者错误之处，请大家在下方评论指出，我会尽快修正，若是觉得文章还不错，请点个赞">
+<meta name="twitter:description" content="FLAnimatedImage 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。">
 <meta name="twitter:image" content="http://yoursite.com/images/flanimatedimage/image-1.png">
   
     <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
@@ -89,7 +89,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="external">FLAnimatedImage</a> 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。<br>本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。<br>文章不免有不足或者错误之处，请大家在下方评论指出，我会尽快修正，若是觉得文章还不错，请点个赞，鼓励我继续写作，l-(&gt;-&lt;)-l 。</p>
+        <p><a href="https://github.com/Flipboard/FLAnimatedImage" target="_blank" rel="external">FLAnimatedImage</a> 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。<br>本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。</p>
+<a id="more"></a> 
 <h3 id="FLAnimatedImage简单流程图"><a href="#FLAnimatedImage简单流程图" class="headerlink" title="FLAnimatedImage简单流程图"></a>FLAnimatedImage简单流程图</h3><p>FLAnimatedImage项目的流程比较简单，FLAnimatedImage就是负责GIF数据的处理，然后提供给FLAnimatedImageView一个UIImage对象。FLAnimatedImageView拿到UIImage对象显示出来就可以了。<br><img src="/images/flanimatedimage/image-1.png" alt="FLAnimatedImage简单流程图"></p>
 <h3 id="FLAnimatedImage使用"><a href="#FLAnimatedImage使用" class="headerlink" title="FLAnimatedImage使用"></a>FLAnimatedImage使用</h3><p>使用FLAnimatedImage处理GIF动画数据，使用FLAnimatedImageView展示FLAnimatedImage处理后的动画数据。</p>
 <ul>
@@ -142,7 +143,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/flanimatedimage/" data-id="cj1kpyhcj0001y5fyjzy2vsje" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/flanimatedimage/" data-id="cj1p0upco0003m9fywsl4dmyj" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -247,7 +248,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 junbinchen<br>
+      &copy; 2017 要上班的斌哥<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

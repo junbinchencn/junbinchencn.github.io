@@ -5,13 +5,13 @@
   
   <title>iPad分屏框架-SPStackedNav源码解读 | 要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：  使用根据 GitHub 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。  创建 SPSideTabController,  SPSideTab">
+  <meta name="description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：">
 <meta name="keywords" content="源码解读,SPStackedNav">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iPad分屏框架-SPStackedNav源码解读">
 <meta property="og:url" content="http://yoursite.com/2017/04/16/spstackednav/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
-<meta property="og:description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：  使用根据 GitHub 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。  创建 SPSideTabController,  SPSideTab">
+<meta property="og:description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：">
 <meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-1.png">
 <meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-2.png">
 <meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-3.png">
@@ -25,10 +25,10 @@
 <meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-11.png">
 <meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-12.png">
 <meta property="og:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-13.png">
-<meta property="og:updated_time" content="2017-04-16T11:08:51.000Z">
+<meta property="og:updated_time" content="2017-04-17T14:53:21.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iPad分屏框架-SPStackedNav源码解读">
-<meta name="twitter:description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：  使用根据 GitHub 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。  创建 SPSideTabController,  SPSideTab">
+<meta name="twitter:description" content="SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：">
 <meta name="twitter:image" content="http://yoursite.com/images/spstackednav/SPStackedNav-1.png">
   
     <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
@@ -102,6 +102,7 @@
       
         <p><a href="https://github.com/spotify/SPStackedNav" target="_blank" rel="external">SPStackedNav</a> 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：</p>
 <p><img src="/images/spstackednav/SPStackedNav-1.png" alt="SPStackedNav实现的交互方式"></p>
+<a id="more"></a> 
 <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>根据 <a href="https://github.com/spotify/SPStackedNav" target="_blank" rel="external">GitHub</a> 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。</p>
 <ol>
 <li><p>创建 SPSideTabController,  SPSideTabController 的用法和UITabController的用法没有什么大的区别。</p>
@@ -175,7 +176,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1kpyhdx000ny5fyr8v2xwwp" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj1p0updr000mm9fycrrlejye" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -280,7 +281,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 junbinchen<br>
+      &copy; 2017 要上班的斌哥<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

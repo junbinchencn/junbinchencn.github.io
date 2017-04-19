@@ -25,7 +25,7 @@
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-dc5a0f07a390d88a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-5c1eba27b475d3e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-b8a9559c6c521775.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-04-16T13:18:35.000Z">
+<meta property="og:updated_time" content="2017-04-17T14:54:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS缓存框架－PINCache解读">
 <meta name="twitter:description" content="在项目中总是需要缓存一些网络请求数据以减轻服务器压力，业内也有许多优秀的开源的解决方案。通常的缓存方案都是由内存缓存和磁盘缓存组成的，内存缓存速度快容量小，磁盘缓存容量大速度慢可持久化。常见的内存缓存有NSCache、TMMemoryCache、PINMemoryCache、YYMemoryCache。常见的磁盘缓存有TMDiskCache、PINDiskCache、SDWebImage。这次解读">
@@ -102,6 +102,7 @@
       
         <p>在项目中总是需要缓存一些网络请求数据以减轻服务器压力，业内也有许多优秀的开源的解决方案。通常的缓存方案都是由内存缓存和磁盘缓存组成的，内存缓存速度快容量小，磁盘缓存容量大速度慢可持久化。常见的内存缓存有NSCache、<a href="https://github.com/tumblr/TMCache" target="_blank" rel="external">TMMemoryCache</a>、<a href="https://github.com/pinterest/PINCache" target="_blank" rel="external">PINMemoryCache</a>、<a href="https://github.com/ibireme/YYCache" target="_blank" rel="external">YYMemoryCache</a>。常见的磁盘缓存有TMDiskCache、PINDiskCache、SDWebImage。这次解读先从<a href="https://github.com/pinterest/PINCache" target="_blank" rel="external">PINCache</a>这个优秀的开源项目开始。PINCache项目是在Tumblr 宣布不在维护 TMCache 后，由 Pinterest 维护和改进的基于TMCache的一个内存缓存，修复了TMCache存在的性能和死锁问题，可以说是有了一个较大的提升。</p>
 <h2 id="PINCache概论"><a href="#PINCache概论" class="headerlink" title="PINCache概论"></a>PINCache概论</h2><p>PINCache是多线程安全的，使用键值对来保存数据。PINCache内部包含了2个类似的对象属性，一个是内存缓存PINMemoryCache，另一个是磁盘缓存PINDiskCache。PINCache本身并没有过多的做处理缓存的具体工作，而是全部交给它内部的2个对象属性来实现，它只是对外提供了一些同步或者异步接口。在iOS中，当App收到内存警告或者进入后台的时候，PINCache能够清理掉所有的内存缓存。</p>
+<a id="more"></a> 
 <h2 id="PINCache使用"><a href="#PINCache使用" class="headerlink" title="PINCache使用"></a>PINCache使用</h2><p>采用PINCache项目的Demo来说明，这个是从服务器加载数据，再缓存下来，继而做业务逻辑处理，如果下次还需要同样的数据，要是缓存里面还有这个数据的话，那么就不需要再次发起网络请求了，而是直接使用这个数据。<strong>PINCache除了可以按键取值、按键存值、按键删值之外，还可以移除某个日期之前的缓存数据、删除所有缓存、限制缓存大小，限制缓存对象的存活时间等</strong>。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[[PINCache sharedCache] objectForKey:[url absoluteString]  block:^(PINCache *cache, <span class="built_in">NSString</span> *key, <span class="keyword">id</span> object) &#123;</div><div class="line">                                     <span class="keyword">if</span> (object) &#123;</div><div class="line">                                      <span class="comment">//有缓存，在这里做业务逻辑处理</span></div><div class="line">                                         <span class="keyword">return</span>;</div><div class="line">                                     &#125; </div><div class="line">                                     <span class="comment">//没有缓存，那么去服务器加载数据，存入缓存，做业务逻辑处理</span></div><div class="line">                                    <span class="built_in">NSLog</span>(<span class="string">@"cache miss, requesting %@"</span>, url);</div><div class="line">                                   [[PINCache sharedCache] setObject:data forKey:[url absoluteString]];</div><div class="line">   &#125;];</div></pre></td></tr></table></figure></p>
 <h2 id="PINCache结构"><a href="#PINCache结构" class="headerlink" title="PINCache结构"></a>PINCache结构</h2><p><img src="http://upload-images.jianshu.io/upload_images/656644-39fadea3c4a0f457.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="PINCache"></p>
 <p>PINCache的内部结构比较简单，最核心的就是2个缓存实现类，这里先给出一个大概的结构，让大家可以有个了解，下面就来讲讲详细的接口。</p>
@@ -131,7 +132,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj1kpyhdo000gy5fy16zd0r8i" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj1p0updo000km9fypgtqohmd" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -231,7 +232,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 junbinchen<br>
+      &copy; 2017 要上班的斌哥<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
