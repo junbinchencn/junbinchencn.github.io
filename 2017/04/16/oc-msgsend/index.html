@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="要上班的斌哥">
 <meta property="og:description" content="objc_msgSend 函数在 Objective-C 中, message 是直到 Runtime 的时候才会绑定实现，编译器会将我们的发送消息 [receiver message] 变成函数调用 objc_msgSend，该函数会有2个默认参数，分别是 receiver 和 selector 。当然，若是该函数有其他的参数，那么其他参数就跟在2个默认参数后面。 1objc_msgSend(r">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-75f890082c33f132.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-05-04T15:26:16.000Z">
+<meta property="og:updated_time" content="2017-05-04T15:29:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Objective-C 之 objc_msgSend 简单实现">
 <meta name="twitter:description" content="objc_msgSend 函数在 Objective-C 中, message 是直到 Runtime 的时候才会绑定实现，编译器会将我们的发送消息 [receiver message] 变成函数调用 objc_msgSend，该函数会有2个默认参数，分别是 receiver 和 selector 。当然，若是该函数有其他的参数，那么其他参数就跟在2个默认参数后面。 1objc_msgSend(r">
@@ -129,14 +129,15 @@
 <p>可以为这个例子做个总结。<strong>多数情况下，我们会把 Objective-C 的方法重写成函数，这样可以得到更好更可靠的性能提升，但是不要想着绕过消息分派器 objc_msgSend ，因为 objc_msgSend 的性能开销已经小到可以忽略不计了，不需要再去优化这个过程了</strong>。</p>
 <p>那么什么时候需要绕过消息分派器 objc_msgSend 呢？那就是循环内的大量方法调用，我们以一个<code>setFilled: </code>方法来做示例。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">void</span> (*setter)(id, SEL, BOOL);</div><div class="line"><span class="keyword">int</span> i;</div><div class="line"> </div><div class="line">setter = (<span class="keyword">void</span> (*)(id, SEL, BOOL))[target</div><div class="line">methodForSelector:@selector(setFilled:)];</div><div class="line"><span class="keyword">for</span> ( i = <span class="number">0</span> ; i &lt; <span class="number">1000</span> ; i++ )</div><div class="line">    setter(targetList[i], @selector(setFilled:), YES);</div></pre></td></tr></table></figure></p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；</p>
-<blockquote>
-<p>《iOS编程实战》第二十四章 深度解析Objective-C <a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">https://book.douban.com/subject/25976913/</a></p>
-</blockquote>
+<ol>
+<li>《iOS编程实战》第二十四章 深度解析Objective-C <a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">https://book.douban.com/subject/25976913/</a></li>
+<li><a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtHowMessagingWorks.html" target="_blank" rel="external">https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtHowMessagingWorks.html</a></li>
+</ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj2akeejn000762fyhsd6l0j2" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj2akhnkl000c7bfywzlmziy9" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
