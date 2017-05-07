@@ -89,7 +89,7 @@
         <h3 id="Aspects-是什么？"><a href="#Aspects-是什么？" class="headerlink" title="Aspects 是什么？"></a>Aspects 是什么？</h3><p><a href="https://github.com/steipete/Aspects" target="_blank" rel="external">Aspects</a> 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。</p>
 <h3 id="怎么使用-Aspects"><a href="#怎么使用-Aspects" class="headerlink" title="怎么使用 Aspects"></a>怎么使用 Aspects</h3><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/// Adds a block of code before/instead/after the current `selector` for a specific class.</span></div><div class="line">+ (<span class="keyword">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector</div><div class="line">                      withOptions:(AspectOptions)options</div><div class="line">                       usingBlock:(<span class="keyword">id</span>)block</div><div class="line">                            error:(<span class="built_in">NSError</span> **)error;</div><div class="line"></div><div class="line"><span class="comment">/// Adds a block of code before/instead/after the current `selector` for a specific instance.</span></div><div class="line">- (<span class="keyword">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector</div><div class="line">                      withOptions:(AspectOptions)options</div><div class="line">                       usingBlock:(<span class="keyword">id</span>)block</div><div class="line">                            error:(<span class="built_in">NSError</span> **)error;</div></pre></td></tr></table></figure>
 <p>Aspects 提供了2个 AOP 方法，一个用于类，一个用于实例。在确定 hook 的 方法之后， Aspects 允许我们选择 hook 的时机是在方法执行之前，还是方法执行之后，甚至可以直接替换掉方法的实现。Aspects 的常见使用情景是 log 和 打点统计 等和业务无关的操作。比如 hook ViewController 的 viewWillLayoutSubviews 方法。</p>
-<p>&lt;— more —&gt;</p>
+<p>&lt;– more –&gt;</p>
 <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[aspectsController aspect_hookSelector:<span class="keyword">@selector</span>(viewWillLayoutSubviews) withOptions:<span class="number">0</span> usingBlock:^&#123;</div><div class="line">            <span class="built_in">NSLog</span>(<span class="string">@"Controller is layouting!"</span>);</div><div class="line">        &#125; error:<span class="literal">NULL</span>];</div></pre></td></tr></table></figure>
 <h3 id="Aspects-使用的技术"><a href="#Aspects-使用的技术" class="headerlink" title="Aspects 使用的技术"></a>Aspects 使用的技术</h3><p>在阅读 Aspects 源码之前需要一些 Runtime 的相应知识，可以参考我自己的一些博客。</p>
 <ol>
@@ -166,7 +166,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2ego884000144fyubn0oe2l" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2egrl6f00015xfyom2g32as" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -210,7 +210,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/23/oc-swizzle/" data-id="cj2ego89e000i44fycfw1ysk0" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/23/oc-swizzle/" data-id="cj2egrl94000u5xfyaxy3qd9p" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
@@ -254,7 +254,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj2ego89h000k44fyi758elhd" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj2egrl9n00115xfyqs3aggc6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -297,7 +297,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj2ego89v000q44fysstpi0k6" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj2egrla200195xfyal6txlau" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
@@ -341,7 +341,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/sdwebimage/" data-id="cj2ego89n000o44fy5198nps4" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/sdwebimage/" data-id="cj2egrl9r00145xfyw6eiroia" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -384,7 +384,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj2ego87w000044fy8a8904yo" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj2egrl7200055xfyhxp50s55" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -427,7 +427,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj2ego88i000444fyjwmdsojp" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj2egrl6r00045xfyexi4rimj" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
@@ -470,7 +470,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-three/" data-id="cj2ego88l000544fys5lsadc7" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-three/" data-id="cj2egrl6n00035xfy1bgnepfm" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
@@ -513,7 +513,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-one/" data-id="cj2ego88p000744fyvqihq7il" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-one/" data-id="cj2egrl6800005xfyndscvac6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
@@ -556,7 +556,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/flanimatedimage/" data-id="cj2ego88e000344fyls92ivtc" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/flanimatedimage/" data-id="cj2egrl7500075xfyxyx8alfk" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
