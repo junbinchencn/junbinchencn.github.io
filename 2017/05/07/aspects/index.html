@@ -6,13 +6,13 @@
   <title>iOS AOP 框架 - Aspects 源码解读 | 要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Aspects 是什么？Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects1234567891011///">
-<meta name="keywords" content="Aspects,源码解读">
+<meta name="keywords" content="源码解读,Aspects">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS AOP 框架 - Aspects 源码解读">
 <meta property="og:url" content="http://yoursite.com/2017/05/07/aspects/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
 <meta property="og:description" content="Aspects 是什么？Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects1234567891011///">
-<meta property="og:updated_time" content="2017-05-07T08:55:58.000Z">
+<meta property="og:updated_time" content="2017-05-07T08:57:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS AOP 框架 - Aspects 源码解读">
 <meta name="twitter:description" content="Aspects 是什么？Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects1234567891011///">
@@ -53,9 +53,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -89,7 +89,7 @@
         <h3 id="Aspects-是什么？"><a href="#Aspects-是什么？" class="headerlink" title="Aspects 是什么？"></a>Aspects 是什么？</h3><p><a href="https://github.com/steipete/Aspects" target="_blank" rel="external">Aspects</a> 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。</p>
 <h3 id="怎么使用-Aspects"><a href="#怎么使用-Aspects" class="headerlink" title="怎么使用 Aspects"></a>怎么使用 Aspects</h3><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/// Adds a block of code before/instead/after the current `selector` for a specific class.</span></div><div class="line">+ (<span class="keyword">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector</div><div class="line">                      withOptions:(AspectOptions)options</div><div class="line">                       usingBlock:(<span class="keyword">id</span>)block</div><div class="line">                            error:(<span class="built_in">NSError</span> **)error;</div><div class="line"></div><div class="line"><span class="comment">/// Adds a block of code before/instead/after the current `selector` for a specific instance.</span></div><div class="line">- (<span class="keyword">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector</div><div class="line">                      withOptions:(AspectOptions)options</div><div class="line">                       usingBlock:(<span class="keyword">id</span>)block</div><div class="line">                            error:(<span class="built_in">NSError</span> **)error;</div></pre></td></tr></table></figure>
 <p>Aspects 提供了2个 AOP 方法，一个用于类，一个用于实例。在确定 hook 的 方法之后， Aspects 允许我们选择 hook 的时机是在方法执行之前，还是方法执行之后，甚至可以直接替换掉方法的实现。Aspects 的常见使用情景是 log 和 打点统计 等和业务无关的操作。比如 hook ViewController 的 viewWillLayoutSubviews 方法。</p>
-<p>&lt;– more –&gt;</p>
+<a id="more"></a>
 <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[aspectsController aspect_hookSelector:<span class="keyword">@selector</span>(viewWillLayoutSubviews) withOptions:<span class="number">0</span> usingBlock:^&#123;</div><div class="line">            <span class="built_in">NSLog</span>(<span class="string">@"Controller is layouting!"</span>);</div><div class="line">        &#125; error:<span class="literal">NULL</span>];</div></pre></td></tr></table></figure>
 <h3 id="Aspects-使用的技术"><a href="#Aspects-使用的技术" class="headerlink" title="Aspects 使用的技术"></a>Aspects 使用的技术</h3><p>在阅读 Aspects 源码之前需要一些 Runtime 的相应知识，可以参考我自己的一些博客。</p>
 <ol>
@@ -166,7 +166,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2egrl6f00015xfyom2g32as" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2egtk9w00016nfyr99qgopi" class="article-share-link">Partager</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -178,7 +178,7 @@
 <nav id="article-nav">
   
     <a href="/2017/04/23/oc-swizzle/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
+      <strong class="article-nav-caption">Récent</strong>
       <div class="article-nav-title">
         
           Objective-C 方法混写
@@ -201,7 +201,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
+    <h3 class="widget-title">Mot-clés</h3>
     <div class="widget">
       <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
     </div>
@@ -211,7 +211,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
+    <h3 class="widget-title">Nuage de mot-clés</h3>
     <div class="widget tagcloud">
       <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 13.33px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16.67px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16.67px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/如何学习/" style="font-size: 13.33px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
@@ -230,7 +230,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
         
@@ -267,7 +267,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 要上班的斌哥<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
