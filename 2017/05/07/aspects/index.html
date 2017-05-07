@@ -3,17 +3,19 @@
 <head>
   <meta charset="utf-8">
   
-  <title>要上班的斌哥</title>
+  <title>iOS AOP 框架 - Aspects 源码解读 | 要上班的斌哥</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="iOS博客，iOS源码解读">
-<meta property="og:type" content="website">
-<meta property="og:title" content="要上班的斌哥">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="Aspects 是什么？Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects1234567891011///">
+<meta name="keywords" content="源码解读,Aspects">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS AOP 框架 - Aspects 源码解读">
+<meta property="og:url" content="http://yoursite.com/2017/05/07/aspects/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
-<meta property="og:description" content="iOS博客，iOS源码解读">
+<meta property="og:description" content="Aspects 是什么？Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects1234567891011///">
+<meta property="og:updated_time" content="2017-05-07T08:53:24.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="要上班的斌哥">
-<meta name="twitter:description" content="iOS博客，iOS源码解读">
+<meta name="twitter:title" content="iOS AOP 框架 - Aspects 源码解读">
+<meta name="twitter:description" content="Aspects 是什么？Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects1234567891011///">
   
     <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
   
@@ -62,9 +64,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-aspects" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-aspects" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/05/07/aspects/" class="article-date">
   <time datetime="2017-05-07T08:52:57.000Z" itemprop="datePublished">2017-05-07</time>
@@ -77,8 +77,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/07/aspects/">iOS AOP 框架 - Aspects 源码解读</a>
+    <h1 class="article-title" itemprop="name">
+      iOS AOP 框架 - Aspects 源码解读
     </h1>
   
 
@@ -174,405 +174,24 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-oc-swizzle" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/23/oc-swizzle/" class="article-date">
-  <time datetime="2017-04-23T15:50:50.000Z" itemprop="datePublished">2017-04-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+    <a href="/2017/04/23/oc-swizzle/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
         
+          Objective-C 方法混写
+        
+      </div>
+    </a>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/23/oc-swizzle/">Objective-C 方法混写</a>
-    </h1>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="方法混写"><a href="#方法混写" class="headerlink" title="方法混写"></a>方法混写</h3><p>在 Objctive-C 中，混写（Swizzling）指的是偷梁换柱，将一个东西透明的换成另外一个东西，在 Runtime 运行时替换方法实现。<br>这个技术有什么作用呢？我们利用混写技术可以改变那些没有源代码的对象的行为，这其中包括了一些系统对象的行为，也包括了一些第三方 SDK 。</p>
-<h3 id="给-NSNotificationCenter-添加日志"><a href="#给-NSNotificationCenter-添加日志" class="headerlink" title="给 NSNotificationCenter 添加日志"></a>给 NSNotificationCenter 添加日志</h3><p>接下来展示一个案例，每次在给 NSNotificationCenter 添加观察者的时候就打印日志。</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/23/oc-swizzle/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/23/oc-swizzle/" data-id="cj2ego89e000i44fycfw1ysk0" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
 
-
-  
-    <article id="post-pincache" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/pincache/" class="article-date">
-  <time datetime="2017-04-16T13:17:28.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/pincache/">iOS缓存框架－PINCache解读</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在项目中总是需要缓存一些网络请求数据以减轻服务器压力，业内也有许多优秀的开源的解决方案。通常的缓存方案都是由内存缓存和磁盘缓存组成的，内存缓存速度快容量小，磁盘缓存容量大速度慢可持久化。常见的内存缓存有NSCache、<a href="https://github.com/tumblr/TMCache">TMMemoryCache</a>、<a href="https://github.com/pinterest/PINCache">PINMemoryCache</a>、<a href="https://github.com/ibireme/YYCache">YYMemoryCache</a>。常见的磁盘缓存有TMDiskCache、PINDiskCache、SDWebImage。这次解读先从<a href="https://github.com/pinterest/PINCache">PINCache</a>这个优秀的开源项目开始。PINCache项目是在Tumblr 宣布不在维护 TMCache 后，由 Pinterest 维护和改进的基于TMCache的一个内存缓存，修复了TMCache存在的性能和死锁问题，可以说是有了一个较大的提升。</p>
-<h2 id="PINCache概论"><a href="#PINCache概论" class="headerlink" title="PINCache概论"></a>PINCache概论</h2><p>PINCache是多线程安全的，使用键值对来保存数据。PINCache内部包含了2个类似的对象属性，一个是内存缓存PINMemoryCache，另一个是磁盘缓存PINDiskCache。PINCache本身并没有过多的做处理缓存的具体工作，而是全部交给它内部的2个对象属性来实现，它只是对外提供了一些同步或者异步接口。在iOS中，当App收到内存警告或者进入后台的时候，PINCache能够清理掉所有的内存缓存。</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/pincache/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj2ego89h000k44fyi758elhd" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-video-editor" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/video-editor/" class="article-date">
-  <time datetime="2017-04-16T13:15:34.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/video-editor/">iOS 视频剪切、旋转，视频添加音频、添加水印，视频导出</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>视频处理主要是用到以下这几个类<br><strong>AVMutableComposition</strong>、<strong>AVMutableVideoComposition</strong>、<strong>AVMutableAudioMix</strong>、<strong>AVMutableVideoCompositionInstruction</strong>、<strong>AVMutableVideoCompositionLayerInstruction</strong>、<strong>AVAssetExportSession</strong> 等。其中 AVMutableComposition 可以用来操作音频和视频的组合，AVMutableVideoComposition 可以用来对视频进行操作，AVMutableAudioMix 类是给视频添加音频的，AVMutableVideoCompositionInstruction和AVMutableVideoCompositionLayerInstruction 一般都是配合使用，用来给视频添加水印或者旋转视频方向，AVAssetExportSession 是用来进行视频导出操作的。需要值得注意的是当App进入后台之后，会对使用到GPU的代码操作进行限制，会造成崩溃，而视频处理这些功能多数会使用到GPU,所以需要做对应的防错处理。<br>在这里我会使用Apple的官方Demo “<a href="https://developer.apple.com/library/ios/samplecode/AVSimpleEditoriOS/Introduction/Intro.html">AVSimpleEditoriOS</a>“ 作为讲解案例，该案例采用Command设计模式来组织代码，其中基类的AVSECommand包含了一些各个子类Command共用的属性。本文就视频相关操作做简要介绍，说明一些相关的操作，并标注一些重点代码，希望本文可以起到抛砖引玉的效果,让大家对视频剪辑处理有个初步印象，然后可以根据Apple官方Demo的内容进行相应的修改。大家可以下载相应的Apple官方Demo运行查看结果。</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/video-editor/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj2ego89v000q44fysstpi0k6" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-sdwebimage" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/sdwebimage/" class="article-date">
-  <time datetime="2017-04-16T13:10:07.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/sdwebimage/">iOS图片加载框架－SDWebImage解读</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在iOS的图片加载框架中，<strong><a href="https://github.com/rs/SDWebImage">SDWebImage</a></strong>可谓是占据大半壁江山。它支持从网络中下载且缓存图片，并设置图片到对应的UIImageView控件或者UIButton控件。在项目中使用SDWebImage来管理图片加载相关操作可以极大地提高开发效率，让我们更加专注于业务逻辑实现。</p>
-<h2 id="SDWebImage-概论"><a href="#SDWebImage-概论" class="headerlink" title="SDWebImage 概论"></a>SDWebImage 概论</h2><p>1.提供了一个UIImageView的category用来加载网络图片并且对网络图片的缓存进行管理<br>2.采用异步方式来下载网络图片<br>3.采用异步方式，使用memory＋disk来缓存网络图片，自动管理缓存。<br>4.支持GIF动画<br>5.支持WebP格式<br>6.同一个URL的网络图片不会被重复下载<br>7.失效的URL不会被无限重试<br>8.耗时操作都在子线程，确保不会阻塞主线程<br>9.使用GCD和ARC<br>10.支持Arm64</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/sdwebimage/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/sdwebimage/" data-id="cj2ego89n000o44fy5198nps4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-afnetworking" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/afnetworking/" class="article-date">
-  <time datetime="2017-04-16T13:05:57.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/afnetworking/">iOS网络框架－AFNetworking3.1.0源码解读</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>AFNetworking基本是iOS开发中的网络第三方库标配,本文基于<a href="https://github.com/AFNetworking/AFNetworking/tree/3.1.0">AFNetworking3.1.0</a>版本。废话不多说，这篇文章主要从使用的角度来介绍AFNetworking的发起Get请求的过程，偏重于解读过程，解读当你使用AFNetworking发起一个Get请求的时候，AFNetworking内部的处理过程。而不是对AFNetworking源代码的各个类的代码进行深入解析，在源码深度解析方面，网络上已经有很多不错的文章，在文章的末尾我会给出参考链接。</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/afnetworking/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj2ego87w000044fy8a8904yo" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-learn-how-to-learn-two" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/learn-how-to-learn-two/" class="article-date">
-  <time datetime="2017-04-16T13:02:35.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/learn-how-to-learn-two/">学习困难科目的实用思维方法之理解组块</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文为 Coursera 课程 <a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/">如何学习：学习困难科目的实用思维方法课程</a> 第二周学习笔记</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/learn-how-to-learn-two/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj2ego88i000444fyjwmdsojp" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-learn-how-to-learn-three" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/learn-how-to-learn-three/" class="article-date">
-  <time datetime="2017-04-16T13:01:01.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/learn-how-to-learn-three/">学习困难科目的实用思维方法之对抗拖延</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文为 Coursera 课程 <a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/">如何学习：学习困难科目的实用思维方法课程</a> 第三周学习笔记</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/learn-how-to-learn-three/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-three/" data-id="cj2ego88l000544fys5lsadc7" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-learn-how-to-learn-one" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/learn-how-to-learn-one/" class="article-date">
-  <time datetime="2017-04-16T12:54:56.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/learn-how-to-learn-one/">学习困难科目的实用思维方法之认识大脑</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文为 Coursera 课程 <a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/">如何学习：学习困难科目的实用思维方法课程</a> 第一周学习笔记</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/learn-how-to-learn-one/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-one/" data-id="cj2ego88p000744fyvqihq7il" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-flanimatedimage" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/flanimatedimage/" class="article-date">
-  <time datetime="2017-04-16T12:41:16.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/flanimatedimage/">iOS GIF 动画加载框架 - FLAnimatedImage 解读</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://github.com/Flipboard/FLAnimatedImage">FLAnimatedImage</a> 是由Flipboard开源的iOS平台上播放GIF动画的一个优秀解决方案，在内存占用和播放体验都有不错的表现。<br>本文章主要是介绍FLAnimatedImage框架的GIF动画加载和播放流程，旨在说明流程和主要细节点，大家可以参考流程进行源码解读并调试，相信可以得到大量有用信息。</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/flanimatedimage/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/flanimatedimage/" data-id="cj2ego88e000344fyls92ivtc" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-  <nav id="page-nav">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">__('next') &raquo;</a>
-  </nav>
 </section>
         
           <aside id="sidebar">
