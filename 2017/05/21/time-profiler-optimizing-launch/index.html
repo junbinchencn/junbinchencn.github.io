@@ -22,7 +22,7 @@
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-878eb67162e69400.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-a479bde761b88db7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-89bcdd4a83d086bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-05-21T07:35:36.000Z">
+<meta property="og:updated_time" content="2017-05-21T07:37:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Instruments 之 使用 Time Profiler 优化启动速度">
 <meta name="twitter:description" content="在性能优化过程中，启动速度优化一直是一个比较大的点。Apple 官方期望 APP 的启动时间为 0.4 s，用户的期待时间为 2 s （来自调查）。不过作为开发者，当然希望我们的 APP 的启动速度能够尽可能的快。 冷启动和热启动APP 启动分为冷启动（Cold Launches）,当 APP 长时间没有被启动的时候，用户再次启动 APP 的时候就是冷启动，若是手机重启之后，APP 的第一次启动也">
@@ -100,7 +100,7 @@
         <p>在性能优化过程中，启动速度优化一直是一个比较大的点。Apple 官方期望 APP 的启动时间为 0.4 s，用户的期待时间为 2 s （来自调查）。不过作为开发者，当然希望我们的 APP 的启动速度能够尽可能的快。</p>
 <h3 id="冷启动和热启动"><a href="#冷启动和热启动" class="headerlink" title="冷启动和热启动"></a>冷启动和热启动</h3><p>APP 启动分为冷启动（Cold Launches）,当 APP 长时间没有被启动的时候，用户再次启动 APP 的时候就是冷启动，若是手机重启之后，APP 的第一次启动也是冷启动；冷启动对应的是热启动（Warm Launches）,当 APP 启动时需要的 dylibs 仍然停留在设备的磁盘缓存的时候，这个时候就是热启动，热启动的速度会更快。</p>
 <h3 id="优化案例"><a href="#优化案例" class="headerlink" title="优化案例"></a>优化案例</h3><p>使用 Xcode 版本为 8.3.2 ，设备为 iPhone 6 ，系统版本 10.3.1。 APP 每次启动之前需要重启一下手机，达到冷启动的效果。案例使用 raywenderlich 的<br> <a href="https://files.betamax.raywenderlich.com/attachments/videos/786/0965b118-95eb-492f-804c-3135c7347130.zip" target="_blank" rel="external">Catstagram 启动优化</a>。该案例是一个带图片的列表。<br><img src="http://upload-images.jianshu.io/upload_images/656644-f061200255608d46.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Catstagram"></p>
-<p>&lt;–!more–&gt;</p>
+<a id="more"></a>
 <h3 id="优化-before-main"><a href="#优化-before-main" class="headerlink" title="优化 before main()"></a>优化 before main()</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-b8631539ce395838.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="before main()"><br>APP 启动优化可以分为  2 个部分，一个部分在 main() 函数之前，另一部分在 main()函数之后。对于 APP 的启动细节可以参考 WWDC 的 <a href="https://developer.apple.com/videos/play/wwdc2016/406/" target="_blank" rel="external">Optimizing App Startup Time</a> 章节，本文主要讲使用 Time Profiler 来分析 APP ，然后根据分析结果来优化 APP，着重讲解 Time Profiler  的使用过程。<br>接下来，打开 Catstagram 案例，添加 Scheme 的  DYLD_PRINT_STATISTICS 参数，并设置值为 YES，见下图所示。该DYLD_PRINT_STATISTICS参数用于让 Xcode 控制台输出 APP 在 before main() 时机之前的花费时间。</p>
 <p><img src="http://upload-images.jianshu.io/upload_images/656644-d4f078f63f4259a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Scheme"></p>
 <p><img src="http://upload-images.jianshu.io/upload_images/656644-c113349761ab0a13.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="DYLD_PRINT_STATISTICS"></p>
@@ -127,7 +127,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/21/time-profiler-optimizing-launch/" data-id="cj2ye2jhf000ogtfyt3sevjip" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/21/time-profiler-optimizing-launch/" data-id="cj2ye49z4000shqfy031h997b" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/instruments/">instruments</a></li></ul>
