@@ -64,6 +64,70 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-time-profiler-optimizing-launch" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/05/21/time-profiler-optimizing-launch/" class="article-date">
+  <time datetime="2017-05-21T07:33:11.000Z" itemprop="datePublished">2017-05-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/21/time-profiler-optimizing-launch/">Instruments 之 使用 Time Profiler 优化启动速度</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在性能优化过程中，启动速度优化一直是一个比较大的点。Apple 官方期望 APP 的启动时间为 0.4 s，用户的期待时间为 2 s （来自调查）。不过作为开发者，当然希望我们的 APP 的启动速度能够尽可能的快。</p>
+<h3 id="冷启动和热启动"><a href="#冷启动和热启动" class="headerlink" title="冷启动和热启动"></a>冷启动和热启动</h3><p>APP 启动分为冷启动（Cold Launches）,当 APP 长时间没有被启动的时候，用户再次启动 APP 的时候就是冷启动，若是手机重启之后，APP 的第一次启动也是冷启动；冷启动对应的是热启动（Warm Launches）,当 APP 启动时需要的 dylibs 仍然停留在设备的磁盘缓存的时候，这个时候就是热启动，热启动的速度会更快。</p>
+<h3 id="优化案例"><a href="#优化案例" class="headerlink" title="优化案例"></a>优化案例</h3><p>使用 Xcode 版本为 8.3.2 ，设备为 iPhone 6 ，系统版本 10.3.1。 APP 每次启动之前需要重启一下手机，达到冷启动的效果。案例使用 raywenderlich 的<br> <a href="https://files.betamax.raywenderlich.com/attachments/videos/786/0965b118-95eb-492f-804c-3135c7347130.zip" target="_blank" rel="external">Catstagram 启动优化</a>。该案例是一个带图片的列表。<br><img src="http://upload-images.jianshu.io/upload_images/656644-f061200255608d46.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Catstagram"></p>
+<p>&lt;–!more–&gt;</p>
+<h3 id="优化-before-main"><a href="#优化-before-main" class="headerlink" title="优化 before main()"></a>优化 before main()</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-b8631539ce395838.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="before main()"><br>APP 启动优化可以分为  2 个部分，一个部分在 main() 函数之前，另一部分在 main()函数之后。对于 APP 的启动细节可以参考 WWDC 的 <a href="https://developer.apple.com/videos/play/wwdc2016/406/" target="_blank" rel="external">Optimizing App Startup Time</a> 章节，本文主要讲使用 Time Profiler 来分析 APP ，然后根据分析结果来优化 APP，着重讲解 Time Profiler  的使用过程。<br>接下来，打开 Catstagram 案例，添加 Scheme 的  DYLD_PRINT_STATISTICS 参数，并设置值为 YES，见下图所示。该DYLD_PRINT_STATISTICS参数用于让 Xcode 控制台输出 APP 在 before main() 时机之前的花费时间。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-d4f078f63f4259a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Scheme"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-c113349761ab0a13.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="DYLD_PRINT_STATISTICS"></p>
+<p>设置好了之后，Command + R 在冷启动情况下启动 APP ，可以看到控制台的输出</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Total pre-main time: <span class="number">1.5</span> seconds (<span class="number">100.0</span>%)</div><div class="line">         dylib loading time: <span class="number">814.09</span> milliseconds (<span class="number">52.6</span>%)</div><div class="line">        rebase/binding time:  <span class="number">52.20</span> milliseconds (<span class="number">3.3</span>%)</div><div class="line">            ObjC setup time: <span class="number">241.27</span> milliseconds (<span class="number">15.6</span>%)</div><div class="line">           initializer time: <span class="number">437.29</span> milliseconds (<span class="number">28.3</span>%)</div><div class="line">           slowest intializers :</div><div class="line">             libSystem.B.dylib :  <span class="number">19.26</span> milliseconds (<span class="number">1.2</span>%)</div><div class="line">               AsyncDisplayKit : <span class="number">145.63</span> milliseconds (<span class="number">9.4</span>%)</div><div class="line">                    Catstagram : <span class="number">277.81</span> milliseconds (<span class="number">17.9</span>%)</div></pre></td></tr></table></figure>
+<p>重点关注 Total pre-main time: 1.5 seconds (100.0%) 的信息，冷启动情况在 pre-main 时机中可以看到信息 dylib loading time: 814.09 milliseconds (52.6%) ，也就是说我们的 dylib loading time 加载时间占据了 52.6% 。联想到我们的第三方库是采用 pod 管理，并且是 use_frameworks ，frameworks 是一个可优化点，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># Uncomment the next line to define a global platform for your project</div><div class="line"># platform :ios, &apos;9.0&apos;</div><div class="line"></div><div class="line">target &apos;Catstagram&apos; do</div><div class="line">  use_frameworks!</div><div class="line">  pod &apos;AFNetworking&apos;</div><div class="line">  pod &apos;AsyncDisplayKit&apos;, &apos;~&gt; 2.2&apos;</div><div class="line">  pod &apos;Yoga&apos;, &apos;~&gt; 1.3&apos;</div><div class="line">  pod &apos;Firebase&apos;, &apos;~&gt; 3.15&apos;</div><div class="line">  #pod &apos;FirebaseUI&apos;, &apos;~&gt; 3.1&apos;</div><div class="line">end</div></pre></td></tr></table></figure>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-8f8bb7b0d6322d60.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="frameworks"></p>
+<p>这个 frameworks 是一个可优化点，打开 Podfile,并注释掉 use_frameworks ，然后命令行执行 pod install 命令 ，更新工程，可以看到工程设置发生了变化。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># Uncomment the next line to define a global platform for your project</div><div class="line"># platform :ios, &apos;9.0&apos;</div><div class="line"></div><div class="line">target &apos;Catstagram&apos; do</div><div class="line">  #use_frameworks!</div><div class="line">  pod &apos;AFNetworking&apos;</div><div class="line">  pod &apos;AsyncDisplayKit&apos;, &apos;~&gt; 2.2&apos;</div><div class="line">  pod &apos;Yoga&apos;, &apos;~&gt; 1.3&apos;</div><div class="line">  pod &apos;Firebase&apos;, &apos;~&gt; 3.15&apos;</div><div class="line">  #pod &apos;FirebaseUI&apos;, &apos;~&gt; 3.1&apos;</div><div class="line">end</div></pre></td></tr></table></figure></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-259d707c43064258.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="非 frameworks "></p>
+<p>修改好了之后，Command + R 在冷启动情况下启动 APP ，查看控制台的输出。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Total pre-main time: <span class="number">1.1</span> seconds (<span class="number">100.0</span>%)</div><div class="line">         dylib loading time: <span class="number">470.55</span> milliseconds (<span class="number">39.6</span>%)</div><div class="line">        rebase/binding time:  <span class="number">31.07</span> milliseconds (<span class="number">2.6</span>%)</div><div class="line">            ObjC setup time: <span class="number">255.35</span> milliseconds (<span class="number">21.4</span>%)</div><div class="line">           initializer time: <span class="number">430.58</span> milliseconds (<span class="number">36.2</span>%)</div><div class="line">           slowest intializers :</div><div class="line">             libSystem.B.dylib :  <span class="number">12.89</span> milliseconds (<span class="number">1.0</span>%)</div><div class="line">                    Catstagram : <span class="number">792.04</span> milliseconds (<span class="number">66.6</span>%)</div></pre></td></tr></table></figure></p>
+<p>从 log 中可以看到明显的变化，Total pre-main time 由之前 1.5 seconds 降到 1.1 seconds 。dylib loading time 由之前的 814.09 milliseconds (52.6%) 降到 470.55 milliseconds (39.6%) 。优化效果非常明显。</p>
+<h3 id="优化-after-main"><a href="#优化-after-main" class="headerlink" title="优化 after main()"></a>优化 after main()</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-31631511d8f3b5ea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="after main()"><br>优化完 before main() 之后，开始来优化 after main()。从图中可以看出启动优化的点是集中在 UIApplicationMain()上。<br>打开 Instruments 选择 Time Profiler 来分析 APP。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-878eb67162e69400.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Time Profiler"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-a479bde761b88db7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="launch 周期"></p>
+<p>选择 APP 生命周期中的 Launching 生命周期来分析，如上图所示，可以清晰的看到耗时操作主要发生在 log 操作中，所以我们回到关于 log 的这段代码代码中，它可能是一个可以优化的点。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">func application(_ application: <span class="built_in">UIApplication</span>, willFinishLaunchingWithOptions launchOptions: [<span class="built_in">UIApplicationLaunchOptionsKey</span> : Any]? = <span class="literal">nil</span>) -&gt; Bool &#123;</div><div class="line"></div><div class="line">    let appearance = <span class="built_in">UINavigationBar</span>.appearance()</div><div class="line">    appearance.backgroundColor = .white</div><div class="line">    appearance.barTintColor = .white</div><div class="line"></div><div class="line">    CoolLogger.reportLogs()</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="literal">true</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上述打 log 代码在 main 线程中执行，所以这段代码是可以优化的，我们将这段代码放到非 main 线程中执行。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">DispatchQueue.global(qos: .background).async &#123;</div><div class="line">      CoolLogger.reportLogs()</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>修改代码之后，重新启动手机，让 APP 进行冷启动,继续使用 Time Profiler 分析 APP，从下图的分析结果总可以看到优化取得了效果，APP 的 Laucning 生命周期没有出现 APP 的生命周期中，说明使用了及其短的时间来完成启动，这时间长度可以忽略。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-89bcdd4a83d086bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="极速启动"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Time Profiler  可以看到代码的运行时长，配合它的Lift Cycle 工具可以用来优化 APP 的启动速度。 Time Profiler  只是一个工具，它只能帮助记录 APP 的运行状态，而开发者可以根据记录的状态分析 APP 的耗时操作，然后进行修改，再用 Time Profiler 验证。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>1、Demo 项目 <a href="https://files.betamax.raywenderlich.com/attachments/videos/786/0965b118-95eb-492f-804c-3135c7347130.zip" target="_blank" rel="external">https://files.betamax.raywenderlich.com/attachments/videos/786/0965b118-95eb-492f-804c-3135c7347130.zip</a></p>
+<p>2、<a href="https://videos.raywenderlich.com/courses/74-practical-instruments/lessons/4" target="_blank" rel="external">https://videos.raywenderlich.com/courses/74-practical-instruments/lessons/4</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/05/21/time-profiler-optimizing-launch/" data-id="cj2ye2jhf000ogtfyt3sevjip" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/instruments/">instruments</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-time-profiler" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/05/14/time-profiler/" class="article-date">
@@ -97,7 +161,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/14/time-profiler/" data-id="cj2ni9fri000nzvfyoworp0rk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/14/time-profiler/" data-id="cj2ye2jhr000sgtfyso0vhhc4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/instruments/">instruments</a></li></ul>
@@ -142,7 +206,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2ni9fpl0004zvfyv6awj0xh" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2ye2jf50001gtfynrzggbw6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -186,7 +250,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/23/oc-swizzle/" data-id="cj2ni9fra000izvfy8hm1s3sm" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/23/oc-swizzle/" data-id="cj2ye2jgv000ggtfyx43qp10d" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
@@ -230,7 +294,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj2ni9frm000ozvfyg3zjsiss" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj2ye2jhx000wgtfyvu3wr48b" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -273,7 +337,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj2ni9fs8000uzvfynhz07yh6" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj2ye2jht000ugtfy70jfa3yz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
@@ -317,7 +381,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/sdwebimage/" data-id="cj2ni9fs1000szvfy6fcejxua" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/sdwebimage/" data-id="cj2ye2jh6000kgtfysdnpix86" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -360,7 +424,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj2ni9foz0000zvfyyf5zdft5" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj2ye2jev0000gtfynn537px9" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -403,7 +467,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj2ni9fpu0007zvfy9a9oaadc" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj2ye2jft0005gtfy5sll3j7w" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
@@ -446,50 +510,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-three/" data-id="cj2ni9fpq0005zvfyvo5yyfki" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-learn-how-to-learn-one" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/learn-how-to-learn-one/" class="article-date">
-  <time datetime="2017-04-16T12:54:56.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/learn-how-to-learn-one/">学习困难科目的实用思维方法之认识大脑</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文为 Coursera 课程 <a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/">如何学习：学习困难科目的实用思维方法课程</a> 第一周学习笔记</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/learn-how-to-learn-one/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-one/" data-id="cj2ni9fpf0003zvfytkkyj96s" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-three/" data-id="cj2ye2jfl0004gtfyx544mw3m" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
@@ -527,7 +548,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 13.33px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16.67px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16.67px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 10px;">iOS</a> <a href="/tags/instruments/" style="font-size: 10px;">instruments</a> <a href="/tags/如何学习/" style="font-size: 13.33px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 15px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 17.5px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 17.5px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 12.5px;">iOS</a> <a href="/tags/instruments/" style="font-size: 12.5px;">instruments</a> <a href="/tags/如何学习/" style="font-size: 15px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -549,6 +570,10 @@
       <ul>
         
           <li>
+            <a href="/2017/05/21/time-profiler-optimizing-launch/">Instruments 之 使用 Time Profiler 优化启动速度</a>
+          </li>
+        
+          <li>
             <a href="/2017/05/14/time-profiler/">Instruments 之 Time Profiler 使用</a>
           </li>
         
@@ -562,10 +587,6 @@
         
           <li>
             <a href="/2017/04/16/pincache/">iOS缓存框架－PINCache解读</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/16/video-editor/">iOS 视频剪切、旋转，视频添加音频、添加水印，视频导出</a>
           </li>
         
       </ul>
