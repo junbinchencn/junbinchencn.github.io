@@ -64,6 +64,52 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-memory" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/05/21/memory/" class="article-date">
+  <time datetime="2017-05-21T12:53:30.000Z" itemprop="datePublished">2017-05-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/21/memory/">Instruments 之 Memory</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在 iOS 开发中，内存泄漏的检测基本是 APP 功能开发完成之后的必做项目。内存泄漏的检测手段很多，这里就讲讲如何通过 Instruments 的内存工具来定位内存问题。</p>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><p>内存检测以 raywenderlich 的 <a href="https://files.betamax.raywenderlich.com/attachments/videos/787/a455ee9d-a5c2-4e1c-9a48-10bf86cbc2b9.zip">Catstagram</a> APP 作为分析案例。该 APP包含 2 个页面，第一个页面是一个按钮，第二个页面是一个包含图片的列表，APP 截图如下。<br><img src="http://upload-images.jianshu.io/upload_images/656644-cddbc21fe69be36f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="第一个页面"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-e0d3c2f9d7efb748.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="第二个页面"></p>
+<p>启动 APP，然后点击红色按钮进入列表页面，然后退出列表页面。这么做的原因的是什么呢？因为要检测的是列表页面的内存泄漏问题。所以进入列表页面之后再退出列表页面回到第一个页面，若是列表页面存在内存问题，那么必然是有些对象无法被释放或者该列表页面无法被销毁，这个时候用工具就可以查出对应的内存问题。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/05/21/memory/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/05/21/memory/" data-id="cj2ypgy7d0008chfygbps6oma" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/instruments/">instruments</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-time-profiler-optimizing-launch" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/05/21/time-profiler-optimizing-launch/" class="article-date">
@@ -97,7 +143,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/21/time-profiler-optimizing-launch/" data-id="cj2ye49z4000shqfy031h997b" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/21/time-profiler-optimizing-launch/" data-id="cj2ypgy8d000schfykmiewve9" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/instruments/">instruments</a></li></ul>
@@ -142,7 +188,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/14/time-profiler/" data-id="cj2ye49z8000uhqfyrt0g4rkf" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/14/time-profiler/" data-id="cj2ypgy8o000wchfyi221ds5f" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/instruments/">instruments</a></li></ul>
@@ -187,7 +233,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2ye49x70001hqfycbg5er7v" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/07/aspects/" data-id="cj2ypgy6l0001chfyhyff8yp4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -231,7 +277,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/23/oc-swizzle/" data-id="cj2ye49yi000ihqfyphv7dugf" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/23/oc-swizzle/" data-id="cj2ypgy7y000kchfyvdpggcqt" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
@@ -275,7 +321,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj2ye49ym000khqfyjwfk63zs" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/pincache/" data-id="cj2ypgy81000nchfyus39l1f4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -318,7 +364,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj2ye49za000whqfykv8b87xo" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/video-editor/" data-id="cj2ypgy8s000xchfyit4ucn38" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
@@ -362,7 +408,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/sdwebimage/" data-id="cj2ye49yw000ohqfyvv19r1q3" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/sdwebimage/" data-id="cj2ypgy89000qchfywwtd245l" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -405,7 +451,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj2ye49x00000hqfyxjmmren4" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/afnetworking/" data-id="cj2ypgy6d0000chfyyjvzxsnt" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
@@ -448,50 +494,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj2ye49xu0007hqfykm8nz9ed" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-learn-how-to-learn-three" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/16/learn-how-to-learn-three/" class="article-date">
-  <time datetime="2017-04-16T13:01:01.000Z" itemprop="datePublished">2017-04-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/16/learn-how-to-learn-three/">学习困难科目的实用思维方法之对抗拖延</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文为 Coursera 课程 <a href="https://www.coursera.org/learn/learning-how-to-learn/home/week/">如何学习：学习困难科目的实用思维方法课程</a> 第三周学习笔记</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/04/16/learn-how-to-learn-three/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-three/" data-id="cj2ye49xr0005hqfynklllfvv" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/learn-how-to-learn-two/" data-id="cj2ypgy790007chfyy1cr1v39" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/如何学习/">如何学习</a></li></ul>
@@ -529,7 +532,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 15px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 17.5px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 17.5px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 12.5px;">iOS</a> <a href="/tags/instruments/" style="font-size: 12.5px;">instruments</a> <a href="/tags/如何学习/" style="font-size: 15px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 13.33px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16.67px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16.67px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 13.33px;">iOS</a> <a href="/tags/instruments/" style="font-size: 13.33px;">instruments</a> <a href="/tags/如何学习/" style="font-size: 13.33px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -551,6 +554,10 @@
       <ul>
         
           <li>
+            <a href="/2017/05/21/memory/">Instruments 之 Memory</a>
+          </li>
+        
+          <li>
             <a href="/2017/05/21/time-profiler-optimizing-launch/">Instruments 之 使用 Time Profiler 优化启动速度</a>
           </li>
         
@@ -564,10 +571,6 @@
         
           <li>
             <a href="/2017/04/23/oc-swizzle/">Objective-C 方法混写</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/16/pincache/">iOS缓存框架－PINCache解读</a>
           </li>
         
       </ul>
