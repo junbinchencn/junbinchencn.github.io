@@ -64,6 +64,49 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-oc-dynamic" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-dynamic/" class="article-date">
+  <time datetime="2017-04-16T05:45:15.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/oc-dynamic/">Objective-C 动态实现</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在 Objective-C 中，我们偶尔会看到一个属性被声明为 @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了。那么 @dynamic 合成属性的方法是怎么样的呢？ 我们这里使用一个 Demo 来说明这个过程。<br>这个 Demo 使用动态实现来为 NSMutableDictionary 中存储的属性动态创建获取方法和设置方法。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/04/16/oc-dynamic/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj37envs7000i3zfywrc835fl" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-oc-fast-forwarding" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/04/16/oc-fast-forwarding/" class="article-date">
@@ -98,7 +141,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj334yb1t000g8tfy7rl3uits" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj37envs3000g3zfyzifll3ib" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
@@ -136,7 +179,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 12.5px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 15px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 17.5px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 17.5px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 15px;">iOS</a> <a href="/tags/如何学习/" style="font-size: 12.5px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 13.33px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 16.67px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16.67px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16.67px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 16.67px;">iOS</a> <a href="/tags/如何学习/" style="font-size: 13.33px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -158,6 +201,10 @@
       <ul>
         
           <li>
+            <a href="/2017/05/27/energy-log/">Instruments 之 Energy Log</a>
+          </li>
+        
+          <li>
             <a href="/2017/05/24/coreanimation/">Instruments 之 CoreAnimation</a>
           </li>
         
@@ -171,10 +218,6 @@
         
           <li>
             <a href="/2017/05/14/time-profiler/">Instruments 之 Time Profiler 使用</a>
-          </li>
-        
-          <li>
-            <a href="/2017/05/07/aspects/">iOS AOP 框架 - Aspects 源码解读</a>
           </li>
         
       </ul>
