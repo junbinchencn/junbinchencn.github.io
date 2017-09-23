@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>UITableViewCell 处于选中状态，UIView 的背景颜色消失 | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="我想请问你这么一个问题？你在使用 UITableView 这个控件过程中，是不是会出现这么一种状况，当 UITableViewCell 处于选中状态的时候，UITableViewCell 里面的子控件背景颜色莫名其妙消失了 ？我就有遇到过这个问题，现在我来给你讲讲我的问题解决方法。如果你曾经或者现在遇到过这个问题并且也解决了，那么欢迎你在留言区分享你的解决方法，如果你还没有解决这个问题，那么欢迎你">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UITableViewCell 处于选中状态，UIView 的背景颜色消失">
+<meta property="og:url" content="http://yoursite.com/2017/06/17/uitableviewcell-selected/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="我想请问你这么一个问题？你在使用 UITableView 这个控件过程中，是不是会出现这么一种状况，当 UITableViewCell 处于选中状态的时候，UITableViewCell 里面的子控件背景颜色莫名其妙消失了 ？我就有遇到过这个问题，现在我来给你讲讲我的问题解决方法。如果你曾经或者现在遇到过这个问题并且也解决了，那么欢迎你在留言区分享你的解决方法，如果你还没有解决这个问题，那么欢迎你">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-119d5e05297d1ef9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-bf8a99dc70e715a9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-46d6e5d8c4a97772.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-beba5a9ca600ba67.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-7a73013fd296f129.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-6ded10109fbb6d4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-09-23T13:48:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UITableViewCell 处于选中状态，UIView 的背景颜色消失">
+<meta name="twitter:description" content="我想请问你这么一个问题？你在使用 UITableView 这个控件过程中，是不是会出现这么一种状况，当 UITableViewCell 处于选中状态的时候，UITableViewCell 里面的子控件背景颜色莫名其妙消失了 ？我就有遇到过这个问题，现在我来给你讲讲我的问题解决方法。如果你曾经或者现在遇到过这个问题并且也解决了，那么欢迎你在留言区分享你的解决方法，如果你还没有解决这个问题，那么欢迎你">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/656644-119d5e05297d1ef9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS-каналы"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Поиск"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-uitableviewcell-selected" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/06/17/uitableviewcell-selected/" class="article-date">
+  <time datetime="2017-06-17T07:50:57.000Z" itemprop="datePublished">2017-06-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      UITableViewCell 处于选中状态，UIView 的背景颜色消失
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>我想请问你这么一个问题？你在使用 UITableView 这个控件过程中，是不是会出现这么一种状况，当 UITableViewCell 处于选中状态的时候，UITableViewCell 里面的子控件背景颜色莫名其妙消失了 ？我就有遇到过这个问题，现在我来给你讲讲我的问题解决方法。如果你曾经或者现在遇到过这个问题并且也解决了，那么欢迎你在留言区分享你的解决方法，如果你还没有解决这个问题，那么欢迎你尝试我的问题解决方法。</p>
+<h3 id="Demo-时间"><a href="#Demo-时间" class="headerlink" title="Demo 时间"></a>Demo 时间</h3><p>我们先上一个 Demo ，在 Main.storyboard 里面 的 ViewController 里面添加一个 TableView，并设置好 UITableViewDelegate 和UITableViewDataSource 。<br><img src="http://upload-images.jianshu.io/upload_images/656644-119d5e05297d1ef9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="TableView"></p>
+<p>再来新建一个 TableViewCell， 这个 Cell 叫做 DemoTableViewCell ，包含一个绿色背景的 Button，一个蓝色背景的 Label，一个红色背景的 View 。<br><img src="http://upload-images.jianshu.io/upload_images/656644-bf8a99dc70e715a9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<a id="more"></a>
+<p>接下来看看 ViewController 的代码<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">"ViewController.h"</span></span></div><div class="line"><span class="meta">#import <span class="meta-string">"DemoTableViewCell.h"</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ViewController</span> ()</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">weak</span>, <span class="keyword">nonatomic</span>) <span class="keyword">IBOutlet</span> <span class="built_in">UITableView</span> *tableView;</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line">    <span class="comment">// Do any additional setup after loading the view, typically from a nib.</span></div><div class="line">    [<span class="keyword">self</span>.tableView registerNib:[<span class="built_in">UINib</span> nibWithNibName:<span class="string">@"DemoTableViewCell"</span> bundle:<span class="literal">nil</span>] forCellReuseIdentifier:<span class="string">@"DemoTableViewCell"</span>];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">NSInteger</span>)tableView:(<span class="built_in">UITableView</span> *)tableView numberOfRowsInSection:(<span class="built_in">NSInteger</span>)section&#123;</div><div class="line">    <span class="keyword">return</span> <span class="number">10</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="built_in">UITableViewCell</span> *)tableView:(<span class="built_in">UITableView</span> *)tableView cellForRowAtIndexPath:(<span class="built_in">NSIndexPath</span> *)indexPath&#123;</div><div class="line">   DemoTableViewCell *cell =  [tableView dequeueReusableCellWithIdentifier:<span class="string">@"DemoTableViewCell"</span>];</div><div class="line">    <span class="keyword">return</span> cell;</div><div class="line"></div><div class="line">&#125;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
+<p>最后运行 Demo ，查看运行效果，效果正常。<br><img src="http://upload-images.jianshu.io/upload_images/656644-46d6e5d8c4a97772.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="运行效果"></p>
+<p>好了，我们选中 Demo 界面中的一行，看看会出现什么。UITableViewCell 处于选中状态，UIView 的背景颜色消失。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-beba5a9ca600ba67.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="选中 Demo 界面中的一行"></p>
+<p>第一个解决方案，在 ViewController.m 文件，我们实现 UITableViewDelegate 的选择方法，并调用 UITableViewDelegate 的取消选择方法。</p>
+<p>这个解决方案有一个缺陷不知道你发现没有 ? 从选中状态到取消选中状态之间的时间段内，UIView 的背景颜色消失的问题会出现，不过有时候这个方案就能够满足我们的需求了。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)tableView:(<span class="built_in">UITableView</span> *)tableView didSelectRowAtIndexPath:(<span class="built_in">NSIndexPath</span> *)indexPath&#123;</div><div class="line">    [tableView deselectRowAtIndexPath:indexPath animated:<span class="literal">NO</span>];</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接下来看看第二个解决方案 ，打开<br> DemoTableViewCell.m 文件，在 setSelected:animated: 方法里面重新设置 button,label,view 的背景颜色。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">"DemoTableViewCell.h"</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">DemoTableViewCell</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</div><div class="line">    [<span class="keyword">super</span> awakeFromNib];</div><div class="line">    <span class="comment">// Initialization code</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)setSelected:(<span class="built_in">BOOL</span>)selected animated:(<span class="built_in">BOOL</span>)animated &#123;</div><div class="line">    [<span class="keyword">super</span> setSelected:selected animated:animated];</div><div class="line">    <span class="keyword">self</span>.button.backgroundColor = [<span class="built_in">UIColor</span> greenColor];</div><div class="line">    <span class="keyword">self</span>.label.backgroundColor = [<span class="built_in">UIColor</span> blueColor];</div><div class="line">    <span class="keyword">self</span>.view.backgroundColor = [<span class="built_in">UIColor</span> redColor];</div><div class="line">&#125;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
+<p>运行 Demo 查看效果，你可以看到 UITableViewCell 处于选中状态，UIView 的背景颜色是正常的。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-7a73013fd296f129.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="背景正常"></p>
+<p>当我们长按 UITableViewCell 的时候，UIView 的背景颜色消失还是会出现，那么我们就继续在 setHighlighted: animated: 方法里面重新设置 button,label,view 的背景颜色。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">"DemoTableViewCell.h"</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">DemoTableViewCell</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</div><div class="line">    [<span class="keyword">super</span> awakeFromNib];</div><div class="line">    <span class="comment">// Initialization code</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)setSelected:(<span class="built_in">BOOL</span>)selected animated:(<span class="built_in">BOOL</span>)animated &#123;</div><div class="line">    [<span class="keyword">super</span> setSelected:selected animated:animated];</div><div class="line">    [<span class="keyword">self</span> restoreStatus];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)setHighlighted:(<span class="built_in">BOOL</span>)highlighted animated:(<span class="built_in">BOOL</span>)animated&#123;</div><div class="line">    [<span class="keyword">super</span> setHighlighted:highlighted animated:animated];</div><div class="line">    [<span class="keyword">self</span> restoreStatus];</div><div class="line">&#125;</div><div class="line"></div><div class="line">-(<span class="keyword">void</span>)restoreStatus&#123;</div><div class="line">    <span class="keyword">self</span>.button.backgroundColor = [<span class="built_in">UIColor</span> greenColor];</div><div class="line">    <span class="keyword">self</span>.label.backgroundColor = [<span class="built_in">UIColor</span> blueColor];</div><div class="line">    <span class="keyword">self</span>.view.backgroundColor = [<span class="built_in">UIColor</span> redColor];</div><div class="line">&#125;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure></p>
+<p>运行 Demo 查看效果。这次不管我们是选中 还是 长按 UITableViewCell 都不会出现 UIView 的背景颜色消失的问题，说明我们的第二个解决方案是可行的，能够完全处理掉这个问题。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-6ded10109fbb6d4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>第三个解决方案，不过我不建议使用这个方案。这个方案是将 UITableViewCell 的选择效果全部取消，也就意味着当用户点击或者长按 UITableViewCell 的时候都不会出现动画效果。这个解决方案不知道你能不能接受？反正我是接受不了。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">"DemoTableViewCell.h"</span></span></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">DemoTableViewCell</span></span></div><div class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</div><div class="line">    [<span class="keyword">super</span> awakeFromNib];</div><div class="line">    <span class="comment">// Initialization code</span></div><div class="line">    <span class="keyword">self</span>.selectionStyle = <span class="built_in">UITableViewCellSelectionStyleNone</span>;</div><div class="line">&#125;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>UITableViewCell 处于选中状态，UIView 的背景颜色消失，我猜测这个问题起源于当 UITableViewCell 处于选中状态也就是 selected ，UITableViewCell 的 View 也被置于 selected 。当 UITableViewCell 处于  highlighted，UITableViewCell 的 View 也被置于 highlighted。但是 UITableViewCell 的 setHighlighted: animated:  和  setSelected:animated: 并没有实现对 View 背景颜色的处理，所以出现了 view 背景颜色不对的问题。具体的分析可以参考 stackoverflow 的 这个帖子 <a href="https://stackoverflow.com/questions/5222736/uiview-backgroundcolor-disappears-when-uitableviewcell-is-selected" target="_blank" rel="external">https://stackoverflow.com/questions/5222736/uiview-backgroundcolor-disappears-when-uitableviewcell-is-selected</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/06/17/uitableviewcell-selected/" data-id="cj7xdh85v000we0fyet0oc32c" class="article-share-link">Поделиться</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/iOS/">iOS</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/05/27/energy-log/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Следующий</strong>
+      <div class="article-nav-title">
+        
+          Instruments 之 Energy Log
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Метки</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Instruments/">Instruments</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Облако меток</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 12.5px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 15px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 15px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 15px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 10px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 17.5px;">iOS</a> <a href="/tags/如何学习/" style="font-size: 12.5px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Архив</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Недавние записи</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/06/17/uitableviewcell-selected/">UITableViewCell 处于选中状态，UIView 的背景颜色消失</a>
+          </li>
+        
+          <li>
+            <a href="/2017/05/27/energy-log/">Instruments 之 Energy Log</a>
+          </li>
+        
+          <li>
+            <a href="/2017/05/24/coreanimation/">Instruments 之 CoreAnimation</a>
+          </li>
+        
+          <li>
+            <a href="/2017/05/21/memory/">Instruments 之 Memory</a>
+          </li>
+        
+          <li>
+            <a href="/2017/05/21/time-profiler-optimizing-launch/">Instruments 之 使用 Time Profiler 优化启动速度</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 要上班的斌哥<br>
+      Создано с помощью <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
