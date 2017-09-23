@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="iOS博客，iOS源码解读">
+<meta property="og:type" content="website">
+<meta property="og:title" content="要上班的斌哥">
+<meta property="og:url" content="http://yoursite.com/page/4/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="iOS博客，iOS源码解读">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="要上班的斌哥">
+<meta name="twitter:description" content="iOS博客，iOS源码解读">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-spstackednav" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/spstackednav/" class="article-date">
+  <time datetime="2017-04-16T06:12:19.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/spstackednav/">iPad分屏框架-SPStackedNav源码解读</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="https://github.com/spotify/SPStackedNav">SPStackedNav</a> 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：</p>
+<p><img src="/images/spstackednav/SPStackedNav-1.png" alt="SPStackedNav实现的交互方式"></p>
+        
+          <p class="article-more-link">
+            <a href="/2017/04/16/spstackednav/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/spstackednav/" data-id="cj7xenxwz001ku0fyk5hfwmfw" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码解读/">源码解读</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-oc-msgsend" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-msgsend/" class="article-date">
+  <time datetime="2017-04-16T05:59:46.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/oc-msgsend/">Objective-C 之 objc_msgSend 简单实现</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="objc-msgSend-函数"><a href="#objc-msgSend-函数" class="headerlink" title="objc_msgSend 函数"></a>objc_msgSend 函数</h3><p>在 Objective-C 中, message 是直到 Runtime 的时候才会绑定实现，编译器会将我们的发送消息 [receiver message] 变成函数调用 objc_msgSend，该函数会有2个默认参数，分别是 receiver 和 selector 。当然，若是该函数有其他的参数，那么其他参数就跟在2个默认参数后面。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">objc_msgSend(receiver, selector, arg1, arg2, ...)</div></pre></td></tr></table></figure>
+<p>在动态绑定过程中，objc_msgSend 函数的作用如下</p>
+<ol>
+<li>找到 selector 对应的方法实现，</li>
+<li>调用方法实现，传入参数</li>
+<li>接收方法实现的返回值并将这个返回值作为自己的返回值</li>
+</ol>
+<p>objc_msgSend 函数调用过程中依赖于编译器为每个类和对象提供的一些类结构，这个类结构包含了下面 2 个基本元素</p>
+<ol>
+<li>一个指向 superclass 的指针, 这个指针叫做 isa，对象可以用它来来访问 class ，通过 class 可以访问这个 class 类继承层次上的所有其他 class</li>
+<li>一个 class dispatch table , 一个 selector - 方法实现地址 对应的表格， 比如 sestOrigin:: 的 selector 对应的是 setOrigin::的方法实现地址</li>
+</ol>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-75f890082c33f132.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Messaging Framework"></p>
+<p>Messaging 过程如上图所示，当一个对象收到一个消息（message）的时候，objc_msgSend 函数（messaging function） 会根据对象的 isa 指针 到 class dispatch table 里面去查找 method selector 。如果找不到呢？那就根据 isa 指针寻找到 superclass ，若是一直没有找到，那么就会沿着类继承层次来到了 NSObjct 。一旦找到了 method selector,那么就调用 method selector 对应的方法实现并传入对应的参数。这就是 Runtime 寻找方法实现的方式，消息动态绑定到方法实现。</p>
+<p>为了提高 Messaging 过程的速度，消息被首次使用的时候，Runtime 会缓存 selector 和 方法实现地址。Messaging 的时候会先查询缓存，若是没有缓存，那么去 class dispatch table 寻找，若是有缓存，那么直接使用缓存，这个时候 Messaging 的速度只是比直接的函数调用来的慢那么一点点儿，这个差异基本可以忽略。</p>
+<p>Runtime 的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。</p>
+<h3 id="C-代码实现消息分派器"><a href="#C-代码实现消息分派器" class="headerlink" title="C 代码实现消息分派器"></a>C 代码实现消息分派器</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">void</span> *<span class="title">myMsgSend</span><span class="params">(id receiver, <span class="keyword">const</span> <span class="keyword">char</span> *name)</span></span>&#123;</div><div class="line">    <span class="comment">// selector 是选择器，是方法名的唯一标识符</span></div><div class="line">    SEL selector = sel_registerName(name);</div><div class="line">    <span class="comment">// methodIMP 方法实现，只是一个指向方法某个函数的指针</span></div><div class="line">    IMP methodIMP = class_getMethodImplementation(object_getClass(receiver), selector);</div><div class="line">    <span class="comment">// 执行 methodIMP 方法实现，methodIMP 接受一个对象，一个选择器，可变长参数列表作为参数，并返回一个对象</span></div><div class="line">    <span class="keyword">return</span> methodIMP(receiver,selector);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>定义一个 myMsgSend 函数，该函数的作用类似于 objc_msgSend。</p>
+<ol>
+<li>使用 sel_registerName 获取方法的唯一标识符</li>
+<li>使用 class_getMethodImplementation 获取关于某个类或者对象的方法实现</li>
+<li>给对应得方法实现 methodIMP 传入合适的参数，并返回一个对象。</li>
+</ol>
+<p>接下来我们看看如何使用这个简单的 objc_msgSend 实现。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">RunMyMsgSend</span><span class="params">()</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// NSObject *object = [[NSObject alloc] init];</span></div><div class="line">    <span class="comment">// objectClass 定义了 Objective-C 的类</span></div><div class="line">    Class objectClass = (Class)objc_getClass(<span class="string">"NSObject"</span>);</div><div class="line">    id object = class_createInstance(objectClass, <span class="number">0</span>);</div><div class="line">    myMsgSend(object, <span class="string">"init"</span>);</div><div class="line">    </div><div class="line">    <span class="comment">// id description = [object description];</span></div><div class="line">    id description = (id)myMsgSend(object, <span class="string">"description"</span>);</div><div class="line">    </div><div class="line">    <span class="comment">// const char *cstr = [description UTF8String];</span></div><div class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *cstr = myMsgSend(description, <span class="string">"UTF8String"</span>);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s\n"</span>,cstr);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从代码中可以看到，我们将 Objective-C 的发送消息过程 ，使用 C 语言来做了简单的类似实现。可以粗略的说，Runtime 真的只是 C 。</p>
+<ol>
+<li><code> NSObject *object = [[NSObject alloc] init] </code> 发送 init 消息使用<code> myMsgSend(object, “init”)</code> 实现</li>
+<li><code>id description = [object description]</code> 发送 description 消息使用 <code> myMsgSend(object, “description”) </code> 实现</li>
+<li><code> [description UTF8String] </code> 发送 UTF8String 消息使用 <code> myMsgSend(description, “UTF8String”)</code> 实现</li>
+</ol>
+<p>运行以下代码<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">printf</span>(<span class="string">"\n\nRunMyMsgSend()\n"</span>);</div><div class="line">RunMyMsgSend();</div><div class="line">NSObject *testObj = [[NSObject alloc] init];</div><div class="line">NSLog(@<span class="string">"%@"</span>, testObj);</div></pre></td></tr></table></figure></p>
+<p>输出运行结果<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RunMyMsgSend()</div><div class="line">&lt;NSObject: <span class="number">0x60800000fd50</span>&gt;</div><div class="line">&lt;NSObject: <span class="number">0x60800000fd60</span>&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="methodForSelector-实现消息分派器"><a href="#methodForSelector-实现消息分派器" class="headerlink" title="methodForSelector: 实现消息分派器"></a>methodForSelector: 实现消息分派器</h3><p>在 Objective-C 中，我们可以使用 methodForSelector: 来实现消息分派,那么使用 methodForSelector: 和 使用 objc_msgSend相比，会有性能提升么？为了这个性能提升直接跳过objc_msgSend值得么? 直接用代码来个测试。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> NSUInteger kTotalCount = <span class="number">100000000</span>;</div><div class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*voidIMP)</span><span class="params">(id,SEL,...)</span></span>;</div><div class="line"></div><div class="line"><span class="comment">// 分别使用objc_msgSend 和 methodForSelector 来做消息分派，对字符串做一亿次操作之后进行耗时比较</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">FastCall</span><span class="params">()</span></span>&#123;</div><div class="line">    </div><div class="line">    NSMutableString *<span class="built_in">string</span> = [NSMutableString <span class="built_in">string</span>];</div><div class="line">    NSTimeInterval totalTime = <span class="number">0</span>;</div><div class="line">    NSDate *start = nil;</div><div class="line">    NSUInteger count = <span class="number">0</span>;</div><div class="line">    </div><div class="line">    <span class="comment">// 用 objc_msgSend</span></div><div class="line">    start = [NSDate date];</div><div class="line">    <span class="keyword">for</span> (count = <span class="number">0</span>; count &lt; kTotalCount; count ++) &#123;</div><div class="line">        [<span class="built_in">string</span> setString:@<span class="string">"stuff"</span>];</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 计算用 objc_msgSend 耗时时间</span></div><div class="line">    totalTime = -[start timeIntervalSinceNow];</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"w/ objc_msgSend = %f\n"</span>, totalTime);</div><div class="line"></div><div class="line">    <span class="comment">// 跳过 objc_msgSend, 使用 methodForSelector 来做消息分派</span></div><div class="line">    start = [NSDate date];</div><div class="line">    SEL selector = @selector(setString:);</div><div class="line">    voidIMP setStringMethod = (voidIMP)[<span class="built_in">string</span> methodForSelector:selector];</div><div class="line">    <span class="keyword">for</span> (count = <span class="number">0</span>; count &lt; kTotalCount; count ++) &#123;</div><div class="line">        setStringMethod(<span class="built_in">string</span>,selector,@<span class="string">"stuff"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 计算用 跳过 objc_msgSend 耗时时间</span></div><div class="line">    totalTime = -[start timeIntervalSinceNow];</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"w/ objc_msgSend = %f\n"</span>,totalTime);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>多次运行之后，结果如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">用 objc_msgSend 耗时 = <span class="number">6.885367</span></div><div class="line">跳过 objc_msgSend 耗时 = <span class="number">6.475993</span></div></pre></td></tr></table></figure>
+<p>可以为这个例子做个总结。<strong>多数情况下，我们会把 Objective-C 的方法重写成函数，这样可以得到更好更可靠的性能提升，但是不要想着绕过消息分派器 objc_msgSend ，因为 objc_msgSend 的性能开销已经小到可以忽略不计了，不需要再去优化这个过程了</strong>。</p>
+<p>那么什么时候需要绕过消息分派器 objc_msgSend 呢？那就是循环内的大量方法调用，我们以一个<code>setFilled: </code>方法来做示例。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">void</span> (*setter)(id, SEL, BOOL);</div><div class="line"><span class="keyword">int</span> i;</div><div class="line"> </div><div class="line">setter = (<span class="keyword">void</span> (*)(id, SEL, BOOL))[target</div><div class="line">methodForSelector:@selector(setFilled:)];</div><div class="line"><span class="keyword">for</span> ( i = <span class="number">0</span> ; i &lt; <span class="number">1000</span> ; i++ )</div><div class="line">    setter(targetList[i], @selector(setFilled:), YES);</div></pre></td></tr></table></figure></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>本文是《iOS 编程实战》的读书笔记，对阅读的内容进行总结。当我们看懂了之后，不一定懂；我们跟着书上代码敲了一遍之后，还是不一定懂；只有我们能够把自己理解的内容写下来或者通过其它方式表达出来的时候，这个才是真的懂了；</p>
+<ol>
+<li>《iOS编程实战》第二十四章 深度解析Objective-C <a href="https://book.douban.com/subject/25976913/" target="_blank" rel="external">https://book.douban.com/subject/25976913/</a></li>
+<li><a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtHowMessagingWorks.html" target="_blank" rel="external">https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtHowMessagingWorks.html</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-msgsend/" data-id="cj7xenxvl0012u0fynnx2q5wo" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-oc-signature-invocation" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-signature-invocation/" class="article-date">
+  <time datetime="2017-04-16T05:51:14.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/oc-signature-invocation/">Objective-C 方法签名和调用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>NSInvocation 是命令模式的一种实现。它把一个目标、一个选择器、一个方法签名、所有的参数都放到一个对象里面。当 NSInvocation 被调用的时候，Objective-C Runtime会执行正确的方法实现。<br>NSInvocation 包含的一个目标是一个接受消息的对象，包含的选择器是被发送的消息。在这里我们可以把选择器看成一个方法的名称，也就是一个字符串。那 NSInvocation 包含的方法签名是什么呢？方法签名 NSMethodSignature 是一个方法的返回类型和参数类型，不包括方法名称。<br><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//  -[NSString  initWithUTF8String:] 的方法签名</span></div><div class="line"><span class="built_in">NSMethodSignature</span> *signature = [<span class="built_in">NSMethodSignature</span> signatureWithObjCTypes:<span class="string">"@@:*"</span>];</div></pre></td></tr></table></figure></p>
+<p>方法签名的 “ @@:<em> “ 字符串怎么理解呢？ 第一个字符 @ 表明返回值是一个 id。对于消息传递系统来说，所以的 Objective-C 对象都是 id 类型。 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL 。其实每个 Objective-C 方法都把 id 和 SEL 作为头2个参数。最后一个字符 \</em>   表示该方法的一个显式的参数是一个字符串（char *）。那如何获取这些类型编码呢，可以参考官方文档 <a href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1">Type Encodings</a> ，也可以直接使用类型编码 @encode(type) 获取表示该类型的字符串，而不必硬编码。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/04/16/oc-signature-invocation/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-signature-invocation/" data-id="cj7xenxw20015u0fy6sjyclzy" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-oc-dynamic" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-dynamic/" class="article-date">
+  <time datetime="2017-04-16T05:45:15.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/oc-dynamic/">Objective-C 动态实现</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在 Objective-C 中，我们偶尔会看到一个属性被声明为 @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了。那么 @dynamic 合成属性的方法是怎么样的呢？ 我们这里使用一个 Demo 来说明这个过程。<br>这个 Demo 使用动态实现来为 NSMutableDictionary 中存储的属性动态创建获取方法和设置方法。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/04/16/oc-dynamic/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-dynamic/" data-id="cj7xenxv4000xu0fyoxgpe7jn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-oc-fast-forwarding" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/04/16/oc-fast-forwarding/" class="article-date">
+  <time datetime="2017-04-16T04:49:01.000Z" itemprop="datePublished">2017-04-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/16/oc-fast-forwarding/">Objective-C 消息转发</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="快速转发"><a href="#快速转发" class="headerlink" title="快速转发"></a>快速转发</h3><p>什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那么我们可以利用这个快速转发的特性来代理对象。</p>
+<p>我们使用 CacheProxy 这个对象来说明如何利用快速转发的特性来缓存其他对象的 setter 和 getter 方法。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// CacheProxy.h</span></div><div class="line"><span class="meta">#import <span class="meta-string">&lt;Foundation/Foundation.h&gt;</span></span></div><div class="line"><span class="comment">// 快速转发 ：若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象。</span></div><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">CacheProxy</span> : <span class="title">NSProxy</span></span></div><div class="line"><span class="comment">// 初始化方法 ，返回类型为 id 类型，可以避免编译器报错</span></div><div class="line">- (<span class="keyword">id</span>)initWithObject:(<span class="keyword">id</span>)anObject properties:(<span class="built_in">NSArray</span> *)properties;</div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
+<p>值的注意的是  CacheProxy 并不是 NSObject 的子类，而是 NSProxy 的子类，NSProxy 是一个轻量级的根类，是为那些转发大部分方法调用的类而设计的。CacheProxy 本身就是一个代理对象，适合成为 NSProxy 的子类。</p>
+        
+          <p class="article-more-link">
+            <a href="/2017/04/16/oc-fast-forwarding/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/16/oc-fast-forwarding/" data-id="cj7xenxvc0010u0fy3q31da4y" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Runtime/">Runtime</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    <a class="extend prev" rel="prev" href="/page/3/">&laquo; __('prev')</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+  </nav>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Instruments/">Instruments</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 18px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 16px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 12px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 20px;">iOS</a> <a href="/tags/leetcode/" style="font-size: 16px;">leetcode</a> <a href="/tags/如何学习/" style="font-size: 14px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/09/23/ios-reachability/">iOS 网络监控框架 - Reachability 源码解读</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/vm/">深入浅出虚拟内存机制</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-palindrome-number/">9. Palindrome Number</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-reverse-integer/">7. Reverse Integer</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/c-perils-and-pitfalls/">C 语言常见的内存坑</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 要上班的斌哥<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

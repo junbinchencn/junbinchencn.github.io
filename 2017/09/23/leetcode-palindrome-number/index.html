@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>9. Palindrome Number | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="题目Determine whether an integer is a palindrome. Do this without extra space. Some hints:Could negative integers be palindromes? (ie, -1) If you are thinking of converting the integer to string, note t">
+<meta name="keywords" content="leetcode">
+<meta property="og:type" content="article">
+<meta property="og:title" content="9. Palindrome Number">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/leetcode-palindrome-number/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="题目Determine whether an integer is a palindrome. Do this without extra space. Some hints:Could negative integers be palindromes? (ie, -1) If you are thinking of converting the integer to string, note t">
+<meta property="og:updated_time" content="2017-09-23T14:20:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="9. Palindrome Number">
+<meta name="twitter:description" content="题目Determine whether an integer is a palindrome. Do this without extra space. Some hints:Could negative integers be palindromes? (ie, -1) If you are thinking of converting the integer to string, note t">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-leetcode-palindrome-number" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/23/leetcode-palindrome-number/" class="article-date">
+  <time datetime="2017-09-23T14:19:15.000Z" itemprop="datePublished">2017-09-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      9. Palindrome Number
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>Determine whether an integer is a palindrome. Do this without extra space.</p>
+<p>Some hints:<br>Could negative integers be palindromes? (ie, -1)</p>
+<p>If you are thinking of converting the integer to string, note the restriction of using extra space.</p>
+<p>You could also try reversing an integer. However, if you have solved the problem “Reverse Integer”, you know that the reversed integer might overflow. How would you handle such case?</p>
+<p>There is a more generic way of solving this problem.</p>
+<p>解题思路：<br>这道题首先要理解什么是回文数字，就是从左到右的数字顺序和从右到左的数字顺序是一样的，比如 12321。判断一个数字是否是回文数字有以下规则</p>
+<ol>
+<li>负数不是回文数字。</li>
+<li>能被 10 整除的也不是负数，0 除外。</li>
+<li>若是数字的位数是偶数位 n，那么从右向左反转 n/2 位数字，然后和剩下的 n/2 位从左向右数字比较，若是相等则是回文数字。 如<br>12344321 可以拆解成 1234 和 1234 对比。</li>
+<li>若是数字的位数是奇数位 n+1 ,那么从右向左反转 n/2  + 1 位数字得到数字 m，再将 m / 10 去掉个位数的到 q ，然后和剩下的 n/2 位从左向右数字比较，若是相等则是回文数字。如 12321，可以拆解成 12 和 12 对比。</li>
+</ol>
+<a id="more"></a>
+<p>解题代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Solution &#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">isPalindrome</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line">       <span class="comment">// 去掉负数和能够被 10 整除的数，0 除外</span></div><div class="line">        <span class="keyword">if</span>(x &lt; <span class="number">0</span> || (x % <span class="number">10</span> == <span class="number">0</span> &amp;&amp; x != <span class="number">0</span>)) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// 反转数字</span></div><div class="line">        <span class="keyword">int</span> revertedNumber = <span class="number">0</span>;</div><div class="line">        <span class="keyword">while</span>(x &gt; revertedNumber) &#123;</div><div class="line">            revertedNumber = revertedNumber * <span class="number">10</span> + x % <span class="number">10</span>;</div><div class="line">            x /= <span class="number">10</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> x == revertedNumber || x == revertedNumber/<span class="number">10</span>;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://leetcode.com/problems/palindrome-number/description/" target="_blank" rel="external">https://leetcode.com/problems/palindrome-number/description/</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/23/leetcode-palindrome-number/" data-id="cj7xenxu3000pu0fy1j5kd67l" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/leetcode/">leetcode</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/23/leetcode-reverse-integer/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          7. Reverse Integer
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/23/vm/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">深入浅出虚拟内存机制</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Instruments/">Instruments</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 18px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 16px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 12px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 20px;">iOS</a> <a href="/tags/leetcode/" style="font-size: 16px;">leetcode</a> <a href="/tags/如何学习/" style="font-size: 14px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/09/23/ios-reachability/">iOS 网络监控框架 - Reachability 源码解读</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/vm/">深入浅出虚拟内存机制</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-palindrome-number/">9. Palindrome Number</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-reverse-integer/">7. Reverse Integer</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/c-perils-and-pitfalls/">C 语言常见的内存坑</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 要上班的斌哥<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>CSE 351 Lab 1 Helper Worksheet | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="华盛顿大学的 CSE 351 课程 The Hardware / Software Interface https://courses.cs.washington.edu/courses/cse351/17wi/schedule.html ，该课程原来有一个 Coursera 版本，后来 Coursera 平台大升级，导致这门课在 Coursera 看不了。不过还是可以华盛顿大学的网站上找得到对应">
+<meta name="keywords" content="Coursera">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSE 351 Lab 1 Helper Worksheet">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/cse351-lab1-helper-worksheet/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="华盛顿大学的 CSE 351 课程 The Hardware / Software Interface https://courses.cs.washington.edu/courses/cse351/17wi/schedule.html ，该课程原来有一个 Coursera 版本，后来 Coursera 平台大升级，导致这门课在 Coursera 看不了。不过还是可以华盛顿大学的网站上找得到对应">
+<meta property="og:updated_time" content="2017-09-23T14:07:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CSE 351 Lab 1 Helper Worksheet">
+<meta name="twitter:description" content="华盛顿大学的 CSE 351 课程 The Hardware / Software Interface https://courses.cs.washington.edu/courses/cse351/17wi/schedule.html ，该课程原来有一个 Coursera 版本，后来 Coursera 平台大升级，导致这门课在 Coursera 看不了。不过还是可以华盛顿大学的网站上找得到对应">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-cse351-lab1-helper-worksheet" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/23/cse351-lab1-helper-worksheet/" class="article-date">
+  <time datetime="2017-09-23T14:03:32.000Z" itemprop="datePublished">2017-09-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CSE 351 Lab 1 Helper Worksheet
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>华盛顿大学的 CSE 351 课程 The Hardware / Software Interface <a href="https://courses.cs.washington.edu/courses/cse351/17wi/schedule.html" target="_blank" rel="external">https://courses.cs.washington.edu/courses/cse351/17wi/schedule.html</a> ，该课程原来有一个 Coursera 版本，后来 Coursera 平台大升级，导致这门课在 Coursera 看不了。不过还是可以华盛顿大学的网站上找得到对应的课程视频，地址在这里 <a href="https://courses.cs.washington.edu/courses/cse351/17wi/videos.html。" target="_blank" rel="external">https://courses.cs.washington.edu/courses/cse351/17wi/videos.html。</a><br>该课程的动手操作实验移植于计算机经典书籍《深入理解计算机系统》的实验。<br>这篇文章提及的练习是第一个实验 Lab1 的预热练习。题目位于 <a href="https://courses.cs.washington.edu/courses/cse351/17wi/sections/02/BitOperations.pdf" target="_blank" rel="external">https://courses.cs.washington.edu/courses/cse351/17wi/sections/02/BitOperations.pdf</a></p>
+<h3 id="规则限制"><a href="#规则限制" class="headerlink" title="规则限制"></a>规则限制</h3><p>简单介绍一下代码实现的规则</p>
+<ol>
+<li>不允许使用 if，else，以及其他条件语句</li>
+<li>== 操作符也不能用</li>
+<li>能使用的操作符会在每题题目中说明</li>
+</ol>
+<h3 id="第一题-Bit-Extraction"><a href="#第一题-Bit-Extraction" class="headerlink" title="第一题 Bit Extraction"></a>第一题 Bit Extraction</h3><p>Complete the following function which returns the value (either 0, or 1) of the 19th bit (counting from the least significant bit). Allowed operators: &gt;&gt;, &amp;, |, ~.</p>
+<p>解答：<br>int extract19(int x)<br>{<br>   return x &gt;&gt; 18 &amp; 0x1;<br>}<br>思路：既然是要取出第 19 个位置的 bit ,我们先把这个<br> bit 叫做 value。那么就先把左边 18 个位置的 bit 都移除掉，由于 int 类型是 signed integers 应该进行算术右移，所以进行一次算术右移操作。这个时候原来的 value 就位于最低位，再来一次 &amp; 0x1操作，把 value 左边的 bit 全部清 0 的同时保留了 value 所在位置的值。</p>
+  <a id="more"></a>
+<h3 id="第二题-Subtraction"><a href="#第二题-Subtraction" class="headerlink" title="第二题 Subtraction"></a>第二题 Subtraction</h3><p>Complete the following function which returns the value of x - y. Allowed operators: &gt;&gt;, &amp;, |, ~, +.</p>
+<p>解答：<br>int subtract(int x,int y)<br>{<br>    return x + ( (~y) + 1);<br>}<br>思路：在 int 的补码表示法中存在这么一个规律 ~x + 1 = -x , 在这题目中 x - y 可以看成 x + (-y), 而 -y 可以这样表示 ~y + 1 。那么 x - y 就可以写成 x + ( (~y) + 1) 。</p>
+<h3 id="第三题-Equality"><a href="#第三题-Equality" class="headerlink" title="第三题 Equality"></a>第三题 Equality</h3><p>Complete the following function which returns the value of x == y. Allowed operators: &gt;&gt;, &amp;, |, ~, +, ^, !.</p>
+<p>解答：<br>int equals(int x, int y)<br>{<br> return !( x ^ y);<br>}<br>思路：<br>要判断 x 和 y 相等，那么可以转化为 判断 x 的二进制表示 和 y 的二进制表示一致，^ 操作符在判断二进制位一致的话取 0 ，不一致的话取 1 。那么若是 x 与 y 相等，那么 x ^ y 的结果应该是 0 ，再对结果取反则达到判断目的。</p>
+<h3 id="第四题-Greater-than-zero"><a href="#第四题-Greater-than-zero" class="headerlink" title="第四题 Greater than zero?"></a>第四题 Greater than zero?</h3><p>Complete the following function which returns the value of x &gt; 0. Allowed operators: &gt;&gt;, &amp;, |, ~, +, ^, !.<br>解答：<br>int greater_than_0(int x)<br>{<br>return (~(x &gt;&gt; 31)) &amp; 0x01 &amp; (~x +1) &gt;&gt; 31;<br>}<br>思路：<br>这个题目有 2 个判断，第一个判断是为正数，第二个判断是不能等于 0。如果判断一个数为正数呢？只要判断该数的二进制表示的符号位是否为 0 。符号位若是为 0，那么就可以知道该数是正的，符号位若是为 1，那么该数就是负数。那么我们对第一个判断的实现结果是 ~(x &gt;&gt; 31) &amp; ox01。<br>接下来开始实现第二个判断即 “ 在正数的基础上还要判断该数不等于 0 “。从有符号数的补码可以知道，+0 和 -0 只有一个补码表示方案 – 0000, 其他数字 -1 的补码表示方案 – 1111, 1的补码表示方案 - 0001。<br>那么我们能不能利用这个特性来解决 “正数的基础上还要判断该数不等于 0” 这个问题呢？</p>
+<ol>
+<li>若是 x = 0 ，在第一个判断 ~(x &gt;&gt; 31) &amp; 0x01 为 1 的条件下，我们增加一个判断让整个表达式的值为 0 </li>
+<li>若是 x &gt; 0 ,在第一个判断 ~(x &gt;&gt; 31) &amp; 0x01 为 1 的条件下，我们增加一个判断让整个表达式的值为 1</li>
+<li>若是 x &lt; 0 ,在第一个判断 ~(x &gt;&gt; 31) &amp; 0x01 为 0 的条件下，我们增加一个判断让整个表达式的值为 1</li>
+</ol>
+<p>这个时候我们可以从补码 ~x +1 =  -x 这个规律中得到启发，我们增加 (~x +1) &gt;&gt; 31 这个条件来解决上述的3个问题。<br>最后的结果是 (~(x &gt;&gt; 31)) &amp; 0x01 &amp; (~x +1) &gt;&gt; 31 。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li>华盛顿大学的 CSE 351 课程 The Hardware / Software Interface<br><a href="https://courses.cs.washington.edu/courses/cse351/17wi/videos.html" target="_blank" rel="external">https://courses.cs.washington.edu/courses/cse351/17wi/videos.html</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/23/cse351-lab1-helper-worksheet/" data-id="cj7xenxrw0007u0fy9ncr8sqb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/23/sdwebimage-header/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          SDWebImage 不缓存特定 response header 的图片
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/23/the-hs-interface-lab1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">The Hardware / Software Interface  Lab1</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Instruments/">Instruments</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 18px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 16px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 12px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 20px;">iOS</a> <a href="/tags/leetcode/" style="font-size: 16px;">leetcode</a> <a href="/tags/如何学习/" style="font-size: 14px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/09/23/ios-reachability/">iOS 网络监控框架 - Reachability 源码解读</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/vm/">深入浅出虚拟内存机制</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-palindrome-number/">9. Palindrome Number</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-reverse-integer/">7. Reverse Integer</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/c-perils-and-pitfalls/">C 语言常见的内存坑</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 要上班的斌哥<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

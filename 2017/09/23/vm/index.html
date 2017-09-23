@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>深入浅出虚拟内存机制 | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="概述现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：  它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。 它为内阁进程提供了一致的地址空间,简化了内存管理。 它保护了每个进程的地址空间不被其他进程破坏。">
+<meta name="keywords" content="Coursera">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入浅出虚拟内存机制">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/vm/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="概述现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：  它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。 它为内阁进程提供了一致的地址空间,简化了内存管理。 它保护了每个进程的地址空间不被其他进程破坏。">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-88af406f0dcc3d44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-23f0b90ff47ff865.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-69e161044b463291.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-7419ada328577373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-c4f69235f83c9900.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-497732e85d4dbb56.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-fb569e4c385207e0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-c9624fe1b11cde33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-78f53bcb2a7b15e0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-3f7dc17b2fb7db0c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-240a63aaeb3f0016.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-035dc92aa961fa69.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-60dac9e56a9eaef4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-1c3349d763847a7c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-f8c496fb870767fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-0fd87f72bdf165e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-eb68fce51454222e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-c8964c195271fd28.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-09-23T14:21:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入浅出虚拟内存机制">
+<meta name="twitter:description" content="概述现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：  它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。 它为内阁进程提供了一致的地址空间,简化了内存管理。 它保护了每个进程的地址空间不被其他进程破坏。">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/656644-88af406f0dcc3d44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-vm" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/23/vm/" class="article-date">
+  <time datetime="2017-09-23T14:20:46.000Z" itemprop="datePublished">2017-09-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      深入浅出虚拟内存机制
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：</p>
+<ol>
+<li>它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。</li>
+<li>它为内阁进程提供了一致的地址空间,简化了内存管理。</li>
+<li>它保护了每个进程的地址空间不被其他进程破坏。</li>
+</ol>
+<a id="more"></a>
+<h3 id="物理和虚拟寻址"><a href="#物理和虚拟寻址" class="headerlink" title="物理和虚拟寻址"></a>物理和虚拟寻址</h3><p>计算机的主存可以看做是一个由 M 个连续的字节大小的单元组成的数组。每个字节都有一个唯一的物理地址（Physical Address,PA）。第一个字节的地址为 0，接下来的地址为 1，以此类推。CPU 访问内存的最简单的方式是使用物理寻址（physical addressing）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-88af406f0dcc3d44.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="物理寻址"><br>该图例的上下文是一条加载指令，塔读取从物理地址 4 处开始的 4 字节字。CPU 在执行这条指令的时候，生成一个有效物理地址，通过内存总线，把这个物理地址传递给主存，主存取出从物理地址4处开始的 4 个字节字，然后将它返回给 CPU，CPU 将它存放在一个寄存器里。早期使用物理寻址的系统通常都比较简单，比如数字信号处理器，计算器等嵌入式设备。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-23f0b90ff47ff865.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="虚拟寻址"><br>现在处理器采用的是一个程序虚拟寻址（virtual addressing）的寻址方式，如上图所示。CPU 通过生成一个虚拟地址（virtual address,VA）来访问主存，这个虚拟地址在被送到主存之前会先转换成一个物理地址。将虚拟地址转换成物理地址的任务叫做地址翻译（address translation），地址翻译需要 CPU 硬件和操作系统之间的配合。 CPU 芯片上叫做内存管理单元（Menory Management Unit, MMU）的专用硬件，利用存放在主存中的查询表来动态翻译虚拟地址，该表的内容由操作系统管理。</p>
+<h3 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h3><p>地址空间（address space）是一个非负整数 <strong>地址</strong> 的有序合集：{0，1，2，… }</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-69e161044b463291.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="地址空间"><br>在一个带虚拟内存的系统中，CPU 从一个有 N= 2 的 n 次方 个地址的地址空间中生成虚拟地址，这个地址空间就称为虚拟地址空间：<br>{0，1，2，3，…., N-1}。<br>一个系统还有一个地理地址空间，对应于系统中物理内存的 M 个字节： {0，1，2，3，…, M-1}。<br>一个地址空间的大小通常是由表示最大地址所需要的位数来描述的，比如，一个包含 N = 2 的 n 次方 个地址的虚拟地址空间就叫做一个 n 位地址空间，现代操作系统通常支持 32 位或者 64 位虚拟地址空间。</p>
+<h3 id="虚拟内存做为缓存的工具"><a href="#虚拟内存做为缓存的工具" class="headerlink" title="虚拟内存做为缓存的工具"></a>虚拟内存做为缓存的工具</h3><p>从概念上来说，虚拟内存被组织成为一个由存放在磁盘上的 N 个连续的字节大小的单元组成的数组，也就是字节数组。每个字节都有一个唯一的虚拟地址作为数组的索引。磁盘上活动的数组内容被缓存在主存中。在存储器结构中，较低层次上的磁盘的数据被分割成块，这些块作为和较高层次的主存之间的传输单元。主存作为虚拟内存的缓存。</p>
+<p>虚拟内存（VM）系统将虚拟内存分割成称为虚拟页（Virtual Page,VP）的大小固定的块，每个虚拟页的大小为 P = 2 的 p 次方 字节。同样的，物理内存被分割为物理页（Physical Page,PP）,大小也为 P 字节（物理页也称作页帧（page frame））。</p>
+<p>在任意时刻，虚拟页面的集合都分为三个不相交的子集：</p>
+<ol>
+<li>未分配的，VM 系统还未分配（或者创建）的页，未分配的页没有任何数据和它们关联，因此不占用任何内存空间。</li>
+<li>缓存的，当前已缓存在物理内存中的已分配页。</li>
+<li>未缓存的，未缓存在物理内存中的已分配页。</li>
+</ol>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-7419ada328577373.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="VM系统如何使用主存作为缓存"></p>
+<p>上图展示了在一个有 8 个虚拟内存的虚拟内存中，虚拟页 0 和 3 还没有被分配，所以在磁盘上不存在。虚拟页 1，4，6 被缓存在物理内存中。虚拟页 2，5，7 已经被分配了，但是当前并没有缓存在主存中。</p>
+<h4 id="DRAM-缓存的组织结构"><a href="#DRAM-缓存的组织结构" class="headerlink" title="DRAM 缓存的组织结构"></a>DRAM 缓存的组织结构</h4><p><img src="http://upload-images.jianshu.io/upload_images/656644-c4f69235f83c9900.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>我们使用 SRAM 缓存来表示位于 CPU 和 主存之间的  L1, L2 和 L3 高速缓存，使用 DRAM 缓存来表示虚拟内存系统中的缓存，也就是主存。</p>
+<p>在存储器层次结构中， DRAM 比 SRAM 慢个大约 10x 倍，磁盘比 DRAM 慢大约 10, 000x 倍。因此 DRAM 缓存的不命中比 SRAM 缓存中的不命中要昂贵的多，因为 DRAM 缓存不命中需要和磁盘传送数据，而 SRAM 缓存不命中是和 DRAM 传送数据。</p>
+<p>归根到底， DRAM 缓存的组织结构是由巨大的不命中开销驱动的。</p>
+<h4 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h4><p><img src="http://upload-images.jianshu.io/upload_images/656644-497732e85d4dbb56.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="indexing"></p>
+<p>VA 是通过什么方式转成 PA 呢 ？<br>同任何缓存一样，虚拟内存系统必须有某种方法来判定一个虚拟也是否缓存在 DRAM 的某个地方。如果命中缓存，那么虚拟内存系统还必须确认这个虚拟页存在哪个物理页中。如果没有命中缓存，那么虚拟内存系统必须判断虚拟页存放在磁盘的哪个位置，在物理内存中选择一个牺牲页，并将虚拟页从磁盘复制到 DRAM，替换这个牺牲页。</p>
+<p>这些功能由软硬件联合提供，包括操作系统软件，MMU 中的地址翻译硬件和一个存放在物理内存中叫页表（page table）的数据结构，页表将虚拟页映射到物理页。每次地址翻译硬件将一个虚拟地址转换成物理地址时都会读取页表。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-fb569e4c385207e0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Page Tables"></p>
+<p>上图展示了一个页表的基本结构，页表就是一个页表条目（Page Table Entry,PTE）的数组。虚拟地址空间中的每个页在页表中都有一个 PTE。在这里我们假设每个 PTE 是由一个有效位（Valid bit）和一个 n 位地址字段组成的。有效位表明了该虚拟页当前是否被缓存在 DRAM 中。如果有效位为 1，那么地址字段就表示 DRAM 中相应的物理页的起始位置，这个物理页缓存了该虚拟页。如果有效位为 0，那么一个 null 地址表示这个虚拟页还未被分配，否则对应的这个地址就指向该虚拟页在磁盘上的起始位置。</p>
+<p>上图所示中一共有 8 个虚拟页和 4 个物理页的页表，4 个虚拟页 VP1, VP2, VP4, VP7 当前被缓存在 DRAM 中，VP0 和 VP5 还未被分配，而剩下的 VP3 和 VP6 已经被分配了，但是当前未被缓存。</p>
+<h4 id="页命中"><a href="#页命中" class="headerlink" title="页命中"></a>页命中</h4><p><img src="http://upload-images.jianshu.io/upload_images/656644-c9624fe1b11cde33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>当 CPU 想要读取 VP2 中的虚拟内存中的一个字时，地址翻译硬件将虚拟地址作为一个索引来定位到 PTE2, 并从主存中读取它。因为 PTE2 设置了有效位，所以 VP2 是缓存在主存中的，所以地址翻译硬件使用 PTE 中的物理内存地址构造出这个字的物理地址。</p>
+<h4 id="缺页"><a href="#缺页" class="headerlink" title="缺页"></a>缺页</h4><p><img src="http://upload-images.jianshu.io/upload_images/656644-78f53bcb2a7b15e0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="缺页"></p>
+<p>在虚拟内存中，DRAM 缓存不命中称为缺页（page fault）。如上图所示，CPU 引用了 VP3 中的一个字， VP3 并未缓存在 DRAM 中。地址翻译硬件从内存中读取 PTE3, 从有效位判断出 VP3 未被缓存，并且触发了一个缺页异常。缺页异常会调用内核的缺页异常处理程序，该程序会选择一个牺牲页。如下图所示，在这个案例中就是存放在 PP3 中的 VP4。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-3f7dc17b2fb7db0c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="牺牲页"></p>
+<p>此时如果 VP4 已经被修改了，那么内核程序会将它复制回磁盘。接下来，内核程序从磁盘赋值 VP3 到内存中的 PP3并更新 PTE3。随后返回用户进程。当异常处理程序返回时，它会重启执行导致缺页的指令，该指令会将导致缺页的虚拟地址重新发送到地址翻译硬件。如下图所示，现在 VP3 已经在主存中了，那么就是页命中了。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-240a63aaeb3f0016.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="页命中"></p>
+<h4 id="局部性"><a href="#局部性" class="headerlink" title="局部性"></a>局部性</h4><p>当我们了解了虚拟内存的运作机制之后，是不是觉得虚拟内存的效率会很低呢？因为页面没有命中的代价非常大。是不是担心虚拟内存会影响程序的性能呢？其实虚拟内存运作的非常好。它充分利用了局部性（ locality ）的原理。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-035dc92aa961fa69.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="局部性"></p>
+<p>在程序整个运作过程中，程序引用的不同页面的总数可能超出了物理内存的总大小，但是局部性原则可以保证在任意时刻，程序将趋向于在一个较小的活动页面（active page）集合上工作，这个集合被称作工作集（working set）或者常驻集合（resident set）。在程序初始开销之后也就是将工作集页面调入主存，接下来对这个工作集的访问会产生命中，这样就不会产生额外的磁盘消耗。<br>如果程序有良好的时间局部性，那么虚拟内存将工作的非常好。如果程序没有良好的时间局部性也就是工作集的大小超出了主存的大小，那么程序将会进入一个称作 抖动（thrashing）的状态，这个时候页面将不断地换进换出，程序会出现性能问题。</p>
+<h3 id="虚拟内存作为内存管理的工具"><a href="#虚拟内存作为内存管理的工具" class="headerlink" title="虚拟内存作为内存管理的工具"></a>虚拟内存作为内存管理的工具</h3><p>虚拟内存大大简化了内存管理，操作系统为每个进程提供了一个独立的虚拟地址空间。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-60dac9e56a9eaef4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="内存管理工具"></p>
+<p>在上图中，进程 1 的页表将 VP1 映射到 PP2, VP2 映射到 PP6。进程 2 的页表将 VP1 映射到 PP8, VP2 映射到 PP6。在这里可以看到多个虚拟页面可以映射到同一个共享的物理页面上。</p>
+<p>按需页面调度和独立的虚拟地址空间的结合，让 虚拟内存简化了链接和加载，代码和数据共享，以及应用程序的内存分配。</p>
+<ul>
+<li>简化链接。独立的地址空间允许每个进程的内存映像使用相同的基本格式，而不管代码和数据实际存放在物理内存的何处。</li>
+<li>简化加载。虚拟内存使得容易向内存中加载可执行文件和共享对象文件。将一组连续的虚拟页面映射到任意一个文件中的任意位置的表示法称作内存映射（memory mapping）。Linux 提供了一个 nmap 的系统调用，允许应用程序自己做内存映射。</li>
+<li>简化共享。独立地址空间为操作系统提供了一个管理用户进程和操作系统自身之间共享的一致机制。一般情况下，每个进程都有自己私有的代码、数据、堆栈。这些内容不与其他进程共享。在这种情况下，操作系统创建页表，将相应的虚拟页映射到不连续的物理页面。</li>
+<li>简化内存分配。虚拟内存向用户进程提供一个简单的分配额外内存的机制。当一个用户程序要求额外的堆空间时候，操作系统分配 k 个适当的连续的虚拟内存页面，并且将他们映射到物理内存的中的 k 个任意页面，操作系统没有必要分配 k 个连续的物理内存页面。</li>
+</ul>
+<h3 id="虚拟内存作为内存保护的工具"><a href="#虚拟内存作为内存保护的工具" class="headerlink" title="虚拟内存作为内存保护的工具"></a>虚拟内存作为内存保护的工具</h3><p>虚拟内存大大简化了内存管理，操作系统提供独立的地址空间使得区分不同进程的私有内存变得容易，但是地址翻译机制可以使用一种自然的方式拓展到提供更好的访问控制。每次 CPU 生成一个地址时，地址翻译硬件都会读一个 PTE ，通过在 PTE 上添加一些额外的控制位来控制对一个虚拟页面内容的访问。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-1c3349d763847a7c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="访问控制"></p>
+<p>在上图中，每个 PTE 添加了三个控制位， SUP 位表示进程是否必须运行在超级用也就是内核模式下才能访问该页，WRITE 位控制页面的写访问， EXRC 位控制页面的执行。如果有指令违反了这些控制条件，那么 CPU 会触发一个一般保护故障，将控制传递给内核中的异常处理程序。</p>
+<h3 id="地址翻译"><a href="#地址翻译" class="headerlink" title="地址翻译"></a>地址翻译</h3><p><img src="http://upload-images.jianshu.io/upload_images/656644-f8c496fb870767fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="页面命中"></p>
+<p>上图中展示了页面命中的场景，CPU 硬件的执行步骤：</p>
+<ol>
+<li>处理器 生成一个虚拟地址，并把它传送给 MMU。</li>
+<li>MMU 生成 PTE 地址，并从高速缓存/主存中请求这个 PTE 。</li>
+<li>高速缓存/主存向 MMU 返回 PTE。</li>
+<li>MMU 构造物理地址，并把它传送给高速缓存/主存。</li>
+<li>高速缓存/主存返回所请求的数据字给处理器。</li>
+</ol>
+<p>页面命中是全部由硬件来处理的，既然有页面命中，那么就有页面不命中的场景。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-0fd87f72bdf165e9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="页面不命中"></p>
+<p>上图展示了页面不命中的场景， CPU 硬件的执行步骤：</p>
+<ol>
+<li>处理器 生成一个虚拟地址，并把它传送给 MMU。</li>
+<li>MMU 生成 PTE 地址，并从高速缓存/主存中请求这个 PTE 。</li>
+<li>高速缓存/主存向 MMU 返回 PTE。</li>
+<li>PTE 中的有效控制位为 0 ，所以 MMU 触发了一次异常，传递 CPU 中的控制到操作系统内核中的缺页异常处理程序。</li>
+<li>缺页处理程序确定出物理内存中的牺牲页，如果这个页面已经被修改了，则把它换出到磁盘。</li>
+<li>缺页处理程序调入新的页面，并更新内存中的 PTE。</li>
+<li>缺页处理程序返回原来的进程，再次执行导致缺页的指令， CPU 将引起缺页的虚拟地址重新发送给 MMU ，因为虚拟页面现在存在主存中，所以会命中，主存将请求字返回给处理器。</li>
+</ol>
+<p>地址翻译的过程执行起来太慢了？怎么解决呢？答案你应该也猜到了，就是添加缓存。在 MMU 中包含了一个 TLB （Translation Lookaside Buffer）缓存。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-eb68fce51454222e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="TLB 命中"></p>
+<p>我们来看看 TLB 命中的场景，</p>
+<ul>
+<li>第 1 步 CPU 产生一个虚拟地址</li>
+<li>第 2 和 3 步 MMU 从 TLB 中取出对应的 PTE 。</li>
+<li>第 4 步 MMU 将这个虚拟地址翻译成一个物理地址，并且将它发送到高速缓存/主存。</li>
+<li>第 5 步 高速缓存/主存将所请求的数据字返回 CPU。</li>
+</ul>
+<p>如下图所示，当 TLB 不命中的时候， 多了步骤 3 和 4 ，MMU 必须从 L1 缓存中取出对应的 PTE , 新取出的 PTE 存放在 TLB 中，可能会覆盖一个已经存在的 PTE 。<br><img src="http://upload-images.jianshu.io/upload_images/656644-c8964c195271fd28.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="TLB 不命中"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>虚拟内存对于计算机系统来说是核心的，虚拟内存也是强大的，同时虚拟内存也是危险的。虚拟内存还包括多级页表，内存映射，动态内存分配，垃圾收集等等内容。限于篇幅，这里只是叙述了一些基本的概念，帮助程序员理解 虚拟内存 这个概念，对具体细节不做深究。若是有兴趣的话，可以参考 《深入理解计算机系统》书籍，了解更多关于计算机虚拟内存要点。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>本文是华盛顿大学的公开课 《 The Hardware / Software Interface 》的课程笔记，该课程的参考书籍是大名鼎鼎的 CSAPP 也就是《 深入理解计算机系统 》这书。文章截图来源于课程，文章的内容也参考了 CSAPP 的书本内容。</p>
+<ol>
+<li><a href="https://courses.cs.washington.edu/courses/cse351/17wi/videos.html" target="_blank" rel="external">https://courses.cs.washington.edu/courses/cse351/17wi/videos.html</a></li>
+<li><a href="https://book.douban.com/subject/26912767/" target="_blank" rel="external">https://book.douban.com/subject/26912767/</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/23/vm/" data-id="cj7xenxxg001xu0fyerwdvl1x" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/23/leetcode-palindrome-number/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          9. Palindrome Number
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/23/ios-reachability/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">iOS 网络监控框架 - Reachability 源码解读</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Instruments/">Instruments</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 18px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 16px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 12px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 20px;">iOS</a> <a href="/tags/leetcode/" style="font-size: 16px;">leetcode</a> <a href="/tags/如何学习/" style="font-size: 14px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/09/23/ios-reachability/">iOS 网络监控框架 - Reachability 源码解读</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/vm/">深入浅出虚拟内存机制</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-palindrome-number/">9. Palindrome Number</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-reverse-integer/">7. Reverse Integer</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/c-perils-and-pitfalls/">C 语言常见的内存坑</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 要上班的斌哥<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

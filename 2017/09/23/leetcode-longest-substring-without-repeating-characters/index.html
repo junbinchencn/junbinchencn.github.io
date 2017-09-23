@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>3. Longest Substring Without Repeating Characters | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="题目Given a string, find the length of the longest substring without repeating characters. Examples:12345Given &quot;abcabcbb&quot;, the answer is &quot;abc&quot;, which the length is 3.Given &quot;bbbbb&quot;, the answer is &quot;b&quot;, wi">
+<meta name="keywords" content="leetcode">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3. Longest Substring Without Repeating Characters">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/leetcode-longest-substring-without-repeating-characters/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="题目Given a string, find the length of the longest substring without repeating characters. Examples:12345Given &quot;abcabcbb&quot;, the answer is &quot;abc&quot;, which the length is 3.Given &quot;bbbbb&quot;, the answer is &quot;b&quot;, wi">
+<meta property="og:updated_time" content="2017-09-23T14:14:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="3. Longest Substring Without Repeating Characters">
+<meta name="twitter:description" content="题目Given a string, find the length of the longest substring without repeating characters. Examples:12345Given &quot;abcabcbb&quot;, the answer is &quot;abc&quot;, which the length is 3.Given &quot;bbbbb&quot;, the answer is &quot;b&quot;, wi">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-leetcode-longest-substring-without-repeating-characters" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/23/leetcode-longest-substring-without-repeating-characters/" class="article-date">
+  <time datetime="2017-09-23T14:13:36.000Z" itemprop="datePublished">2017-09-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      3. Longest Substring Without Repeating Characters
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><p>Given a string, find the length of the longest substring without repeating characters.</p>
+<p>Examples:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Given <span class="string">"abcabcbb"</span>, the answer is <span class="string">"abc"</span>, which the length is <span class="number">3.</span></div><div class="line"></div><div class="line">Given <span class="string">"bbbbb"</span>, the answer is <span class="string">"b"</span>, with the length of <span class="number">1.</span></div><div class="line"></div><div class="line">Given <span class="string">"pwwkew"</span>, the answer is <span class="string">"wke"</span>, with the length of <span class="number">3.</span> Note that the answer must be a substring, <span class="string">"pwke"</span> is a subsequence and not a substring.</div></pre></td></tr></table></figure></p>
+<p>解题思路：<br>这道题求解的是最大子串的长度</p>
+<ol>
+<li>寻找一种容器，可以用来容纳字符串，</li>
+<li>字符串容器能够判断一个字符是否存在于容器中</li>
+<li>若是字符串已经存在于容器中，相对应的最大子串的长度和最大子串都应作出相应的处理</li>
+</ol>
+<a id="more"></a>
+<p>解题代码：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> Solution &#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">    <span class="function"><span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(<span class="built_in">string</span> s)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> characters[<span class="number">256</span>] = &#123;<span class="number">0</span>&#125;;<span class="comment">//保存出现的字符串</span></div><div class="line">    <span class="keyword">int</span> max_length = <span class="number">0</span>; <span class="comment">// 最大子字符串长度</span></div><div class="line">    <span class="keyword">int</span> index_substring = <span class="number">0</span>;<span class="comment">//最大子字符串的起始索引</span></div><div class="line">    </div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.size(); i++)&#123;</div><div class="line">        <span class="keyword">if</span> (characters[s[i]] == <span class="number">0</span> || characters[s[i]] &lt; index_substring ) &#123;</div><div class="line">            </div><div class="line">            <span class="comment">//characters[s[i]] == 0 说明该字符还不存在</span></div><div class="line">            <span class="comment">//characters[s[i]] &lt; index_substring 说明该字符已经出现过，但是不在现在的最大子字符串里面，比如 "tmmzuxt" 中的最大子字符串是 "mzuxt" ，但是 "mzuxt" 中的 t 在第一个就出现过了，但是 t 在当前的最大子字符串 “mzuxt” 没有出现过，所以也需要计数，加入最大子字符串长度</span></div><div class="line">            max_length = max(max_length, i - index_substring + <span class="number">1</span>);</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            <span class="comment">//该字符已经存在了，那么将更新 index_substring</span></div><div class="line">            index_substring = characters[s[i]];</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//给 characters[s[i]]  赋值 i+1 是为了作为最大子字符串的起始索引</span></div><div class="line">        characters[s[i]] = i + <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> max_length;</div><div class="line">        </div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/solution/" target="_blank" rel="external">https://leetcode.com/problems/longest-substring-without-repeating-characters/solution/</a></li>
+<li><a href="http://www.cnblogs.com/grandyang/p/4480780.html" target="_blank" rel="external">http://www.cnblogs.com/grandyang/p/4480780.html</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/23/leetcode-longest-substring-without-repeating-characters/" data-id="cj7xenxtw000nu0fyeuu4r4ty" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/leetcode/">leetcode</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/23/leetcode-add-two-numbers/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          2. Add Two Numbers
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/23/c-perils-and-pitfalls/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C 语言常见的内存坑</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Instruments/">Instruments</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 18px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 16px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 12px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 20px;">iOS</a> <a href="/tags/leetcode/" style="font-size: 16px;">leetcode</a> <a href="/tags/如何学习/" style="font-size: 14px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/09/23/ios-reachability/">iOS 网络监控框架 - Reachability 源码解读</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/vm/">深入浅出虚拟内存机制</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-palindrome-number/">9. Palindrome Number</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-reverse-integer/">7. Reverse Integer</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/c-perils-and-pitfalls/">C 语言常见的内存坑</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 要上班的斌哥<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

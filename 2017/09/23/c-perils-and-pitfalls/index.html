@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>C 语言常见的内存坑 | 要上班的斌哥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="C 语言常见的内存错误类型提起 C 语言，大家可能会第一个想到指针，接着可能会想起与内存有关的错误。我们就利用这篇博客来总结一下 C 语言中常见的与内存有关的错误！   解引用坏指针 读取未初始化的内存 覆盖内存 解引用一个不存在的变量 多次释放一个内存 block 引用被释放的内存 内存 block 释放失败">
+<meta name="keywords" content="Coursera">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C 语言常见的内存坑">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/c-perils-and-pitfalls/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="C 语言常见的内存错误类型提起 C 语言，大家可能会第一个想到指针，接着可能会想起与内存有关的错误。我们就利用这篇博客来总结一下 C 语言中常见的与内存有关的错误！   解引用坏指针 读取未初始化的内存 覆盖内存 解引用一个不存在的变量 多次释放一个内存 block 引用被释放的内存 内存 block 释放失败">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/656644-0ccee002970b1fe8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-09-23T14:17:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C 语言常见的内存坑">
+<meta name="twitter:description" content="C 语言常见的内存错误类型提起 C 语言，大家可能会第一个想到指针，接着可能会想起与内存有关的错误。我们就利用这篇博客来总结一下 C 语言中常见的与内存有关的错误！   解引用坏指针 读取未初始化的内存 覆盖内存 解引用一个不存在的变量 多次释放一个内存 block 引用被释放的内存 内存 block 释放失败">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/656644-0ccee002970b1fe8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+  
+    <link rel="alternate" href="/atom.xml" title="要上班的斌哥" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">要上班的斌哥</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-c-perils-and-pitfalls" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/23/c-perils-and-pitfalls/" class="article-date">
+  <time datetime="2017-09-23T14:15:45.000Z" itemprop="datePublished">2017-09-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C 语言常见的内存坑
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="C-语言常见的内存错误类型"><a href="#C-语言常见的内存错误类型" class="headerlink" title="C 语言常见的内存错误类型"></a>C 语言常见的内存错误类型</h3><p>提起 C 语言，大家可能会第一个想到指针，接着可能会想起与内存有关的错误。我们就利用这篇博客来总结一下 C 语言中常见的与内存有关的错误！</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/656644-0ccee002970b1fe8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="常见的内存错误"></p>
+<ol>
+<li>解引用坏指针</li>
+<li>读取未初始化的内存</li>
+<li>覆盖内存</li>
+<li>解引用一个不存在的变量</li>
+<li>多次释放一个内存 block</li>
+<li>引用被释放的内存</li>
+<li>内存 block 释放失败</li>
+</ol>
+<a id="more"></a>
+<p>那么接下来，我们用具体的案例来说明一下上面提到的与内存有关的错误。</p>
+<h3 id="Dereferencing-Bad-Pointers"><a href="#Dereferencing-Bad-Pointers" class="headerlink" title="Dereferencing Bad Pointers"></a>Dereferencing Bad Pointers</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> val;</div><div class="line"><span class="built_in">scanf</span>(<span class="string">"%d"</span>,val);</div></pre></td></tr></table></figure>
+<p>这个代码的本意是使用 scanf 从 stdin 读取一个整数到 val 这个变量。但是 scanf 需要的参数是一个格式字符串和变量的地址</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">scanf</span>(<span class="string">"%d"</span>,&amp;val);</div></pre></td></tr></table></figure>
+<p>这个内存相关的错误是把 val 的值作为一个内存地址来使用了，程序会试图将一个整数写到这个内存位置上， 这样做会导致不可预知的后果，如果运气好的话，程序会由于 segmentation fault 导致崩溃。如果运气不好的话，val 的值对应到了虚拟内存中的一些有效的读写区域，导致 scanf 将数据覆盖到该内存区域，然后发生无法预料的错误，这种类型的错误难以被发现或者调试。</p>
+<h3 id="Reading-Uninitialized-Memory"><a href="#Reading-Uninitialized-Memory" class="headerlink" title="Reading Uninitialized Memory"></a>Reading Uninitialized Memory</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> <span class="comment">/* return y = Ax */</span></div><div class="line"><span class="function"><span class="keyword">int</span> *<span class="title">matvec</span><span class="params">(<span class="keyword">int</span> **A, <span class="keyword">int</span> *x)</span> </span>&#123;</div><div class="line">   <span class="keyword">int</span> *y = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>( N * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line">   <span class="keyword">int</span> i, j;</div><div class="line">   <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;N; i++) &#123;</div><div class="line">      <span class="keyword">for</span> (j=<span class="number">0</span>; j&lt;N; j++) &#123;</div><div class="line">         y[i] += A[i][j] * x[j];</div><div class="line">      &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">return</span> y; &#125;</div></pre></td></tr></table></figure>
+<p>在 C 语言中，为初始化的全局变量总是会被加载器初始化为零，但是对于堆内存却不会主动初始化。<br>在程序中，y[i] 这个变量的初始值并不一定等于零，但是从程序的写法来看，程序员默认 y[i] 这个变量的初始值就是为零。对于这个类型错误的解决办法就是正确的初始化变量，将 y[i] 设置为零。<br>读取未初始化的内存错误，简单来说本来初始化的内存就都存在这个内存区域里面，但是程序到其他内存区域读写数据了。</p>
+<h3 id="Overwriting-Memory"><a href="#Overwriting-Memory" class="headerlink" title="Overwriting Memory"></a>Overwriting Memory</h3><p>1、错误估计了对象的大小<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">int</span> **p;</div><div class="line">p = (<span class="keyword">int</span> **)<span class="built_in">malloc</span>( N * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line"><span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;N; i++) &#123;</div><div class="line">   p[i] = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>( M * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line">&#125;</div><div class="line">``` </div><div class="line">这个程序是创建一个由 N 个指针组成的数组，每个指针指向一个包含 M 个 <span class="keyword">int</span> 类型的元素的数组。</div><div class="line">但是 </div><div class="line">```cpp</div><div class="line">p = (<span class="keyword">int</span> **)<span class="built_in">malloc</span>( N * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div></pre></td></tr></table></figure></p>
+<p>这句代码是假设了指针和指针它们指向的对象是大小相同的，将sizeof(int) 和 sizeof(int*) 混同，这段代码在 int 字节大小和指向 int 的指针的字节大小相同的机器上会正确运行，但是如果不相等就会出问题，正确的代码应该是<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">p = (<span class="keyword">int</span> **)<span class="built_in">malloc</span>( N * <span class="keyword">sizeof</span>( <span class="keyword">int</span> * ) );</div></pre></td></tr></table></figure></p>
+<p>2、错位错误<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> **p;</div><div class="line">p = (<span class="keyword">int</span> **)<span class="built_in">malloc</span>( N * <span class="keyword">sizeof</span>(<span class="keyword">int</span> *) );</div><div class="line"><span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;=N; i++) &#123;</div><div class="line">   p[i] = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>( M * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这段代码是创建了一个 N 个元素的指针数组，但是在初始化指针数组的时候初始化了 N+1 个，把 p 数组后面的内存位置覆盖掉了。</p>
+<p>3、未做数组越界检查<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">char</span> s[<span class="number">8</span>];</div><div class="line"><span class="keyword">int</span> i;</div><div class="line">gets(s);  <span class="comment">/* reads “123456789” from stdin */</span></div></pre></td></tr></table></figure></p>
+<p>这个程序不检查输入的字符串的大小就写入栈中的目标缓冲区，那么就会造成缓冲区溢出错误，为了避免这个错误不要使用 gets 函数而是使用 fgets 函数，这个函数有对字符串的大小进行限制。<br>。<br>4、误解指针运算<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> *<span class="title">search</span><span class="params">(<span class="keyword">int</span> *p, <span class="keyword">int</span> val)</span> </span>&#123;</div><div class="line">   <span class="keyword">while</span> (p &amp;&amp; *p != val)</div><div class="line">      p += <span class="keyword">sizeof</span>(<span class="keyword">int</span>);</div><div class="line"><span class="keyword">return</span> p; </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>5、引用指针而不是它所指的对象</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> *<span class="title">getPacket</span><span class="params">(<span class="keyword">int</span> **packets, <span class="keyword">int</span> *size)</span> </span>&#123;</div><div class="line">   <span class="keyword">int</span> *packet;</div><div class="line">   packet = packets[<span class="number">0</span>];</div><div class="line">   packets[<span class="number">0</span>] = packets[*size - <span class="number">1</span>];</div><div class="line">   *size--;   <span class="comment">// what is happening here?</span></div><div class="line">   reorderPackets(packets, *size);</div><div class="line">   <span class="keyword">return</span>(packet);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码是由于没有留意 C 操作符的优先级和结合性导致错误的操作了指针，而不是指针所指的对象。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">*size--</div></pre></td></tr></table></figure></p>
+<p>本意是减少 size 指针指向的值，但是实际运行情况是减少的是指针自己的值。运气够好的话，程序马上出错。要是运气差的话，程序运行了一段时间后才出错，这个时候估计都不知道上哪里寻找错误了。<br>程序中的 p 指针运算 p += sizeof(int) ，每次都把指针加了4，这样导致访问了数组中的每 4 个整数。指针的算术操作是以它们指向的对象的大小为单位来操作的，但是这个对象的大小单位不一定是 int 。</p>
+<p>6、引用不存在的变量<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> *<span class="title">foo</span> <span class="params">()</span> </span>&#123;</div><div class="line">   <span class="keyword">int</span> val;</div><div class="line">   <span class="keyword">return</span> &amp;val;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这段程序主要是利用栈的理解，这个函数返回一个指针 &amp;val，指向栈里的一个局部变量，然后弹出它的栈帧，这个时候虽然 &amp;val 仍然指向一个合法的内存地址，但是它已经不再是指向 val 变量了。当 &amp;val 指向的内存地址被重新利用之后，程序会带来令人困惑的运行结果。</p>
+<h3 id="Freeing-Blocks-Multiple-Times"><a href="#Freeing-Blocks-Multiple-Times" class="headerlink" title="Freeing Blocks Multiple Times"></a>Freeing Blocks Multiple Times</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"> x = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>( N * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line">        &lt;manipulate x&gt;</div><div class="line"><span class="built_in">free</span>(x); ...</div><div class="line">y = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>( M * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line"><span class="built_in">free</span>(x);</div><div class="line">        &lt;manipulate y&gt;</div></pre></td></tr></table></figure>
+<p>这段程序把指针 x 指向的内存地址释放了 2 次，第一次释放了正确的内存地址，第二次释放的时候有可能会将已经写在该内存地址的数据释放掉，从而造成无法预料的后果。</p>
+<h3 id="Referencing-Freed-Blocks"><a href="#Referencing-Freed-Blocks" class="headerlink" title="Referencing Freed Blocks"></a>Referencing Freed Blocks</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"> x = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>( N * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line">  &lt;manipulate x&gt;</div><div class="line"><span class="built_in">free</span>(x); ...</div><div class="line">y = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>( M * <span class="keyword">sizeof</span>(<span class="keyword">int</span>) );</div><div class="line"><span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;M; i++)</div><div class="line">   y[i] = x[i]++;</div></pre></td></tr></table></figure>
+<p>这个程序的错误是引用了已经被释放了的堆块中的数据，这个类型的错误只会在程序执行的后面才会显示出破坏效果。</p>
+<h3 id="Failing-to-Free-Blocks-Memory-Leaks"><a href="#Failing-to-Free-Blocks-Memory-Leaks" class="headerlink" title="Failing to Free Blocks (Memory Leaks)"></a>Failing to Free Blocks (Memory Leaks)</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">foo() &#123;</div><div class="line">   <span class="keyword">int</span> *x = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>(N*<span class="keyword">sizeof</span>(<span class="keyword">int</span>));</div><div class="line">   ...</div><div class="line">   <span class="keyword">return</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段程序会引起内存泄漏，内存泄漏是缓慢的隐形杀手，在堆里分配了块，使用完之后忘记释放，那么就创建了垃圾。如果垃圾变多了，运气够差的话，会占用整个虚拟地址空间。像是一些比较重要的进程如守护进程，这个守护进程是不会终止的，所以内存泄漏对这类不会终止的进程来说，危害巨大。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>这笔记来自于学习华盛顿大学的 《软硬件接口》 课程的课程记录，</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/09/23/c-perils-and-pitfalls/" data-id="cj7xenxqz0003u0fyluseuy28" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Coursera/">Coursera</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/23/leetcode-longest-substring-without-repeating-characters/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          3. Longest Substring Without Repeating Characters
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/23/leetcode-reverse-integer/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">7. Reverse Integer</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AFNetworking/">AFNetworking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Aspects/">Aspects</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Coursera/">Coursera</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FLAnimatedImage/">FLAnimatedImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Instruments/">Instruments</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mantle/">Mantle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Objective-C/">Objective-C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PINCache/">PINCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Runtime/">Runtime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebImage/">SDWebImage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SDWebimage/">SDWebimage</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SPStackedNav/">SPStackedNav</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/如何学习/">如何学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码解读/">源码解读</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/音视频/">音视频</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AFNetworking/" style="font-size: 10px;">AFNetworking</a> <a href="/tags/Aspects/" style="font-size: 10px;">Aspects</a> <a href="/tags/Coursera/" style="font-size: 18px;">Coursera</a> <a href="/tags/FLAnimatedImage/" style="font-size: 10px;">FLAnimatedImage</a> <a href="/tags/Instruments/" style="font-size: 16px;">Instruments</a> <a href="/tags/Mantle/" style="font-size: 10px;">Mantle</a> <a href="/tags/Objective-C/" style="font-size: 16px;">Objective-C</a> <a href="/tags/PINCache/" style="font-size: 10px;">PINCache</a> <a href="/tags/Runtime/" style="font-size: 16px;">Runtime</a> <a href="/tags/SDWebImage/" style="font-size: 12px;">SDWebImage</a> <a href="/tags/SDWebimage/" style="font-size: 10px;">SDWebimage</a> <a href="/tags/SPStackedNav/" style="font-size: 10px;">SPStackedNav</a> <a href="/tags/iOS/" style="font-size: 20px;">iOS</a> <a href="/tags/leetcode/" style="font-size: 16px;">leetcode</a> <a href="/tags/如何学习/" style="font-size: 14px;">如何学习</a> <a href="/tags/源码解读/" style="font-size: 20px;">源码解读</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">May 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/09/23/ios-reachability/">iOS 网络监控框架 - Reachability 源码解读</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/vm/">深入浅出虚拟内存机制</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-palindrome-number/">9. Palindrome Number</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/leetcode-reverse-integer/">7. Reverse Integer</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/23/c-perils-and-pitfalls/">C 语言常见的内存坑</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 要上班的斌哥<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
