@@ -27,7 +27,7 @@
 <meta property="og:image" content="https://junbinchencn.github.io/2022/05/24/object-oriented-programming/Untitled01.png">
 <meta property="og:image" content="https://junbinchencn.github.io/2022/05/24/object-oriented-programming/Untitled02.png">
 <meta property="article:published_time" content="2022-05-24T14:26:10.000Z">
-<meta property="article:modified_time" content="2022-05-24T14:43:36.337Z">
+<meta property="article:modified_time" content="2022-05-24T14:47:07.399Z">
 <meta property="article:author" content="斌哥">
 <meta property="article:tag" content="编程范式">
 <meta name="twitter:card" content="summary_large_image">
@@ -308,11 +308,9 @@
 <p>在安全和便利的多态技术出现之前，软件的典型调用树是这样的，HightLayer 模块要调用 MiddleLayer 模块，HightLayer 模块必须要依赖 MiddleLayer 模块 ，程序的源代码依赖不可避免的需要跟随程序的控制流。这让我们这些程序员在软件架构上没有什么其他多余的选择，软件的系统行为决定了程序的控制流，而控制流则决定了源代码依赖关系。</p>
 <p>依赖关系和控制关系如下图所示，实线表示源代码依赖关系，虚线表示控制流关系。</p>
 <img src="/2022/05/24/object-oriented-programming/Untitled.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
-<br>
 
 <p>现在利用面向对象编程语言提供的安全便利的多态实线，无论我们面对怎么样的源代码依赖，我们都可以将其反转（源代码依赖方向和控制流方向相反）。如下图所示，模块 HightLayer 调用模块 MiddleLayer 中的 function 函数，这里的调用在是通过源代码界别的 interface 来实现的，在程序的实际运行过程中，interface 这个概念是不存在的，HightLayer 会直接调用 MiddleLayer 中的 function 函数。</p>
 <img src="/2022/05/24/object-oriented-programming/Untitled01.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
-<br>
 
 <p>延伸一下，这种能力在实际的软件架构设计中有什么作用呢？看下图，我们可以让用户界面和数据库都依赖业务逻辑，业务逻辑不需要引入用户界面和数据库的依赖，这样用户界面和数据库就成为业务逻辑的插件。这样一来，用户界面，业务逻辑，数据库就可以成为 3 个独立的组件，可以单独编译和部署，同时用户界面或者数据库的修改就不会对业务逻辑产生任何的影响。进一步说，当某个组件需要修改是，仅仅需要重新编译和部署该组件，不需要更改其他的组件，这就是独立部署能力。再进一步说，如果组件可以独立部署，那么就意味着组件可以由不同的团队并行开发，这就是架构的独立开发能力，也是架构和团队组织互相影响。</p>
 <img src="/2022/05/24/object-oriented-programming/Untitled02.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
