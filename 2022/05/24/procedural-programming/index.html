@@ -16,22 +16,22 @@
   <meta name="author" content="斌哥">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一个业务功能，新手和高手同样都可以实现，为什么还要招聘高手呢？在项目预算支持的情况下，通常会招聘更多有经验的程序员来进行开发。 软件行业中，确实是普遍存在上述的这类现象。 调试并实现一个业务功能并不需要非常高深的知识，甚至一名初入行的实习生都可以做到，将需求文档转换为能够实际上线运行的代码也不会多难，实习生写出来的代码可能不够优雅，但是确实能够正常工作。 在系统运作一段时间之后，新手可能需要 00">
+    <meta name="description" content="结构化编程概论计算机科学家 dijkstra 认为 goto 语句的无限制跳转会损坏程序的整体结构，应该使用 if&#x2F;then&#x2F;else 语句和 do&#x2F;while&#x2F;until 语句来替代跳转语句。简单总结起来，结构化编程对程序控制权的直接转移进行了限制和规范。 结构化编程的诞生dijkstra 提出为了能够证明程序的正确性，就必须把程序模块递归拆分成更小的，可">
 <meta property="og:type" content="article">
-<meta property="og:title" content="谈谈软件架构的价值">
-<meta property="og:url" content="https://junbinchencn.github.io/2022/05/23/talking-about-the-value-of-architecture/index.html">
+<meta property="og:title" content="结构化编程">
+<meta property="og:url" content="https://junbinchencn.github.io/2022/05/24/procedural-programming/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
-<meta property="og:description" content="一个业务功能，新手和高手同样都可以实现，为什么还要招聘高手呢？在项目预算支持的情况下，通常会招聘更多有经验的程序员来进行开发。 软件行业中，确实是普遍存在上述的这类现象。 调试并实现一个业务功能并不需要非常高深的知识，甚至一名初入行的实习生都可以做到，将需求文档转换为能够实际上线运行的代码也不会多难，实习生写出来的代码可能不够优雅，但是确实能够正常工作。 在系统运作一段时间之后，新手可能需要 00">
+<meta property="og:description" content="结构化编程概论计算机科学家 dijkstra 认为 goto 语句的无限制跳转会损坏程序的整体结构，应该使用 if&#x2F;then&#x2F;else 语句和 do&#x2F;while&#x2F;until 语句来替代跳转语句。简单总结起来，结构化编程对程序控制权的直接转移进行了限制和规范。 结构化编程的诞生dijkstra 提出为了能够证明程序的正确性，就必须把程序模块递归拆分成更小的，可">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-05-23T09:20:31.000Z">
-<meta property="article:modified_time" content="2022-05-23T09:58:20.037Z">
+<meta property="article:published_time" content="2022-05-24T08:15:37.000Z">
+<meta property="article:modified_time" content="2022-05-24T08:17:18.367Z">
 <meta property="article:author" content="斌哥">
-<meta property="article:tag" content="软件架构">
+<meta property="article:tag" content="编程范式">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>谈谈软件架构的价值 - 要上班的斌哥</title>
+  <title>结构化编程 - 要上班的斌哥</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -194,7 +194,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="谈谈软件架构的价值"></span>
+            <span id="subtitle" data-typed-text="结构化编程"></span>
           
         </div>
 
@@ -205,8 +205,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-05-23 17:20" pubdate>
-          2022年5月23日 下午
+        <time datetime="2022-05-24 16:15" pubdate>
+          2022年5月24日 下午
         </time>
       </span>
     
@@ -217,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.2k 字
+          1k 字
         
       </span>
     
@@ -228,7 +228,7 @@
         
         
         
-          10 分钟
+          9 分钟
         
       </span>
     
@@ -266,23 +266,18 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">谈谈软件架构的价值</h1>
+            <h1 style="display: none">结构化编程</h1>
             
             <div class="markdown-body">
               
-              <p>一个业务功能，新手和高手同样都可以实现，为什么还要招聘高手呢？在项目预算支持的情况下，通常会招聘更多有经验的程序员来进行开发。</p>
-<p>软件行业中，确实是普遍存在上述的这类现象。 调试并实现一个业务功能并不需要非常高深的知识，甚至一名初入行的实习生都可以做到，将需求文档转换为能够实际上线运行的代码也不会多难，实习生写出来的代码可能不够优雅，但是确实能够正常工作。</p>
-<p>在系统运作一段时间之后，新手可能需要 007 疯狂加班来实现需求。高手因为丰富的架构设计经验，提前做好软件架构设计，系统能够适应各类变化，新需求只需要很少的时间就能够上线。</p>
-<h3 id="什么是软件架构"><a href="#什么是软件架构" class="headerlink" title="什么是软件架构"></a>什么是软件架构</h3><p>回想我自己的从业经历，确实经历不少这样的场景。某个软件历史悠久，各个组件互相依赖，到处充满了垃圾代码。即使是小改动，也是牵一发而动全身，让整个项目的产品，设计，开发，测试人员充满痛苦。每逢这个时候就会臆想，这个软件要是采用了好的架构设计，可以大大节省软件的开发和测试成本，每次变更都能控制最小影响范围，用最小的成本满足功能性需求。</p>
-<p>好的架构设计具有这么大的魅力，那究竟什么才是软件架构？类比建筑，软件架构就是软件的组织架构，它关注组件，类，函数，模块，层级的设计。</p>
-<h3 id="软件架构有什么用"><a href="#软件架构有什么用" class="headerlink" title="软件架构有什么用"></a>软件架构有什么用</h3><p>正如前面所提，它的目标就是用最小的人力成本来满足构建和维护系统的需求。软件架构具有 2 个方面的价值，一个价值是架构价值，一个价值是行为价值。</p>
-<p>行为价值比较直观，就是程序员把需求文档转换为上线运行的代码，给用户创造价值，同时获取利润。</p>
-<p>对于架构价值的理解可能比较抽象，提一些具体场景，正常来说第一个版本的系统通常都是没有经过什么设计，匆匆忙忙被构建起来。后面业务有了一定的发展，为了加快发布的速度，团队开始招聘新人，同时迫于业务压力，对代码质量提升和软件架构设计存在长期忽视。团队经常加班，拼命工作，团队中的个人不管投入多少个人时间，救了多少火，产出始终上不去。团队的时间大部分都消耗在对现有系统的修复上，新功能的实现投入时间并没有多少，陷入恶性循环。软件架构的价值之一就是要解决类似这个场景的问题，良好的软件架构设计能够避免系统陷入混乱，让软件容易被修改，新增需求或者变更需求，随之所需的软件变更可以简单而方便的实现。</p>
-<h3 id="坚持软件架构的价值"><a href="#坚持软件架构的价值" class="headerlink" title="坚持软件架构的价值"></a>坚持软件架构的价值</h3><p>软件架构设计是一个重要但不紧急的事情。在业务迭代中，技术团队经常容易陷入不重要但紧急的需求旋涡中。对于技术 leader 来说，就是要坚持架构设计的价值，同时也要说服其他人相信架构设计的价值，这也是技术 leader 的价值之一， 只有这样才有可能在紧凑的业务迭代周期中预留部分架构设计和代码 review 时间，以尽量延长软件的生命时间，降低软件的变更成本，让技术团队能够更愉悦的工作。</p>
-<p>参考</p>
-<ol>
-<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/30333919/">https://book.douban.com/subject/30333919/</a></li>
-</ol>
+              <h1 id="结构化编程"><a href="#结构化编程" class="headerlink" title="结构化编程"></a>结构化编程</h1><h3 id="概论"><a href="#概论" class="headerlink" title="概论"></a>概论</h3><p>计算机科学家 dijkstra 认为 goto 语句的无限制跳转会损坏程序的整体结构，应该使用 if&#x2F;then&#x2F;else 语句和 do&#x2F;while&#x2F;until 语句来替代跳转语句。简单总结起来，结构化编程对程序控制权的直接转移进行了限制和规范。</p>
+<h3 id="结构化编程的诞生"><a href="#结构化编程的诞生" class="headerlink" title="结构化编程的诞生"></a>结构化编程的诞生</h3><p>dijkstra 提出为了能够证明程序的正确性，就必须把程序模块递归拆分成更小的，可以被证明的单元，dijkstra 经过研究发现，goto 语句可能会导致大模块无法被进一步拆分成更小的，可被证明的单元，同时 goto 语句的用法与 if&#x2F;then&#x2F;else 语句和 do&#x2F;while&#x2F;until 语句的作用又没有明显的区别，所以 goto 是可以被替代的。</p>
+<p>另外一个证明是代码中使用了顺序结构，分支结构，循环结构，那么代码是一定可以被拆解成更小的，可证明的单元，而且程序员可以用顺序结构，分支结构，循环结构这 3 类结构构造出任何程序。到这里有个发现很重要，构建可被证明的模块所需要的控制单元和构建所有程序所需要的控制单元的最小集合是一样的，结构化编程就这样诞生了！！！</p>
+<p>结构化编程范式可以将模块递归降解成可以被推导的单元，这意味着可以把模块按功能进行分解，更进一步说可以把一个大型问题拆分成一系列高级函数组合，而高级函数又可以进一步被拆分为一系列低级函数，每个被拆分出来的函数都可以使用结构化编程范式来构造程序。然后再编写相关的测试来证明这些函数程序是错误的，如果无法证明这些函数代码是错误的，那么我们就可以直接认为这些函数代码是正确的，推导到整个程序是正确的。</p>
+<h3 id="结构化编程的价值"><a href="#结构化编程的价值" class="headerlink" title="结构化编程的价值"></a>结构化编程的价值</h3><p>结构化编程范式中最有价值的点赋予了我们创造可证伪程序单元的能力。延伸到架构设计领域，功能性拆解仍然是验证程序正确性的最佳实践之一。</p>
+<p>我近几年来都是在接触代码重构相关的事情，项目涉及的业务多种多样，但是项目都存在一个明显的问题就是功能模块互相依赖的问题，因为依赖太多导致变更带来非常多的不确定性，同时变更带来的测试成本大无法接受的地步。另外功能模块互相依赖还会带来一个明显部署问题，由于互相依赖，模块无法单独部署，需要所有的模块一起部署。随之而来的还有编译问题，互相依赖过多，一旦被依赖方发生变动，所有的依赖方都必须重新编译，这个最明显的是很多项目中的 common 模块。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>1、<a target="_blank" rel="noopener" href="https://book.douban.com/subject/30333919/">架构整洁之道</a></p>
+<p>2、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%BF%87%E7%A8%8B%E5%BC%8F%E7%BC%96%E7%A8%8B">https://zh.wikipedia.org/wiki/过程式编程</a></p>
 
               
             </div>
@@ -294,7 +289,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">#软件架构</a>
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F/">#编程范式</a>
       
     </div>
   
@@ -306,8 +301,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>谈谈软件架构的价值</div>
-      <div>https://junbinchencn.github.io/2022/05/23/talking-about-the-value-of-architecture/</div>
+      <div>结构化编程</div>
+      <div>https://junbinchencn.github.io/2022/05/24/procedural-programming/</div>
     </div>
     <div class="license-meta">
       
@@ -319,7 +314,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年5月23日</div>
+          <div>2022年5月24日</div>
         </div>
       
       
@@ -349,15 +344,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/05/24/procedural-programming/" title="结构化编程">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">结构化编程</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2022/05/23/talking-about-the-value-of-architecture/" title="谈谈软件架构的价值">
+                        <span class="hidden-mobile">谈谈软件架构的价值</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
