@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>博客迁移</title>
+    <link href="/2022/05/26/blog-note/"/>
+    <url>/2022/05/26/blog-note/</url>
+    
+    <content type="html"><![CDATA[<p>以前的一些博客平台写着写着就停更了，转而使用封闭的笔记软件进行总结。恰巧这几天有时间，把部分文章从简书平台迁移到这里来，把自己的一些笔记整理分享出来。</p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>结构化编程 &amp; 函数式编程</title>
     <link href="/2022/05/25/functional-procedural-programming/"/>
     <url>/2022/05/25/functional-procedural-programming/</url>
