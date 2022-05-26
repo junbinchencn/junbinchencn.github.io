@@ -383,6 +383,46 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2017/10/01/operating-system-storage/" target="_self">
+          深入理解存储器层次结构
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/2017/10/01/operating-system-storage/" target="_self">
+        <div>
+          
+          概述对于一个简单的计算机系统模型，我们可以将存储器系统看做是一个线性的字节数组，而 CPU 能够在一个常数时间内访问每个存储器的位置。实际上，存储器系统（memory system）是一个具有不同容量、成本和访问时间的存储设备的层次结构。CPU 寄存器保存着最常用的数据。靠近 CPU 的小的、快速的高速缓存存储器（cache memory）做为一部分存储在相对慢速的主存储器（main memory
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-10-01 13:57" pubdate>
+              2017-10-01
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2017/09/23/reading-source-code-of-Reachability/" target="_self">
           iOS 网络监控框架 - Reachability 源码解读
         </a>
@@ -410,6 +450,46 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">#源码解读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/09/23/operating-system-memory/" target="_self">
+          深入浅出虚拟内存机制
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/2017/09/23/operating-system-memory/" target="_self">
+        <div>
+          
+          概述现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：  它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。 它为内阁进程提供了一致的地址空间,简化了内存管理。 它保护了每个进程的地址空间不被其他进程破坏。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-09-23 22:20" pubdate>
+              2017-09-23
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
             
           </div>
         
@@ -463,15 +543,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2017/04/16/video-editor-ios/" target="_self">
-          iOS 视频剪切、旋转，视频添加音频、添加水印，视频导出
+        <a href="/2017/04/23/oc-swizzle/" target="_self">
+          Objective-C Swizzling 原理
         </a>
       </h1>
 
-      <a class="index-excerpt" href="/2017/04/16/video-editor-ios/" target="_self">
+      <a class="index-excerpt" href="/2017/04/23/oc-swizzle/" target="_self">
         <div>
           
-          AVSimpleEditoriOS 解读视频处理主要是用到以下这几个类AVMutableComposition、AVMutableVideoComposition、AVMutableAudioMix、AVMutableVideoCompositionInstruction、AVMutableVideoCompositionLayerInstruction、AVAssetExportSession
+          方法混写在 Objctive-C 中，混写（Swizzling）指的是偷梁换柱，将一个东西透明的换成另外一个东西，在 Runtime 运行时替换方法实现。这个技术有什么作用呢？我们利用混写技术可以改变那些没有源代码的对象的行为，这其中包括了一些系统对象的行为，也包括了一些第三方 SDK 。 给 NSNotificationCenter 添加日志接下来展示一个案例，每次在给 NSNotificati
         </div>
       </a>
 
@@ -479,48 +559,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2017-04-16 21:15" pubdate>
-              2017-04-16
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">#源码解读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2017/04/16/oc-msgsend/" target="_self">
-          Objective-C 之 objc_msgSend 简单实现
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/2017/04/16/oc-msgsend/" target="_self">
-        <div>
-          
-          objc_msgSend 函数在 Objective-C 中, message 是直到 Runtime 的时候才会绑定实现，编译器会将我们的发送消息 [receiver message] 变成函数调用 objc_msgSend，该函数会有2个默认参数，分别是 receiver 和 selector 。当然，若是该函数有其他的参数，那么其他参数就跟在2个默认参数后面。 1objc_msgSend(r
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2017-04-16 13:59" pubdate>
-              2017-04-16
+            <time datetime="2017-04-23 23:50" pubdate>
+              2017-04-23
             </time>
           </div>
         
@@ -543,15 +583,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2017/03/26/reading-source-code-of-SPStackedNav/" target="_self">
-          iPad 分屏框架 - SPStackedNav 源码解读
+        <a href="/2017/04/16/video-editor-ios/" target="_self">
+          iOS 视频剪切、旋转，视频添加音频、添加水印，视频导出
         </a>
       </h1>
 
-      <a class="index-excerpt" href="/2017/03/26/reading-source-code-of-SPStackedNav/" target="_self">
+      <a class="index-excerpt" href="/2017/04/16/video-editor-ios/" target="_self">
         <div>
           
-          SPStackedNav 解读SPStackedNav 是全球最大的流音乐服务商 Spotify 开源的一个 iPad 分屏框架，用于 Spotify 的 iPad 版 App 中，网易云音乐 iPad 版 App 也是采用相似的分屏交互方案，该框架的交互表现如下图所示：   使用根据 GitHub 上面的说明完成项目导入之后，那么就可以开始搭建UI框架了。  创建 SPSideTabContro
+          AVSimpleEditoriOS 解读视频处理主要是用到以下这几个类AVMutableComposition、AVMutableVideoComposition、AVMutableAudioMix、AVMutableVideoCompositionInstruction、AVMutableVideoCompositionLayerInstruction、AVAssetExportSession
         </div>
       </a>
 
@@ -559,48 +599,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2017-03-26 10:45" pubdate>
-              2017-03-26
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">#源码解读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2016/11/04/reading-source-code-of-Mantle/" target="_self">
-          iOS 模型框架- Mantle 解读
-        </a>
-      </h1>
-
-      <a class="index-excerpt" href="/2016/11/04/reading-source-code-of-Mantle/" target="_self">
-        <div>
-          
-          Mantle 解读Mantle 是由 Github 开发一款模型框架，Mantle 的主要作用在于让开发者更简单的构建应用的 model 层。本文主要介绍 Mantle 中最常使用的 JSON 功能–字典转模型。 Mantle 的使用先以知乎的一个 API 为例，讲解如何使用 Mantle 为这个 API 构建 model 。   1.按照 Mantle 要求构建对应的 model，Mantle
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2016-11-04 10:22" pubdate>
-              2016-11-04
+            <time datetime="2017-04-16 21:15" pubdate>
+              2017-04-16
             </time>
           </div>
         

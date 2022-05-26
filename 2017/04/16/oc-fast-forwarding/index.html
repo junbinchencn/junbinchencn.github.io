@@ -1,0 +1,705 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="快速转发什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Objective-C 消息转发流程">
+<meta property="og:url" content="https://junbinchencn.github.io/2017/04/16/oc-fast-forwarding/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="快速转发什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-04-16T04:49:01.000Z">
+<meta property="article:modified_time" content="2022-05-26T05:36:27.835Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="Objective-C">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Objective-C 消息转发流程 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Objective-C 消息转发流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-04-16 12:49" pubdate>
+          2017年4月16日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          66 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Objective-C 消息转发流程</h1>
+            
+            <div class="markdown-body">
+              
+              <h3 id="快速转发"><a href="#快速转发" class="headerlink" title="快速转发"></a>快速转发</h3><p>什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那么我们可以利用这个快速转发的特性来代理对象。</p>
+<p>我们使用 CacheProxy 这个对象来说明如何利用快速转发的特性来缓存其他对象的 setter 和 getter 方法。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// CacheProxy.h</span><br><span class="hljs-meta">#import <span class="hljs-string">&lt;Foundation/Foundation.h&gt;</span></span><br><span class="hljs-comment">// 快速转发 ：若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象。</span><br><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">CacheProxy</span> : <span class="hljs-title">NSProxy</span></span><br><span class="hljs-comment">// 初始化方法 ，返回类型为 id 类型，可以避免编译器报错</span><br>- (<span class="hljs-type">id</span>)initWithObject:(<span class="hljs-type">id</span>)anObject properties:(<span class="hljs-built_in">NSArray</span> *)properties;<br><span class="hljs-keyword">@end</span><br></code></pre></td></tr></table></figure>
+<p>值的注意的是  CacheProxy 并不是 NSObject 的子类，而是 NSProxy 的子类，NSProxy 是一个轻量级的根类，是为那些转发大部分方法调用的类而设计的。CacheProxy 本身就是一个代理对象，适合成为 NSProxy 的子类。</p>
+<span id="more"></span> 
+
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// CacheProxy.m</span><br><span class="hljs-meta">#import <span class="hljs-string">&quot;CacheProxy.h&quot;</span></span><br><span class="hljs-meta">#import <span class="hljs-string">&lt;objc/runtime.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">CacheProxy</span> ()</span><br><br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>,<span class="hljs-keyword">strong</span>) <span class="hljs-type">id</span> object;<span class="hljs-comment">//被代理的对象</span><br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>,<span class="hljs-keyword">strong</span>) <span class="hljs-built_in">NSMutableDictionary</span> *valueForProperty;<span class="hljs-comment">// 用于保存被代理对象的属性值</span><br><br><span class="hljs-keyword">@end</span><br><br><span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">CacheProxy</span></span><br><br><span class="hljs-comment">// setFoo: -&gt; foo</span><br><span class="hljs-comment">// 通过 selector 得到属性名</span><br><span class="hljs-keyword">static</span> <span class="hljs-built_in">NSString</span> *propertyNameForSelector(SEL selector)&#123;<br><span class="hljs-comment">// 省略代码</span><br>&#125;<br><br><span class="hljs-comment">// foo -&gt; setFoo:</span><br><span class="hljs-comment">// 通过属性名得到 selector</span><br><span class="hljs-keyword">static</span> SEL setterForPropertyName(<span class="hljs-built_in">NSString</span> *property)&#123;<br><span class="hljs-comment">// 省略代码</span><br>&#125;<br><br><span class="hljs-comment">// getter 方法实现</span><br><span class="hljs-keyword">static</span> <span class="hljs-type">id</span> propertyIMP(<span class="hljs-type">id</span> <span class="hljs-keyword">self</span>, SEL _cmd)&#123;<br>    <span class="hljs-built_in">NSString</span> *propertyName = <span class="hljs-built_in">NSStringFromSelector</span>(_cmd);<br>    <span class="hljs-type">id</span> value = [[<span class="hljs-keyword">self</span> valueForProperty] valueForKey:propertyName];<br>    <span class="hljs-comment">// NSMutableDictionary 不能存储 nil，所以使用 NSNull 来处理 nil</span><br>    <span class="hljs-keyword">if</span> (value == [<span class="hljs-built_in">NSNull</span> null]) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (value) &#123;<br>        <span class="hljs-keyword">return</span> value;<br>    &#125;<br><br>    <span class="hljs-comment">// 从缓存对象取不到属性值的话，那么从原对象取属性值</span><br>    value = [[<span class="hljs-keyword">self</span> object] valueForKey:propertyName];<br>    <span class="hljs-comment">// 从原对象取属性值之后，将属性值缓存到缓存对象</span><br>    [[<span class="hljs-keyword">self</span> valueForProperty] setValue:value forKey:propertyName];<br><br>    <span class="hljs-keyword">return</span> value;<br>&#125;<br><br><span class="hljs-comment">// setter 方法实现</span><br><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> setPropertyIMP(<span class="hljs-type">id</span> <span class="hljs-keyword">self</span>, SEL _cmd, <span class="hljs-type">id</span> aValue)&#123;<br>    <span class="hljs-type">id</span> value = [aValue <span class="hljs-keyword">copy</span>];<br>    <span class="hljs-built_in">NSString</span> *propertyName = propertyNameForSelector(_cmd);<br>    <span class="hljs-comment">// 先将属性值设置到缓存对象，再将属性值设置到原对象</span><br>    [[<span class="hljs-keyword">self</span> valueForProperty] setValue:(value != <span class="hljs-literal">nil</span> ? value : [<span class="hljs-built_in">NSNull</span> null]) forKey:propertyName];<br>    [[<span class="hljs-keyword">self</span> object] setValue:value forKey:propertyName];<br>&#125;<br><br><br>- (<span class="hljs-type">id</span>)initWithObject:(<span class="hljs-type">id</span>)anObject properties:(<span class="hljs-built_in">NSArray</span> *)properties&#123;<br>    _object = anObject;<br>    _valueForProperty = [<span class="hljs-built_in">NSMutableDictionary</span> new];<br>    <span class="hljs-comment">// 缓存对象为 anObject 的所有属性生成 setter 和 getter 方法</span><br>    <span class="hljs-keyword">for</span>(<span class="hljs-built_in">NSString</span> *property <span class="hljs-keyword">in</span> properties)&#123;<br>        <span class="hljs-comment">// 添加 getter 方法</span><br>        class_addMethod([<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>], <span class="hljs-built_in">NSSelectorFromString</span>(property), (IMP)propertyIMP, <span class="hljs-string">&quot;@@:&quot;</span>);<br>        <span class="hljs-comment">// 添加 setter 方法</span><br>        class_addMethod([<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>], setterForPropertyName(property), (IMP)setPropertyIMP, <span class="hljs-string">&quot;v@:@&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;<br>&#125;<br><br><span class="hljs-comment">// 覆写以下方法，CacheProxy 缓存对象对外可以被识别为 object 对象</span><br>- (<span class="hljs-built_in">NSString</span> *)description&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%@ (%@)&quot;</span>,[<span class="hljs-variable language_">super</span> description],<span class="hljs-keyword">self</span>.object];<br>&#125;<br><br>- (<span class="hljs-type">BOOL</span>)isEqual:(<span class="hljs-type">id</span>)object&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object isEqual:object];<br>&#125;<br><br>- (<span class="hljs-built_in">NSUInteger</span>)hash&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object hash];<br>&#125;<br><br>- (<span class="hljs-type">BOOL</span>)respondsToSelector:(SEL)aSelector&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object respondsToSelector:aSelector];<br>&#125;<br><br>- (<span class="hljs-type">BOOL</span>)isKindOfClass:(Class)aClass&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object isKindOfClass:aClass];<br>&#125;<br><br><br><span class="hljs-comment">// 如果有未知的选择器发送到 CacheProxy 缓存对象，在这里把所有的未知选择器都发送给代理对象。</span><br><span class="hljs-comment">// 快速转发</span><br>- (<span class="hljs-type">id</span>)forwardingTargetForSelector:(SEL)aSelector&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>.object;<br>&#125;<br><br>- (<span class="hljs-built_in">NSMethodSignature</span> *)methodSignatureForSelector:(SEL)sel&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object methodSignatureForSelector:sel];<br>&#125;<br><br>- (<span class="hljs-type">void</span>)forwardInvocation:(<span class="hljs-built_in">NSInvocation</span> *)invocation&#123;<br>    [invocation setTarget:<span class="hljs-keyword">self</span>.object];<br>    [invocation invoke];<br>&#125;<br><br><span class="hljs-keyword">@end</span><br></code></pre></td></tr></table></figure>
+<ol>
+<li><p>方法 static NSString *propertyNameForSelector(SEL selector) 用于通过 selector 得到属性名。</p>
+</li>
+<li><p>方法 static SEL setterForPropertyName(NSString *property)用于通过属性名得到 selector。</p>
+</li>
+<li><p>方法 static id propertyIMP(id self, SEL _cmd) 是一个 getter 方法实现。由于 NSMutableDictionary 不能存储 nil，所以使用 NSNull 来处理 nil。从 CacheProxy 这个缓存对象对象取不到属性值的话，那么从被代理对象取属性值。 从被代理对象取属性值之后，将属性值缓存到缓存对象。</p>
+</li>
+<li><p>方法 static void setPropertyIMP(id self, SEL _cmd, id aValue) 是一个 setter 方法实现。 先将属性值设置到缓存对象，再将属性值设置到被代理对象。</p>
+</li>
+<li><p>forwardingTargetForSelector: 方法，如果有未知的选择器发送到 CacheProxy 缓存对象，在这里把所有的未知选择器都发送给被代理对象。</p>
+</li>
+<li><p>如果被代理的对象不响应 CacheProxy 发送过来的未知选择器，那么 objc_msgSend会调用 methodSignatureForSelector: 和 forwardInvocation: 进行普通转发。</p>
+</li>
+<li><p>初始化方法 initWithObject: properties: 做的工作是代理对象生成被代理对象的属性 setter 和 getter 方法。</p>
+</li>
+<li><p>由于 NSProxy 有一些方法的默认实现，有默认实现的方法则不会被转发到代理对象，所以需要覆写以下方法。</p>
+</li>
+</ol>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (<span class="hljs-built_in">NSString</span> *)description&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%@ (%@)&quot;</span>,[<span class="hljs-variable language_">super</span> description],<span class="hljs-keyword">self</span>.object];<br>&#125;<br><br>- (<span class="hljs-type">BOOL</span>)isEqual:(<span class="hljs-type">id</span>)object&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object isEqual:object];<br>&#125;<br><br>- (<span class="hljs-built_in">NSUInteger</span>)hash&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object hash];<br>&#125;<br><br>- (<span class="hljs-type">BOOL</span>)respondsToSelector:(SEL)aSelector&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object respondsToSelector:aSelector];<br>&#125;<br><br>- (<span class="hljs-type">BOOL</span>)isKindOfClass:(Class)aClass&#123;<br>    <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span>.object isKindOfClass:aClass];<br>&#125;```<br><br><br>创建完了 CacheProxy 这个代理对象，我们再创建一个 被代理对象 CachePerson<br>```objectivec<br><span class="hljs-meta">#import <span class="hljs-string">&lt;Foundation/Foundation.h&gt;</span></span><br><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">CachePerson</span> : <span class="hljs-title">NSObject</span></span><br><span class="hljs-comment">// 2个属性</span><br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>,<span class="hljs-keyword">copy</span>) <span class="hljs-built_in">NSString</span> *firstName;<br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>,<span class="hljs-keyword">copy</span>) <span class="hljs-built_in">NSString</span> *lastName;<br><span class="hljs-keyword">@end</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来看看如何使用 CacheProxy 这个代理对象</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// 说明 CacheProxy 如何缓存其他对象的 setter 和 getter 方法</span><br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;------------------------------------------&quot;</span>);<br><span class="hljs-type">id</span> cachePerson = [[CachePerson alloc] init];<br><span class="hljs-type">id</span> cacheProxy = [[CacheProxy alloc] initWithObject:cachePerson properties:@[<span class="hljs-string">@&quot;firstName&quot;</span>,<span class="hljs-string">@&quot;lastName&quot;</span>]];<br><span class="hljs-comment">// 设置 CacheProxy 对象的属性， cachePerson 这个被代理对象的属性也有值</span><br>[cacheProxy setFirstName:<span class="hljs-string">@&quot;CCCC&quot;</span>];<br>[cacheProxy setLastName:<span class="hljs-string">@&quot;DDDD&quot;</span>];<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;CacheProxy : firstName--&gt;%@,  lastName---&gt;%@&quot;</span>,[cacheProxy firstName],[cacheProxy lastName]);<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;CachePerson : firstName--&gt;%@,  lastName---&gt;%@&quot;</span>,[cachePerson firstName],[cachePerson lastName]);<br><br><span class="hljs-comment">// 说明快速转发</span><br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;------------------------------------------&quot;</span>);<br><span class="hljs-comment">// 只设置被代理对象 CachePerson 的属性，利用快速转发的特性 CacheProxy 也能拿到 CachePerson 的属性</span><br><span class="hljs-type">id</span> cachePerson2 = [[CachePerson alloc] init];<br>[cachePerson2 setFirstName:<span class="hljs-string">@&quot;EEEE&quot;</span>];<br>[cachePerson2 setLastName:<span class="hljs-string">@&quot;FFFF&quot;</span>];<br><br><span class="hljs-type">id</span> cacheProxy2 = [[CacheProxy alloc] initWithObject:cachePerson2 properties:@[<span class="hljs-string">@&quot;firstName&quot;</span>]];<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;CacheProxy2 : firstName--&gt;%@,  lastName---&gt;%@&quot;</span>,[cacheProxy2 firstName],[cacheProxy2 lastName]);<br><span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;CachePerson2 : firstName--&gt;%@,  lastName---&gt;%@&quot;</span>,[cachePerson2 firstName],[cachePerson2 lastName]);<br></code></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"> ------------------------------------------<br>CacheProxy : firstName--&gt;CCCC,  lastName---&gt;DDDD<br>CachePerson : firstName--&gt;CCCC,  lastName---&gt;DDDD<br> ------------------------------------------<br>CacheProxy2 : firstName--&gt;EEEE,  lastName---&gt;FFFF<br>CachePerson2 : firstName--&gt;EEEE,  lastName---&gt;FFFF<br></code></pre></td></tr></table></figure>
+<p>从运行结果来看，第一个案例，我们设置了 CacheProxy 对象的属性 firstName 和 lastName， cachePerson 这个被代理对象的属性 firstName 和 lastName 也拿到了对应的值。第二个案例，我们只设置被代理对象 CachePerson 的属性 firstName 和 lastName 的值，但是利用快速转发的特性 CacheProxy 也能拿到 CachePerson 的属性 firstName 和 lastName 的值。</p>
+<h3 id="普通转发"><a href="#普通转发" class="headerlink" title="普通转发"></a>普通转发</h3><p>在前面的快速转发失效之后，也就是经过 resolveInstanceMethod: 和 forwardingTargetForSelector： 方法之后还是无法找到未知选择器的响应对象，那么 Runtime 就会尝试最慢的转发方式 forwardInvocation: 方法。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (<span class="hljs-type">void</span>)forwardInvocation:(<span class="hljs-built_in">NSInvocation</span> *)invocation&#123;<br>    [invocation setTarget:<span class="hljs-keyword">self</span>.object];<br>    [invocation invoke];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如上面代码所示，在 forwardInvocation: 方法会收到一个 NSInvocation 参数，这个 NSInvocation 类把目标，选择器，方法签名和方法参数封装在一起。我们可以在方法内部改变 NSInvocation 的目标然后再调用。</p>
+<p>若是类有实现 forwardInvocation: 方法，那么也需要实现 methodSignatureForSelector: 方法， NSInvocation 类的方法签名就是来自于这个方法。</p>
+<p>在 forwardInvocation：方法中，我们可以看到该方法没有任何返回值，但是 Runtime 会把 NSInvocation 的结果返回给最初的调用者。</p>
+<h3 id="转发失败"><a href="#转发失败" class="headerlink" title="转发失败"></a>转发失败</h3><p>在整个消息转发过程都没有为未知选择器找到响应对象，那么接下来要怎么办？<br>由于 forwardInvocation：是消息转发过程的最后一环，若是它不处理这个未知选择器的话，那么就什么也不会发生，也可以利用这个特点来丢弃某些方法。但是 forwardInvocation: 的默认实现会有一些动作，它会调用 doesNotReconizeSelector：方法，该方法会抛出 NSInvalidArgumentException。</p>
+<p>我们平常也可以使用 doesNotReconizeSelector：方法做一些自己的事情，比如某个类的 init 方法不允许调用，那么有如下实现方案。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (<span class="hljs-type">id</span>)init&#123;<br>    [<span class="hljs-keyword">self</span> doesNotReconizeSelector:_cmd];<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>要是有人调用 init 方法， Runtime 会报错。<br>其实要实现这个效果还可以这么做，</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (<span class="hljs-type">id</span>)init&#123;<br>    <span class="hljs-built_in">NSAssert</span>(<span class="hljs-literal">NO</span>,<span class="hljs-string">&quot;不要直接调用 init 方法&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后值得注意的是，当有一个类无法响应未知的选择器的时候应该在 forwardInvocation：中调用 doesNotReconizeSelector: 。除非你非常清楚你想要做什么，不然不要直接返回，直接返回可能会导致一些非常蛋疼的 bug 。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li>demo <a target="_blank" rel="noopener" href="https://github.com/junbinchencn/DynamicWork">https://github.com/junbinchencn/DynamicWork</a></li>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/25976913/">iOS编程实战</a> 读书笔记</li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtForwarding.html#//apple_ref/doc/uid/TP40008048-CH105-SW2">https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtForwarding.html#//apple_ref/doc/uid/TP40008048-CH105-SW2</a></li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Objective-C/">#Objective-C</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Objective-C 消息转发流程</div>
+      <div>https://junbinchencn.github.io/2017/04/16/oc-fast-forwarding/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年4月16日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/04/16/oc-signature-invocation/" title="Objective-C 方法签名和调用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Objective-C 方法签名和调用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/26/reading-source-code-of-SPStackedNav/" title="iPad 分屏框架 - SPStackedNav 源码解读">
+                        <span class="hidden-mobile">iPad 分屏框架 - SPStackedNav 源码解读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

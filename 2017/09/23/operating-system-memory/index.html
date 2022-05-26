@@ -1,0 +1,788 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="概述现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：  它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。 它为内阁进程提供了一致的地址空间,简化了内存管理。 它保护了每个进程的地址空间不被其他进程破坏。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入浅出虚拟内存机制">
+<meta property="og:url" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="概述现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：  它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。 它为内阁进程提供了一致的地址空间,简化了内存管理。 它保护了每个进程的地址空间不被其他进程破坏。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled1.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled2.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled3.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled4.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled5.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled6.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled7.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled8.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled9.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled10.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled11.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled12.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled13.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled14.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled15.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled16.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled17.webp">
+<meta property="article:published_time" content="2017-09-23T14:20:46.000Z">
+<meta property="article:modified_time" content="2022-05-26T05:53:31.127Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2017/09/23/operating-system-memory/Untitled.webp">
+  
+  
+  
+  <title>深入浅出虚拟内存机制 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="深入浅出虚拟内存机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-09-23 22:20" pubdate>
+          2017年9月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">深入浅出虚拟内存机制</h1>
+            
+            <div class="markdown-body">
+              
+              <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>现代操作系统了提供了一种对主存的抽象概念，叫做虚拟内存。它为每个进程提供了一个非常大的，一致的和私有的地址空间。虚拟内存提供了以下的三个关键能力：</p>
+<ol>
+<li>它将主存看成是一个存储在磁盘空间上的地址空间的高速缓存，主存中只保存活动区域，并根据需要在磁盘和主存之间来回传送数据。</li>
+<li>它为内阁进程提供了一致的地址空间,简化了内存管理。</li>
+<li>它保护了每个进程的地址空间不被其他进程破坏。</li>
+</ol>
+<span id="more"></span>
+
+<h3 id="物理和虚拟寻址"><a href="#物理和虚拟寻址" class="headerlink" title="物理和虚拟寻址"></a>物理和虚拟寻址</h3><p>计算机的主存可以看做是一个由 M 个连续的字节大小的单元组成的数组。每个字节都有一个唯一的物理地址（Physical Address,PA）。第一个字节的地址为 0，接下来的地址为 1，以此类推。CPU 访问内存的最简单的方式是使用物理寻址（physical addressing）。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+<p>该图例的上下文是一条加载指令，塔读取从物理地址 4 处开始的 4 字节字。CPU 在执行这条指令的时候，生成一个有效物理地址，通过内存总线，把这个物理地址传递给主存，主存取出从物理地址4处开始的 4 个字节字，然后将它返回给 CPU，CPU 将它存放在一个寄存器里。早期使用物理寻址的系统通常都比较简单，比如数字信号处理器，计算器等嵌入式设备。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled1.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+<p>现在处理器采用的是一个程序虚拟寻址（virtual addressing）的寻址方式，如上图所示。CPU 通过生成一个虚拟地址（virtual address,VA）来访问主存，这个虚拟地址在被送到主存之前会先转换成一个物理地址。将虚拟地址转换成物理地址的任务叫做地址翻译（address translation），地址翻译需要 CPU 硬件和操作系统之间的配合。 CPU 芯片上叫做内存管理单元（Menory Management Unit, MMU）的专用硬件，利用存放在主存中的查询表来动态翻译虚拟地址，该表的内容由操作系统管理。</p>
+<h3 id="地址空间"><a href="#地址空间" class="headerlink" title="地址空间"></a>地址空间</h3><p>地址空间（address space）是一个非负整数 <strong>地址</strong> 的有序合集：{0，1，2，… }</p>
+<img src="/2017/09/23/operating-system-memory/Untitled2.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+<p>在一个带虚拟内存的系统中，CPU 从一个有 N&#x3D; 2 的 n 次方 个地址的地址空间中生成虚拟地址，这个地址空间就称为虚拟地址空间：<br>{0，1，2，3，…., N-1}。<br>一个系统还有一个地理地址空间，对应于系统中物理内存的 M 个字节： {0，1，2，3，…, M-1}。<br>一个地址空间的大小通常是由表示最大地址所需要的位数来描述的，比如，一个包含 N &#x3D; 2 的 n 次方 个地址的虚拟地址空间就叫做一个 n 位地址空间，现代操作系统通常支持 32 位或者 64 位虚拟地址空间。</p>
+<h3 id="虚拟内存做为缓存的工具"><a href="#虚拟内存做为缓存的工具" class="headerlink" title="虚拟内存做为缓存的工具"></a>虚拟内存做为缓存的工具</h3><p>从概念上来说，虚拟内存被组织成为一个由存放在磁盘上的 N 个连续的字节大小的单元组成的数组，也就是字节数组。每个字节都有一个唯一的虚拟地址作为数组的索引。磁盘上活动的数组内容被缓存在主存中。在存储器结构中，较低层次上的磁盘的数据被分割成块，这些块作为和较高层次的主存之间的传输单元。主存作为虚拟内存的缓存。</p>
+<p>虚拟内存（VM）系统将虚拟内存分割成称为虚拟页（Virtual Page,VP）的大小固定的块，每个虚拟页的大小为 P &#x3D; 2 的 p 次方 字节。同样的，物理内存被分割为物理页（Physical Page,PP）,大小也为 P 字节（物理页也称作页帧（page frame））。</p>
+<p>在任意时刻，虚拟页面的集合都分为三个不相交的子集：</p>
+<ol>
+<li>未分配的，VM 系统还未分配（或者创建）的页，未分配的页没有任何数据和它们关联，因此不占用任何内存空间。</li>
+<li>缓存的，当前已缓存在物理内存中的已分配页。</li>
+<li>未缓存的，未缓存在物理内存中的已分配页。</li>
+</ol>
+<img src="/2017/09/23/operating-system-memory/Untitled3.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>上图展示了在一个有 8 个虚拟内存的虚拟内存中，虚拟页 0 和 3 还没有被分配，所以在磁盘上不存在。虚拟页 1，4，6 被缓存在物理内存中。虚拟页 2，5，7 已经被分配了，但是当前并没有缓存在主存中。</p>
+<h4 id="DRAM-缓存的组织结构"><a href="#DRAM-缓存的组织结构" class="headerlink" title="DRAM 缓存的组织结构"></a>DRAM 缓存的组织结构</h4><img src="/2017/09/23/operating-system-memory/Untitled4.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>我们使用 SRAM 缓存来表示位于 CPU 和 主存之间的  L1, L2 和 L3 高速缓存，使用 DRAM 缓存来表示虚拟内存系统中的缓存，也就是主存。</p>
+<p>在存储器层次结构中， DRAM 比 SRAM 慢个大约 10x 倍，磁盘比 DRAM 慢大约 10, 000x 倍。因此 DRAM 缓存的不命中比 SRAM 缓存中的不命中要昂贵的多，因为 DRAM 缓存不命中需要和磁盘传送数据，而 SRAM 缓存不命中是和 DRAM 传送数据。</p>
+<p>归根到底， DRAM 缓存的组织结构是由巨大的不命中开销驱动的。</p>
+<h4 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h4><img src="/2017/09/23/operating-system-memory/Untitled5.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>VA 是通过什么方式转成 PA 呢 ？<br>同任何缓存一样，虚拟内存系统必须有某种方法来判定一个虚拟也是否缓存在 DRAM 的某个地方。如果命中缓存，那么虚拟内存系统还必须确认这个虚拟页存在哪个物理页中。如果没有命中缓存，那么虚拟内存系统必须判断虚拟页存放在磁盘的哪个位置，在物理内存中选择一个牺牲页，并将虚拟页从磁盘复制到 DRAM，替换这个牺牲页。</p>
+<p>这些功能由软硬件联合提供，包括操作系统软件，MMU 中的地址翻译硬件和一个存放在物理内存中叫页表（page table）的数据结构，页表将虚拟页映射到物理页。每次地址翻译硬件将一个虚拟地址转换成物理地址时都会读取页表。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled6.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>上图展示了一个页表的基本结构，页表就是一个页表条目（Page Table Entry,PTE）的数组。虚拟地址空间中的每个页在页表中都有一个 PTE。在这里我们假设每个 PTE 是由一个有效位（Valid bit）和一个 n 位地址字段组成的。有效位表明了该虚拟页当前是否被缓存在 DRAM 中。如果有效位为 1，那么地址字段就表示 DRAM 中相应的物理页的起始位置，这个物理页缓存了该虚拟页。如果有效位为 0，那么一个 null 地址表示这个虚拟页还未被分配，否则对应的这个地址就指向该虚拟页在磁盘上的起始位置。</p>
+<p>上图所示中一共有 8 个虚拟页和 4 个物理页的页表，4 个虚拟页 VP1, VP2, VP4, VP7 当前被缓存在 DRAM 中，VP0 和 VP5 还未被分配，而剩下的 VP3 和 VP6 已经被分配了，但是当前未被缓存。</p>
+<h4 id="页命中"><a href="#页命中" class="headerlink" title="页命中"></a>页命中</h4><img src="/2017/09/23/operating-system-memory/Untitled7.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+
+<p>当 CPU 想要读取 VP2 中的虚拟内存中的一个字时，地址翻译硬件将虚拟地址作为一个索引来定位到 PTE2, 并从主存中读取它。因为 PTE2 设置了有效位，所以 VP2 是缓存在主存中的，所以地址翻译硬件使用 PTE 中的物理内存地址构造出这个字的物理地址。</p>
+<h4 id="缺页"><a href="#缺页" class="headerlink" title="缺页"></a>缺页</h4><img src="/2017/09/23/operating-system-memory/Untitled8.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>在虚拟内存中，DRAM 缓存不命中称为缺页（page fault）。如上图所示，CPU 引用了 VP3 中的一个字， VP3 并未缓存在 DRAM 中。地址翻译硬件从内存中读取 PTE3, 从有效位判断出 VP3 未被缓存，并且触发了一个缺页异常。缺页异常会调用内核的缺页异常处理程序，该程序会选择一个牺牲页。如下图所示，在这个案例中就是存放在 PP3 中的 VP4。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled9.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>此时如果 VP4 已经被修改了，那么内核程序会将它复制回磁盘。接下来，内核程序从磁盘赋值 VP3 到内存中的 PP3并更新 PTE3。随后返回用户进程。当异常处理程序返回时，它会重启执行导致缺页的指令，该指令会将导致缺页的虚拟地址重新发送到地址翻译硬件。如下图所示，现在 VP3 已经在主存中了，那么就是页命中了。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled10.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+
+
+<h4 id="局部性"><a href="#局部性" class="headerlink" title="局部性"></a>局部性</h4><p>当我们了解了虚拟内存的运作机制之后，是不是觉得虚拟内存的效率会很低呢？因为页面没有命中的代价非常大。是不是担心虚拟内存会影响程序的性能呢？其实虚拟内存运作的非常好。它充分利用了局部性（ locality ）的原理。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled11.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>在程序整个运作过程中，程序引用的不同页面的总数可能超出了物理内存的总大小，但是局部性原则可以保证在任意时刻，程序将趋向于在一个较小的活动页面（active page）集合上工作，这个集合被称作工作集（working set）或者常驻集合（resident set）。在程序初始开销之后也就是将工作集页面调入主存，接下来对这个工作集的访问会产生命中，这样就不会产生额外的磁盘消耗。<br>如果程序有良好的时间局部性，那么虚拟内存将工作的非常好。如果程序没有良好的时间局部性也就是工作集的大小超出了主存的大小，那么程序将会进入一个称作 抖动（thrashing）的状态，这个时候页面将不断地换进换出，程序会出现性能问题。</p>
+<h3 id="虚拟内存作为内存管理的工具"><a href="#虚拟内存作为内存管理的工具" class="headerlink" title="虚拟内存作为内存管理的工具"></a>虚拟内存作为内存管理的工具</h3><p>虚拟内存大大简化了内存管理，操作系统为每个进程提供了一个独立的虚拟地址空间。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled12.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>在上图中，进程 1 的页表将 VP1 映射到 PP2, VP2 映射到 PP6。进程 2 的页表将 VP1 映射到 PP8, VP2 映射到 PP6。在这里可以看到多个虚拟页面可以映射到同一个共享的物理页面上。</p>
+<p>按需页面调度和独立的虚拟地址空间的结合，让 虚拟内存简化了链接和加载，代码和数据共享，以及应用程序的内存分配。</p>
+<ul>
+<li>简化链接。独立的地址空间允许每个进程的内存映像使用相同的基本格式，而不管代码和数据实际存放在物理内存的何处。</li>
+<li>简化加载。虚拟内存使得容易向内存中加载可执行文件和共享对象文件。将一组连续的虚拟页面映射到任意一个文件中的任意位置的表示法称作内存映射（memory mapping）。Linux 提供了一个 nmap 的系统调用，允许应用程序自己做内存映射。</li>
+<li>简化共享。独立地址空间为操作系统提供了一个管理用户进程和操作系统自身之间共享的一致机制。一般情况下，每个进程都有自己私有的代码、数据、堆栈。这些内容不与其他进程共享。在这种情况下，操作系统创建页表，将相应的虚拟页映射到不连续的物理页面。</li>
+<li>简化内存分配。虚拟内存向用户进程提供一个简单的分配额外内存的机制。当一个用户程序要求额外的堆空间时候，操作系统分配 k 个适当的连续的虚拟内存页面，并且将他们映射到物理内存的中的 k 个任意页面，操作系统没有必要分配 k 个连续的物理内存页面。</li>
+</ul>
+<h3 id="虚拟内存作为内存保护的工具"><a href="#虚拟内存作为内存保护的工具" class="headerlink" title="虚拟内存作为内存保护的工具"></a>虚拟内存作为内存保护的工具</h3><p>虚拟内存大大简化了内存管理，操作系统提供独立的地址空间使得区分不同进程的私有内存变得容易，但是地址翻译机制可以使用一种自然的方式拓展到提供更好的访问控制。每次 CPU 生成一个地址时，地址翻译硬件都会读一个 PTE ，通过在 PTE 上添加一些额外的控制位来控制对一个虚拟页面内容的访问。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled13.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>在上图中，每个 PTE 添加了三个控制位， SUP 位表示进程是否必须运行在超级用也就是内核模式下才能访问该页，WRITE 位控制页面的写访问， EXRC 位控制页面的执行。如果有指令违反了这些控制条件，那么 CPU 会触发一个一般保护故障，将控制传递给内核中的异常处理程序。</p>
+<h3 id="地址翻译"><a href="#地址翻译" class="headerlink" title="地址翻译"></a>地址翻译</h3><img src="/2017/09/23/operating-system-memory/Untitled14.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>上图中展示了页面命中的场景，CPU 硬件的执行步骤：</p>
+<ol>
+<li>处理器 生成一个虚拟地址，并把它传送给 MMU。</li>
+<li>MMU 生成 PTE 地址，并从高速缓存&#x2F;主存中请求这个 PTE 。</li>
+<li>高速缓存&#x2F;主存向 MMU 返回 PTE。</li>
+<li>MMU 构造物理地址，并把它传送给高速缓存&#x2F;主存。</li>
+<li>高速缓存&#x2F;主存返回所请求的数据字给处理器。</li>
+</ol>
+<p>页面命中是全部由硬件来处理的，既然有页面命中，那么就有页面不命中的场景。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled15.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>上图展示了页面不命中的场景， CPU 硬件的执行步骤：</p>
+<ol>
+<li>处理器 生成一个虚拟地址，并把它传送给 MMU。</li>
+<li>MMU 生成 PTE 地址，并从高速缓存&#x2F;主存中请求这个 PTE 。</li>
+<li>高速缓存&#x2F;主存向 MMU 返回 PTE。</li>
+<li>PTE 中的有效控制位为 0 ，所以 MMU 触发了一次异常，传递 CPU 中的控制到操作系统内核中的缺页异常处理程序。</li>
+<li>缺页处理程序确定出物理内存中的牺牲页，如果这个页面已经被修改了，则把它换出到磁盘。</li>
+<li>缺页处理程序调入新的页面，并更新内存中的 PTE。</li>
+<li>缺页处理程序返回原来的进程，再次执行导致缺页的指令， CPU 将引起缺页的虚拟地址重新发送给 MMU ，因为虚拟页面现在存在主存中，所以会命中，主存将请求字返回给处理器。</li>
+</ol>
+<p>地址翻译的过程执行起来太慢了？怎么解决呢？答案你应该也猜到了，就是添加缓存。在 MMU 中包含了一个 TLB （Translation Lookaside Buffer）缓存。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled16.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>我们来看看 TLB 命中的场景，</p>
+<ul>
+<li>第 1 步 CPU 产生一个虚拟地址</li>
+<li>第 2 和 3 步 MMU 从 TLB 中取出对应的 PTE 。</li>
+<li>第 4 步 MMU 将这个虚拟地址翻译成一个物理地址，并且将它发送到高速缓存&#x2F;主存。</li>
+<li>第 5 步 高速缓存&#x2F;主存将所请求的数据字返回 CPU。</li>
+</ul>
+<p>如下图所示，当 TLB 不命中的时候， 多了步骤 3 和 4 ，MMU 必须从 L1 缓存中取出对应的 PTE , 新取出的 PTE 存放在 TLB 中，可能会覆盖一个已经存在的 PTE 。</p>
+<img src="/2017/09/23/operating-system-memory/Untitled17.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>虚拟内存对于计算机系统来说是核心的，虚拟内存也是强大的，同时虚拟内存也是危险的。虚拟内存还包括多级页表，内存映射，动态内存分配，垃圾收集等等内容。限于篇幅，这里只是叙述了一些基本的概念，帮助程序员理解 虚拟内存 这个概念，对具体细节不做深究。若是有兴趣的话，可以参考 《深入理解计算机系统》书籍，了解更多关于计算机虚拟内存要点。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://courses.cs.washington.edu/courses/cse351/17wi/videos.html">The Hardware &#x2F; Software Interface</a> 课程笔记</li>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/26912767/">https://book.douban.com/subject/26912767/</a></li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>深入浅出虚拟内存机制</div>
+      <div>https://junbinchencn.github.io/2017/09/23/operating-system-memory/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年9月23日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/09/23/reading-source-code-of-Reachability/" title="iOS 网络监控框架 - Reachability 源码解读">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iOS 网络监控框架 - Reachability 源码解读</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/05/07/reading-source-code-of-Aspects/" title="iOS AOP 框架 - Aspects 源码解读">
+                        <span class="hidden-mobile">iOS AOP 框架 - Aspects 源码解读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
