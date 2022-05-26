@@ -1,0 +1,708 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="objc_msgSend 函数在 Objective-C 中, message 是直到 Runtime 的时候才会绑定实现，编译器会将我们的发送消息 [receiver message] 变成函数调用 objc_msgSend，该函数会有2个默认参数，分别是 receiver 和 selector 。当然，若是该函数有其他的参数，那么其他参数就跟在2个默认参数后面。 1objc_msgSend(r">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Objective-C 之 objc_msgSend 简单实现">
+<meta property="og:url" content="https://junbinchencn.github.io/2017/04/16/oc-msgsend/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="objc_msgSend 函数在 Objective-C 中, message 是直到 Runtime 的时候才会绑定实现，编译器会将我们的发送消息 [receiver message] 变成函数调用 objc_msgSend，该函数会有2个默认参数，分别是 receiver 和 selector 。当然，若是该函数有其他的参数，那么其他参数就跟在2个默认参数后面。 1objc_msgSend(r">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://junbinchencn.github.io/2017/04/16/oc-msgsend/Untitled.webp">
+<meta property="article:published_time" content="2017-04-16T05:59:46.000Z">
+<meta property="article:modified_time" content="2022-05-26T05:28:33.424Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="Objective-C">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2017/04/16/oc-msgsend/Untitled.webp">
+  
+  
+  
+  <title>Objective-C 之 objc_msgSend 简单实现 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Objective-C 之 objc_msgSend 简单实现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-04-16 13:59" pubdate>
+          2017年4月16日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Objective-C 之 objc_msgSend 简单实现</h1>
+            
+            <div class="markdown-body">
+              
+              <h3 id="objc-msgSend-函数"><a href="#objc-msgSend-函数" class="headerlink" title="objc_msgSend 函数"></a>objc_msgSend 函数</h3><p>在 Objective-C 中, message 是直到 Runtime 的时候才会绑定实现，编译器会将我们的发送消息 [receiver message] 变成函数调用 objc_msgSend，该函数会有2个默认参数，分别是 receiver 和 selector 。当然，若是该函数有其他的参数，那么其他参数就跟在2个默认参数后面。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">objc_msgSend(receiver, selector, arg1, arg2, ...)<br></code></pre></td></tr></table></figure>
+
+<p>在动态绑定过程中，objc_msgSend 函数的作用如下</p>
+<ol>
+<li>找到 selector 对应的方法实现，</li>
+<li>调用方法实现，传入参数</li>
+<li>接收方法实现的返回值并将这个返回值作为自己的返回值</li>
+</ol>
+<p>objc_msgSend 函数调用过程中依赖于编译器为每个类和对象提供的一些类结构，这个类结构包含了下面 2 个基本元素</p>
+<ol>
+<li>一个指向 superclass 的指针, 这个指针叫做 isa，对象可以用它来来访问 class ，通过 class 可以访问这个 class 类继承层次上的所有其他 class</li>
+<li>一个 class dispatch table , 一个 selector - 方法实现地址 对应的表格， 比如 sestOrigin:: 的 selector 对应的是 setOrigin::的方法实现地址</li>
+</ol>
+<img src="/2017/04/16/oc-msgsend/Untitled.webp" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>Messaging 过程如上图所示，当一个对象收到一个消息（message）的时候，objc_msgSend 函数（messaging function） 会根据对象的 isa 指针 到 class dispatch table 里面去查找 method selector 。如果找不到呢？那就根据 isa 指针寻找到 superclass ，若是一直没有找到，那么就会沿着类继承层次来到了 NSObjct 。一旦找到了 method selector,那么就调用 method selector 对应的方法实现并传入对应的参数。这就是 Runtime 寻找方法实现的方式，消息动态绑定到方法实现。</p>
+<p>为了提高 Messaging 过程的速度，消息被首次使用的时候，Runtime 会缓存 selector 和 方法实现地址。Messaging 的时候会先查询缓存，若是没有缓存，那么去 class dispatch table 寻找，若是有缓存，那么直接使用缓存，这个时候 Messaging 的速度只是比直接的函数调用来的慢那么一点点儿，这个差异基本可以忽略。</p>
+<p>Runtime 的核心在于消息分派器 objc_msgSend，它的作用是把选择器映射为函数指针，并调用被函数指针引用的函数。我们来做简单的 objc_msgSend 的实现。</p>
+<h3 id="C-代码实现消息分派器"><a href="#C-代码实现消息分派器" class="headerlink" title="C 代码实现消息分派器"></a>C 代码实现消息分派器</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">myMsgSend</span><span class="hljs-params">(id receiver, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span>&#123;<br>    <span class="hljs-comment">// selector 是选择器，是方法名的唯一标识符</span><br>    SEL selector = sel_registerName(name);<br>    <span class="hljs-comment">// methodIMP 方法实现，只是一个指向方法某个函数的指针</span><br>    IMP methodIMP = class_getMethodImplementation(object_getClass(receiver), selector);<br>    <span class="hljs-comment">// 执行 methodIMP 方法实现，methodIMP 接受一个对象，一个选择器，可变长参数列表作为参数，并返回一个对象</span><br>    <span class="hljs-keyword">return</span> methodIMP(receiver,selector);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>定义一个 myMsgSend 函数，该函数的作用类似于 objc_msgSend。</p>
+<ol>
+<li>使用 sel_registerName 获取方法的唯一标识符</li>
+<li>使用 class_getMethodImplementation 获取关于某个类或者对象的方法实现</li>
+<li>给对应得方法实现 methodIMP 传入合适的参数，并返回一个对象。</li>
+</ol>
+<p>接下来我们看看如何使用这个简单的 objc_msgSend 实现。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">void</span> <span class="hljs-title function_">RunMyMsgSend</span><span class="hljs-params">()</span>&#123;<br><br>    <span class="hljs-comment">// NSObject *object = [[NSObject alloc] init];</span><br>    <span class="hljs-comment">// objectClass 定义了 Objective-C 的类</span><br>    Class objectClass = (Class)objc_getClass(<span class="hljs-string">&quot;NSObject&quot;</span>);<br>    id object = class_createInstance(objectClass, <span class="hljs-number">0</span>);<br>    myMsgSend(object, <span class="hljs-string">&quot;init&quot;</span>);<br>    <br>    <span class="hljs-comment">// id description = [object description];</span><br>    id description = (id)myMsgSend(object, <span class="hljs-string">&quot;description&quot;</span>);<br>    <br>    <span class="hljs-comment">// const char *cstr = [description UTF8String];</span><br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *cstr = myMsgSend(description, <span class="hljs-string">&quot;UTF8String&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s\n&quot;</span>,cstr);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>从代码中可以看到，我们将 Objective-C 的发送消息过程 ，使用 C 语言来做了简单的类似实现。可以粗略的说，Runtime 真的只是 C 。</p>
+<ol>
+<li><code> NSObject *object = [[NSObject alloc] init] </code> 发送 init 消息使用<code> myMsgSend(object, "init")</code> 实现</li>
+<li><code>id description = [object description]</code> 发送 description 消息使用 <code> myMsgSend(object, "description") </code> 实现</li>
+<li><code> [description UTF8String] </code> 发送 UTF8String 消息使用 <code> myMsgSend(description, "UTF8String")</code> 实现</li>
+</ol>
+<p>运行以下代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n\nRunMyMsgSend()\n&quot;</span>);<br>RunMyMsgSend();<br>NSObject *testObj = [[NSObject alloc] init];<br>NSLog(@<span class="hljs-string">&quot;%@&quot;</span>, testObj);<br></code></pre></td></tr></table></figure>
+<p>输出运行结果</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C">RunMyMsgSend()<br>&lt;NSObject: <span class="hljs-number">0x60800000fd50</span>&gt;<br>&lt;NSObject: <span class="hljs-number">0x60800000fd60</span>&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="methodForSelector-实现消息分派器"><a href="#methodForSelector-实现消息分派器" class="headerlink" title="methodForSelector: 实现消息分派器"></a>methodForSelector: 实现消息分派器</h3><p>在 Objective-C 中，我们可以使用 methodForSelector: 来实现消息分派,那么使用 methodForSelector: 和 使用 objc_msgSend相比，会有性能提升么？为了这个性能提升直接跳过objc_msgSend值得么? 直接用代码来个测试。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">const</span> NSUInteger kTotalCount = <span class="hljs-number">100000000</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*voidIMP)</span><span class="hljs-params">(id,SEL,...)</span>;<br><br><span class="hljs-comment">// 分别使用objc_msgSend 和 methodForSelector 来做消息分派，对字符串做一亿次操作之后进行耗时比较</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">FastCall</span><span class="hljs-params">()</span>&#123;<br>    <br>    NSMutableString *<span class="hljs-built_in">string</span> = [NSMutableString <span class="hljs-built_in">string</span>];<br>    NSTimeInterval totalTime = <span class="hljs-number">0</span>;<br>    NSDate *start = nil;<br>    NSUInteger count = <span class="hljs-number">0</span>;<br>    <br>    <span class="hljs-comment">// 用 objc_msgSend</span><br>    start = [NSDate date];<br>    <span class="hljs-keyword">for</span> (count = <span class="hljs-number">0</span>; count &lt; kTotalCount; count ++) &#123;<br>        [<span class="hljs-built_in">string</span> setString:@<span class="hljs-string">&quot;stuff&quot;</span>];<br>    &#125;<br>    <span class="hljs-comment">// 计算用 objc_msgSend 耗时时间</span><br>    totalTime = -[start timeIntervalSinceNow];<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;w/ objc_msgSend = %f\n&quot;</span>, totalTime);<br><br>    <span class="hljs-comment">// 跳过 objc_msgSend, 使用 methodForSelector 来做消息分派</span><br>    start = [NSDate date];<br>    SEL selector = @selector(setString:);<br>    voidIMP setStringMethod = (voidIMP)[<span class="hljs-built_in">string</span> methodForSelector:selector];<br>    <span class="hljs-keyword">for</span> (count = <span class="hljs-number">0</span>; count &lt; kTotalCount; count ++) &#123;<br>        setStringMethod(<span class="hljs-built_in">string</span>,selector,@<span class="hljs-string">&quot;stuff&quot;</span>);<br>    &#125;<br>    <span class="hljs-comment">// 计算用 跳过 objc_msgSend 耗时时间</span><br>    totalTime = -[start timeIntervalSinceNow];<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;w/ objc_msgSend = %f\n&quot;</span>,totalTime);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>多次运行之后，结果如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C">用 objc_msgSend 耗时 = <span class="hljs-number">6.885367</span><br>跳过 objc_msgSend 耗时 = <span class="hljs-number">6.475993</span><br></code></pre></td></tr></table></figure>
+
+<p>可以为这个例子做个总结。<strong>多数情况下，我们会把 Objective-C 的方法重写成函数，这样可以得到更好更可靠的性能提升，但是不要想着绕过消息分派器 objc_msgSend ，因为 objc_msgSend 的性能开销已经小到可以忽略不计了，不需要再去优化这个过程了</strong>。</p>
+<p>那么什么时候需要绕过消息分派器 objc_msgSend 呢？那就是循环内的大量方法调用，我们以一个<code>setFilled: </code>方法来做示例。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">void</span> (*setter)(id, SEL, BOOL);<br><span class="hljs-type">int</span> i;<br> <br>setter = (<span class="hljs-type">void</span> (*)(id, SEL, BOOL))[target<br>methodForSelector:@selector(setFilled:)];<br><span class="hljs-keyword">for</span> ( i = <span class="hljs-number">0</span> ; i &lt; <span class="hljs-number">1000</span> ; i++ )<br>    setter(targetList[i], @selector(setFilled:), YES);<br></code></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/25976913/">iOS编程实战</a> 读书笔记</li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtHowMessagingWorks.html">https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtHowMessagingWorks.html</a></li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Objective-C/">#Objective-C</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Objective-C 之 objc_msgSend 简单实现</div>
+      <div>https://junbinchencn.github.io/2017/04/16/oc-msgsend/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年4月16日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/04/16/video-editor-ios/" title="iOS 视频剪切、旋转，视频添加音频、添加水印，视频导出">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iOS 视频剪切、旋转，视频添加音频、添加水印，视频导出</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/26/reading-source-code-of-SPStackedNav/" title="iPad 分屏框架 - SPStackedNav 源码解读">
+                        <span class="hidden-mobile">iPad 分屏框架 - SPStackedNav 源码解读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
