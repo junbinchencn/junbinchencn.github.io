@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="AFNetworking 基本是 iOS 开发中的网络第三方库标配,本文基于 AFNetworking3.1.0 版本。废话不多说，这篇文章主要从使用的角度来介绍 AFNetworking 的发起 Get 请求的过程，偏重于解读过程，解读当你使用 AFNetworking 发起一个 Get 请求的时候，AFNetworking 内部的处理过程。而不是对 AFNetworking 源代码的各个类的代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 网络框架－AFNetworking 3.1.0 源码解读">
+<meta property="og:url" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="AFNetworking 基本是 iOS 开发中的网络第三方库标配,本文基于 AFNetworking3.1.0 版本。废话不多说，这篇文章主要从使用的角度来介绍 AFNetworking 的发起 Get 请求的过程，偏重于解读过程，解读当你使用 AFNetworking 发起一个 Get 请求的时候，AFNetworking 内部的处理过程。而不是对 AFNetworking 源代码的各个类的代">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled1.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled2.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled3.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled4.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled5.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled6.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled7.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled8.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled9.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled10.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled11.webp">
+<meta property="og:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled12.webp">
+<meta property="article:published_time" content="2016-07-31T01:49:20.000Z">
+<meta property="article:modified_time" content="2022-05-26T02:04:50.862Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="源码解读">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/Untitled.webp">
+  
+  
+  
+  <title>iOS 网络框架－AFNetworking 3.1.0 源码解读 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="iOS 网络框架－AFNetworking 3.1.0 源码解读"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2016-07-31 09:49" pubdate>
+          2016年7月31日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          128 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS 网络框架－AFNetworking 3.1.0 源码解读</h1>
+            
+            <div class="markdown-body">
+              
+              <p>AFNetworking 基本是 iOS 开发中的网络第三方库标配,本文基于 <a target="_blank" rel="noopener" href="https://github.com/AFNetworking/AFNetworking/tree/3.1.0">AFNetworking3.1.0</a> 版本。废话不多说，这篇文章主要从使用的角度来介绍 AFNetworking 的发起 Get 请求的过程，偏重于解读过程，解读当你使用 AFNetworking 发起一个 Get 请求的时候，AFNetworking 内部的处理过程。而不是对 AFNetworking 源代码的各个类的代码进行深入解析，在源码深度解析方面，网络上已经有很多不错的文章，在文章的末尾我会给出参考链接。</p>
+<h2 id="Get-请求流程图"><a href="#Get-请求流程图" class="headerlink" title="Get 请求流程图"></a>Get 请求流程图</h2><p>这是 AFNetworking 发起一个 Get 请求的流程图，大概可以分为这几个步骤，我会逐个解读这个流程。</p>
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+
+<h2 id="AFHTTPSessionManager-发起Get请求"><a href="#AFHTTPSessionManager-发起Get请求" class="headerlink" title="AFHTTPSessionManager 发起Get请求"></a>AFHTTPSessionManager 发起Get请求</h2><img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled1.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>这个方法是 AFN 的 Get 请求的起点，其他 Get 请求的方法也都是直接或者间接调用这个方法来发起 Get 请求。这个方法的代码量很少也很直观，就是调用其他方法生成 NSURLSessionDataTask 对象的实例,然后调用 NSURLSessionDataTask 的 resume 方法发起请求。</p>
+<h2 id="创建-NSURLSessionDataTask"><a href="#创建-NSURLSessionDataTask" class="headerlink" title="创建 NSURLSessionDataTask"></a>创建 NSURLSessionDataTask</h2><img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled2.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+<p>这个方法是创建 NSURLSessionDataTask 对象实例并返回这个实例。首先创建一个 NSMutableURLRequest 对象的实例，然后配置。之后是使用 NSMutableURLRequest 对象的实例创建 NSURLSessionDataTask 对象实例，然后配置，可以选择性地传入各类 Block 回调，用于监听网络请求的进度比如上传进度，下载进度，请求成功，请求失败。</p>
+<h3 id="配置-NSMutableURLRequest-对象"><a href="#配置-NSMutableURLRequest-对象" class="headerlink" title="配置 NSMutableURLRequest 对象"></a>配置 NSMutableURLRequest 对象</h3><img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled3.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>在这个方法中先使用了url 创建了一个 NSMutableURLRequest 对象的实例,并且设置了 HTTPMethod 为 Get 方法（如果是 Post 方法，那么这里就是设置 Post 方法，以此类推）然后使用 KVC 的方法设置了 NSMutableURLRequest 的一些属性。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs CPP"><span class="hljs-comment">//设置 NSMutableURLRequest 的属性</span><br> <span class="hljs-function"><span class="hljs-type">static</span> NSArray * <span class="hljs-title">AFHTTPRequestSerializerObservedKeyPaths</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">static</span> NSArray *_AFHTTPRequestSerializerObservedKeyPaths = nil;<br>    <span class="hljs-type">static</span> <span class="hljs-type">dispatch_once_t</span> onceToken;<br>    <span class="hljs-built_in">dispatch_once</span>(&amp;onceToken, ^&#123;<br>        <span class="hljs-comment">//allowsCellularAccess 允许使用数据流量</span><br>        <span class="hljs-comment">//cachePolicy 缓存策略</span><br>        <span class="hljs-comment">//HTTPShouldHandleCookies 处理Cookie</span><br>        <span class="hljs-comment">//HTTPShouldUsePipelining 批量请求</span><br>        <span class="hljs-comment">//networkServiceType 网络状态</span><br>        <span class="hljs-comment">//timeoutInterval 超时</span><br>        _AFHTTPRequestSerializerObservedKeyPaths = @[<span class="hljs-built_in">NSStringFromSelector</span>(@<span class="hljs-built_in">selector</span>(allowsCellularAccess)), <span class="hljs-built_in">NSStringFromSelector</span>(@<span class="hljs-built_in">selector</span>(cachePolicy)), <span class="hljs-built_in">NSStringFromSelector</span>(@<span class="hljs-built_in">selector</span>(HTTPShouldHandleCookies)), <span class="hljs-built_in">NSStringFromSelector</span>(@<span class="hljs-built_in">selector</span>(HTTPShouldUsePipelining)), <span class="hljs-built_in">NSStringFromSelector</span>(@<span class="hljs-built_in">selector</span>(networkServiceType)), <span class="hljs-built_in">NSStringFromSelector</span>(@<span class="hljs-built_in">selector</span>(timeoutInterval))];<br>    &#125;);<br><br>    <span class="hljs-keyword">return</span> _AFHTTPRequestSerializerObservedKeyPaths;<br>&#125;```<br><br><br>![配置NSMutableURLRequest对象](http:<span class="hljs-comment">//upload-images.jianshu.io/upload_images/656644-a228e54cc99ab038.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)</span><br>先设置 HTTP header，之后格式化请求参数，设置参数的编码类型。这个是这个方法的基本操作流程。对于 Get 操作来说，参数是直接拼接在请求地址后面。<br><br>### 配置 NSURLSessionDataTask 对象<br><br>![配置NSURLSessionDataTask对象](http:<span class="hljs-comment">//upload-images.jianshu.io/upload_images/656644-df139131c05cc9b8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)</span><br><br>之后配置 NSMutableURLRequest 对象就需要配置 NSURLSessionDataTask 对象了。主要分为 <span class="hljs-number">2</span> 个步骤，第一个步骤是创建 NSURLSessionDataTask 对象实例，第二个步骤是给 NSURLSessionDataTask 对象实例设置 Delegate。用于实时了解网络请求的过程。<br><br><br>![给NSURLSessionDataTask对象实例设置Delegate](http:<span class="hljs-comment">//upload-images.jianshu.io/upload_images/656644-d75418e6972979c8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)</span><br><br>AFN 的代理统一使用 AFURLSessionManagerTaskDelegate 对象来管理，使用AFURLSessionManagerTaskDelegate 对象来接管 NSURLSessionTask 网络请求过程中的回调，然后再传入 AFN 内部进行管理。<br><br>```CPP<br>@interface AFURLSessionManagerTaskDelegate : NSObject &lt;NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate&gt;<br></code></pre></td></tr></table></figure>
+<p>如代码所示 AFURLSessionManagerTaskDelegate 接管了 NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate 的各种回调，然后做内部处理。这也是第三方网络请求框架的重点，让网络请求更加易用，好用。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//通过task的标识符管理代理</span><br>- (<span class="hljs-type">void</span>)setDelegate:(AFURLSessionManagerTaskDelegate *)delegate<br>            forTask:(<span class="hljs-built_in">NSURLSessionTask</span> *)task<br>&#123;<br>    <span class="hljs-built_in">NSParameterAssert</span>(task);<br>    <span class="hljs-built_in">NSParameterAssert</span>(delegate);<br><br>    [<span class="hljs-keyword">self</span>.lock lock];<br>    <span class="hljs-keyword">self</span>.mutableTaskDelegatesKeyedByTaskIdentifier[@(task.taskIdentifier)] = delegate;<br>    [delegate setupProgressForTask:task];<br>    [<span class="hljs-keyword">self</span> addNotificationObserverForTask:task];<br>    [<span class="hljs-keyword">self</span>.lock unlock];<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>通过 NSURLSessionTask 的 taskIdentifier 标识符对 delegate 进行管理，只要是用于识别该NSURLSessionTask 的代理，</p>
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled4.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>设置各类回调 Block,给 NSURLSessionTask 使用 KVO 进行各种过程进度监听。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//给task添加暂停和恢复的通知</span><br>- (<span class="hljs-type">void</span>)addNotificationObserverForTask:(<span class="hljs-built_in">NSURLSessionTask</span> *)task &#123;<br>    [[<span class="hljs-built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="hljs-keyword">self</span> selector:<span class="hljs-keyword">@selector</span>(taskDidResume:) name:AFNSURLSessionTaskDidResumeNotification object:task];<br>    [[<span class="hljs-built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="hljs-keyword">self</span> selector:<span class="hljs-keyword">@selector</span>(taskDidSuspend:) name:AFNSURLSessionTaskDidSuspendNotification object:task];<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>监听 NSURLSessionTask 被挂起和恢复的通知</p>
+<h2 id="网络请求开始"><a href="#网络请求开始" class="headerlink" title="网络请求开始"></a>网络请求开始</h2><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (<span class="hljs-built_in">NSURLSessionDataTask</span> *)GET:(<span class="hljs-built_in">NSString</span> *)URLString<br>                   parameters:(<span class="hljs-type">id</span>)parameters<br>                     progress:(<span class="hljs-type">void</span> (^)(<span class="hljs-built_in">NSProgress</span> * _Nonnull))downloadProgress<br>                      success:(<span class="hljs-type">void</span> (^)(<span class="hljs-built_in">NSURLSessionDataTask</span> * _Nonnull, <span class="hljs-type">id</span> _Nullable))success<br>                      failure:(<span class="hljs-type">void</span> (^)(<span class="hljs-built_in">NSURLSessionDataTask</span> * _Nullable, <span class="hljs-built_in">NSError</span> * _Nonnull))failure<br>&#123;<br><br>    <span class="hljs-built_in">NSURLSessionDataTask</span> *dataTask = [<span class="hljs-keyword">self</span> dataTaskWithHTTPMethod:<span class="hljs-string">@&quot;GET&quot;</span><br>                                                        URLString:URLString<br>                                                       parameters:parameters<br>                                                   uploadProgress:<span class="hljs-literal">nil</span><br>                                                 downloadProgress:downloadProgress<br>                                                          success:success<br>                                                          failure:failure];<br><br>    [dataTask resume];<br><br>    <span class="hljs-keyword">return</span> dataTask;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>当 NSURLSessionTask 创建和配置完毕之后，它并不会主动执行，而是需要我们主动调用 resume方法，NSURLSessionTask 才会开始执行。</p>
+<h2 id="网络请求回调"><a href="#网络请求回调" class="headerlink" title="网络请求回调"></a>网络请求回调</h2><img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled5.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled6.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>AFN 里面有关 NSURLSessionDelegate 的回调方法非常的多，这里我们只调和<br> NSURLSessionTask 相关的部分方法和 KVO 处理来进行说明，其他的大家可以参考源码细看。</p>
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled7.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled8.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled9.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>对于我们的 Get 请求来说，我们最关注的莫过于关注请求过程进度，收到响应数据和请求完成这2个回调。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//KVO监听的属性值发生变化</span><br>- (<span class="hljs-type">void</span>)observeValueForKeyPath:(<span class="hljs-built_in">NSString</span> *)keyPath ofObject:(<span class="hljs-type">id</span>)object change:(<span class="hljs-built_in">NSDictionary</span>&lt;<span class="hljs-built_in">NSString</span> *,<span class="hljs-type">id</span>&gt; *)change context:(<span class="hljs-type">void</span> *)context &#123;<br>    <span class="hljs-keyword">if</span> ([object isKindOfClass:[<span class="hljs-built_in">NSURLSessionTask</span> <span class="hljs-keyword">class</span>]] || [object isKindOfClass:[<span class="hljs-built_in">NSURLSessionDownloadTask</span> <span class="hljs-keyword">class</span>]]) &#123;<br>        <span class="hljs-keyword">if</span> ([keyPath isEqualToString:<span class="hljs-built_in">NSStringFromSelector</span>(<span class="hljs-keyword">@selector</span>(countOfBytesReceived))]) &#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;countOfBytesReceived&quot;</span>);<br><span class="hljs-comment">//这个是在Get请求下，网络响应过程中已经收到的数据量</span><br>            <span class="hljs-keyword">self</span>.downloadProgress.completedUnitCount = [change[<span class="hljs-built_in">NSKeyValueChangeNewKey</span>] longLongValue];<span class="hljs-comment">//已经收到</span><br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ([keyPath isEqualToString:<span class="hljs-built_in">NSStringFromSelector</span>(<span class="hljs-keyword">@selector</span>(countOfBytesExpectedToReceive))]) &#123;<br>              <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;countOfBytesExpectedToReceive&quot;</span>);<br><span class="hljs-comment">//这个是在Get请求下，网络响应过程中期待收到的数据量</span><br>            <span class="hljs-keyword">self</span>.downloadProgress.totalUnitCount = [change[<span class="hljs-built_in">NSKeyValueChangeNewKey</span>] longLongValue];<span class="hljs-comment">//期待收到</span><br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ([keyPath isEqualToString:<span class="hljs-built_in">NSStringFromSelector</span>(<span class="hljs-keyword">@selector</span>(countOfBytesSent))]) &#123;<br>             <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;countOfBytesSent&quot;</span>);<br>            <span class="hljs-keyword">self</span>.uploadProgress.completedUnitCount = [change[<span class="hljs-built_in">NSKeyValueChangeNewKey</span>] longLongValue];<span class="hljs-comment">//已经发送</span><br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ([keyPath isEqualToString:<span class="hljs-built_in">NSStringFromSelector</span>(<span class="hljs-keyword">@selector</span>(countOfBytesExpectedToSend))]) &#123;<br>              <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;countOfBytesExpectedToSend&quot;</span>);<br>            <span class="hljs-keyword">self</span>.uploadProgress.totalUnitCount = [change[<span class="hljs-built_in">NSKeyValueChangeNewKey</span>] longLongValue];<span class="hljs-comment">//期待发送</span><br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ([object isEqual:<span class="hljs-keyword">self</span>.downloadProgress]) &#123;<br>        <span class="hljs-comment">//下载进度变化</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.downloadProgressBlock) &#123;<br>            <span class="hljs-keyword">self</span>.downloadProgressBlock(object);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ([object isEqual:<span class="hljs-keyword">self</span>.uploadProgress]) &#123;<br>        <span class="hljs-comment">//上传进度变化</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.uploadProgressBlock) &#123;<br>            <span class="hljs-keyword">self</span>.uploadProgressBlock(object);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//收到请求响应</span><br>- (<span class="hljs-type">void</span>)URLSession:(<span class="hljs-built_in">NSURLSession</span> *)session<br>          dataTask:(<span class="hljs-built_in">NSURLSessionDataTask</span> *)dataTask<br>didReceiveResponse:(<span class="hljs-built_in">NSURLResponse</span> *)response<br> completionHandler:(<span class="hljs-type">void</span> (^)(<span class="hljs-built_in">NSURLSessionResponseDisposition</span> disposition))completionHandler<br>&#123;<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;收到请求响应&quot;</span>);<br>    <span class="hljs-built_in">NSURLSessionResponseDisposition</span> disposition = <span class="hljs-built_in">NSURLSessionResponseAllow</span>;<span class="hljs-comment">//允许继续加载</span><br><br><span class="hljs-comment">//是否有收到请求响应的回调Block</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.dataTaskDidReceiveResponse) &#123;<br><span class="hljs-comment">//若有调用该Block</span><br>        disposition = <span class="hljs-keyword">self</span>.dataTaskDidReceiveResponse(session, dataTask, response);<br>    &#125;<br><span class="hljs-comment">//是否有请求响应完成的回调Block</span><br>    <span class="hljs-keyword">if</span> (completionHandler) &#123;<br><span class="hljs-comment">//若有调用该Block</span><br>        completionHandler(disposition);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//请求完成</span><br>- (<span class="hljs-type">void</span>)URLSession:(<span class="hljs-built_in">NSURLSession</span> *)session<br>              task:(<span class="hljs-built_in">NSURLSessionTask</span> *)task<br>didCompleteWithError:(<span class="hljs-built_in">NSError</span> *)error<br>&#123;<br>    <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;请求完成&quot;</span>);<br><span class="hljs-comment">//取出该NSURLSessionTask的代理对象</span><br>    AFURLSessionManagerTaskDelegate *delegate = [<span class="hljs-keyword">self</span> delegateForTask:task];<br><br>    <span class="hljs-comment">// delegate may be nil when completing a task in the background</span><br>    <span class="hljs-keyword">if</span> (delegate) &#123;<br><span class="hljs-comment">//若是该代理对象存在，那么将对应数据转给该代理对象处理</span><br>        [delegate URLSession:session task:task didCompleteWithError:error];<br><span class="hljs-comment">//NSURLSessionTask任务完成之后，移除该NSURLSessionTask的代理对象</span><br>        [<span class="hljs-keyword">self</span> removeDelegateForTask:task];<br>    &#125;<br><span class="hljs-comment">//是否有请求完成的回调Block</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.taskDidComplete) &#123;<br><span class="hljs-comment">//若有调用改Block</span><br>        <span class="hljs-keyword">self</span>.taskDidComplete(session, task, error);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<p>因为在配置 NSURLSessionDataTask 对象的时候我们有给 NSURLSessionTask 做了一系列配置，那么当 NSURLSessionDataTask 任务完成之后，我们需要将该 NSURLSessionDataTask 的一系列配置全部清理掉。</p>
+<p>这个是我们的配置过程</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//通过task的标识符管理代理</span><br>- (<span class="hljs-type">void</span>)setDelegate:(AFURLSessionManagerTaskDelegate *)delegate<br>            forTask:(<span class="hljs-built_in">NSURLSessionTask</span> *)task<br>&#123;<br>    <span class="hljs-built_in">NSParameterAssert</span>(task);<br>    <span class="hljs-built_in">NSParameterAssert</span>(delegate);<br><br>    [<span class="hljs-keyword">self</span>.lock lock];<br>    <span class="hljs-keyword">self</span>.mutableTaskDelegatesKeyedByTaskIdentifier[@(task.taskIdentifier)] = delegate;<br>    [delegate setupProgressForTask:task];<br>    [<span class="hljs-keyword">self</span> addNotificationObserverForTask:task];<br>    [<span class="hljs-keyword">self</span>.lock unlock];<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>那么对应的清理过程是这样的，就是设置过程中做了什么，在清理过程中就需要去掉什么。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//给task移除delegate</span><br>- (<span class="hljs-type">void</span>)removeDelegateForTask:(<span class="hljs-built_in">NSURLSessionTask</span> *)task &#123;<br>    <span class="hljs-built_in">NSParameterAssert</span>(task);<br><br>    AFURLSessionManagerTaskDelegate *delegate = [<span class="hljs-keyword">self</span> delegateForTask:task];<br>    [<span class="hljs-keyword">self</span>.lock lock];<br>    [delegate cleanUpProgressForTask:task];<br>    [<span class="hljs-keyword">self</span> removeNotificationObserverForTask:task];<br>    [<span class="hljs-keyword">self</span>.mutableTaskDelegatesKeyedByTaskIdentifier removeObjectForKey:@(task.taskIdentifier)];<br>    [<span class="hljs-keyword">self</span>.lock unlock];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled10.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+
+<img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled11.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+
+<h2 id="关于-Post-请求"><a href="#关于-Post-请求" class="headerlink" title="关于 Post 请求"></a>关于 Post 请求</h2><img src="/2016/07/31/reading-source-code-of-AFNetworking/Untitled12.webp" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> mark - AFURLRequestSerialization</span><br><span class="hljs-comment">//设置Header和请求参数</span><br>- (<span class="hljs-built_in">NSURLRequest</span> *)requestBySerializingRequest:(<span class="hljs-built_in">NSURLRequest</span> *)request<br>                               withParameters:(<span class="hljs-type">id</span>)parameters<br>                                        error:(<span class="hljs-built_in">NSError</span> *__autoreleasing *)error<br>&#123;<br>    <span class="hljs-built_in">NSParameterAssert</span>(request);<br><br>    <span class="hljs-built_in">NSMutableURLRequest</span> *mutableRequest = [request mutableCopy];<br>    [<span class="hljs-keyword">self</span>.HTTPRequestHeaders enumerateKeysAndObjectsUsingBlock:^(<span class="hljs-type">id</span> field, <span class="hljs-type">id</span> value, <span class="hljs-type">BOOL</span> * __unused stop) &#123;<br>        <span class="hljs-comment">//判断header的field是否存在,如果不存在则设置，存在则跳过</span><br>        <span class="hljs-keyword">if</span> (![request valueForHTTPHeaderField:field]) &#123;<br>            <span class="hljs-comment">//设置 header</span><br>            [mutableRequest setValue:value forHTTPHeaderField:field];<br>        &#125;<br>    &#125;];<br><br>    <span class="hljs-built_in">NSString</span> *query = <span class="hljs-literal">nil</span>;<br>    <span class="hljs-keyword">if</span> (parameters) &#123;<br>        <span class="hljs-comment">//用传进来的自定义block格式化请求参数</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.queryStringSerialization) &#123;<br>            <span class="hljs-built_in">NSError</span> *serializationError;<br>            query = <span class="hljs-keyword">self</span>.queryStringSerialization(request, parameters, &amp;serializationError);<br>            <span class="hljs-keyword">if</span> (serializationError) &#123;<br>                <span class="hljs-keyword">if</span> (error) &#123;<br>                    *error = serializationError;<br>                &#125;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">switch</span> (<span class="hljs-keyword">self</span>.queryStringSerializationStyle) &#123;<br>                <span class="hljs-keyword">case</span> AFHTTPRequestQueryStringDefaultStyle:<br>                    <span class="hljs-comment">//默认的格式化方式</span><br>                    query = AFQueryStringFromParameters(parameters);<br>                    <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-comment">//判断是否是GET/HEAD/DELETE方法， 对于GET/HEAD/DELETE方法，把参数加到URL后面</span><br>    <span class="hljs-keyword">if</span> ([<span class="hljs-keyword">self</span>.HTTPMethodsEncodingParametersInURI containsObject:[[request HTTPMethod] uppercaseString]]) &#123;<br>       <span class="hljs-comment">//判断是否有参数</span><br>        <span class="hljs-keyword">if</span> (query &amp;&amp; query.length &gt; <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-comment">//拼接请求参数</span><br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;query--&gt;%@&quot;</span>,query);<br>            mutableRequest.URL = [<span class="hljs-built_in">NSURL</span> URLWithString:[[mutableRequest.URL absoluteString] stringByAppendingFormat:mutableRequest.URL.query ? <span class="hljs-string">@&quot;&amp;%@&quot;</span> : <span class="hljs-string">@&quot;?%@&quot;</span>, query]];<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">// #2864: an empty string is a valid x-www-form-urlencoded payload</span><br>        <span class="hljs-keyword">if</span> (!query) &#123;<br>            query = <span class="hljs-string">@&quot;&quot;</span>;<br>        &#125;<br>        <span class="hljs-comment">//参数带在body上，大多是POST PUT</span><br>        <span class="hljs-keyword">if</span> (![mutableRequest valueForHTTPHeaderField:<span class="hljs-string">@&quot;Content-Type&quot;</span>]) &#123;<br>            <span class="hljs-comment">//设置Content-Type HTTP头，告诉服务端body的参数编码类型</span><br>            [mutableRequest setValue:<span class="hljs-string">@&quot;application/x-www-form-urlencoded&quot;</span> forHTTPHeaderField:<span class="hljs-string">@&quot;Content-Type&quot;</span>];<br>        &#125;<br>        [mutableRequest setHTTPBody:[query dataUsingEncoding:<span class="hljs-keyword">self</span>.stringEncoding]];<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> mutableRequest;<br>&#125;```<br>如果是 Post 请求，那么请求参数是没有拼接在 URL 上面，而是放在 body 上，这个是 Post 和 Get 请求的最大区别了，其他过程和 Get 请求并没有太多区别。<br><br><br><br>## 关于 HTTPS 请求<br><br>&#123;% asset_img Untitled13.webp This is an example image %&#125;<br><br><br>&#123;% asset_img Untitled14.webp This is an example image %&#125;<br><br><br>```objectivec<br><span class="hljs-comment">//Http认证处理</span><br><span class="hljs-comment">//认证处理</span><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> *http://www.cnblogs.com/polobymulberry/p/5140806.html</span><br><span class="hljs-comment"> *web服务器接收到客户端请求时，有时候需要先验证客户端是否为正常用户，再决定是够返回真实数据。</span><br><span class="hljs-comment"> *这种情况称之为服务端要求客户端接收挑战（NSURLAuthenticationChallenge *challenge）。</span><br><span class="hljs-comment"> *接收到挑战后，</span><br><span class="hljs-comment"> *客户端要根据服务端传来的challenge来生成completionHandler所需的NSURLSessionAuthChallengeDisposition disposition和NSURLCredential *credential</span><br><span class="hljs-comment"> *（disposition指定应对这个挑战的方法，而credential是客户端生成的挑战证书，注意只有challenge中认证方法为NSURLAuthenticationMethodServerTrust的时候，才需要生成挑战证书）。</span><br><span class="hljs-comment"> *最后调用completionHandler回应服务器端的挑战。</span><br><span class="hljs-comment"> */</span><br>- (<span class="hljs-type">void</span>)URLSession:(<span class="hljs-built_in">NSURLSession</span> *)session<br>didReceiveChallenge:(<span class="hljs-built_in">NSURLAuthenticationChallenge</span> *)challenge<br> completionHandler:(<span class="hljs-type">void</span> (^)(<span class="hljs-built_in">NSURLSessionAuthChallengeDisposition</span> disposition, <span class="hljs-built_in">NSURLCredential</span> *credential))completionHandler<br>&#123;<br>    <span class="hljs-comment">//NSURLAuthenticationChallenge 挑战处理类型为 默认</span><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     *NSURLSessionAuthChallengePerformDefaultHandling：默认方式处理</span><br><span class="hljs-comment">     *NSURLSessionAuthChallengeUseCredential：使用指定的证书</span><br><span class="hljs-comment">     *NSURLSessionAuthChallengeCancelAuthenticationChallenge：取消挑战</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-built_in">NSURLSessionAuthChallengeDisposition</span> disposition = <span class="hljs-built_in">NSURLSessionAuthChallengePerformDefaultHandling</span>;<br>    __block <span class="hljs-built_in">NSURLCredential</span> *credential = <span class="hljs-literal">nil</span>;<br>    <span class="hljs-comment">//自定义方法，用来如何应对服务器端的认证挑战</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.sessionDidReceiveAuthenticationChallenge) &#123;<br>        disposition = <span class="hljs-keyword">self</span>.sessionDidReceiveAuthenticationChallenge(session, challenge, &amp;credential);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">//服务端要求客户端提供证书</span><br>        <span class="hljs-keyword">if</span> ([challenge.protectionSpace.authenticationMethod isEqualToString:<span class="hljs-built_in">NSURLAuthenticationMethodServerTrust</span>]) &#123;<br>            <span class="hljs-comment">//客户端评估服务端的安全性</span><br>            <span class="hljs-keyword">if</span> ([<span class="hljs-keyword">self</span>.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) &#123;<br>                <span class="hljs-comment">//客户端产生证书</span><br>                credential = [<span class="hljs-built_in">NSURLCredential</span> credentialForTrust:challenge.protectionSpace.serverTrust];<br>                <span class="hljs-keyword">if</span> (credential) &#123;<br>                    <span class="hljs-comment">//使用指定的证书</span><br>                    disposition = <span class="hljs-built_in">NSURLSessionAuthChallengeUseCredential</span>;<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    <span class="hljs-comment">//默认处理</span><br>                    disposition = <span class="hljs-built_in">NSURLSessionAuthChallengePerformDefaultHandling</span>;<br>                &#125;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">//不处理服务端的认证要求</span><br>                disposition = <span class="hljs-built_in">NSURLSessionAuthChallengeCancelAuthenticationChallenge</span>;<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            disposition = <span class="hljs-built_in">NSURLSessionAuthChallengePerformDefaultHandling</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (completionHandler) &#123;<br>        completionHandler(disposition, credential);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//如果没有实现方法</span><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> *- (void)URLSession:(NSURLSession *)session</span><br><span class="hljs-comment"> *didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge</span><br><span class="hljs-comment"> *completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler</span><br><span class="hljs-comment"> */</span><br><span class="hljs-comment">//那么URLSession会调用下面的方法进入认证处理</span><br>- (<span class="hljs-type">void</span>)URLSession:(<span class="hljs-built_in">NSURLSession</span> *)session<br>              task:(<span class="hljs-built_in">NSURLSessionTask</span> *)task<br>didReceiveChallenge:(<span class="hljs-built_in">NSURLAuthenticationChallenge</span> *)challenge<br> completionHandler:(<span class="hljs-type">void</span> (^)(<span class="hljs-built_in">NSURLSessionAuthChallengeDisposition</span> disposition, <span class="hljs-built_in">NSURLCredential</span> *credential))completionHandler<br>&#123;<br>    <span class="hljs-built_in">NSURLSessionAuthChallengeDisposition</span> disposition = <span class="hljs-built_in">NSURLSessionAuthChallengePerformDefaultHandling</span>;<br>    __block <span class="hljs-built_in">NSURLCredential</span> *credential = <span class="hljs-literal">nil</span>;<br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.taskDidReceiveAuthenticationChallenge) &#123;<br>        disposition = <span class="hljs-keyword">self</span>.taskDidReceiveAuthenticationChallenge(session, task, challenge, &amp;credential);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">if</span> ([challenge.protectionSpace.authenticationMethod isEqualToString:<span class="hljs-built_in">NSURLAuthenticationMethodServerTrust</span>]) &#123;<br>            <span class="hljs-keyword">if</span> ([<span class="hljs-keyword">self</span>.securityPolicy evaluateServerTrust:challenge.protectionSpace.serverTrust forDomain:challenge.protectionSpace.host]) &#123;<br>                disposition = <span class="hljs-built_in">NSURLSessionAuthChallengeUseCredential</span>;<br>                credential = [<span class="hljs-built_in">NSURLCredential</span> credentialForTrust:challenge.protectionSpace.serverTrust];<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                disposition = <span class="hljs-built_in">NSURLSessionAuthChallengeCancelAuthenticationChallenge</span>;<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            disposition = <span class="hljs-built_in">NSURLSessionAuthChallengePerformDefaultHandling</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (completionHandler) &#123;<br>        completionHandler(disposition, credential);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>如果是 HTTPS 请求的话，那么会先走上面的2个代理方法进行 HTTPS 认证，之后继续其他操作。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>AFN 发起 Get 请求主要分为以下步骤：<br>1.创建 NSURLSessionDataTask<br>2.配置 NSURLSessionDataTask<br>3.设置 NSURLSessionDataTask 的 Delegate<br>4.调用 NSURLSessionDataTask 的 resume 方法开始请求<br>5.在 Delegate 的方法里面处理网络请求的各个过程<br>6.清理 NSURLSessionDataTask 的配置<br>其实也就是使用 NSURLSessionDataTask 的步骤，AFN 在这几个步骤加了一些封装，让整个请求过程更加好用，易用。</p>
+<p>对于 AFN 这类几乎是 iOS 开发网络库标配的开源项目来说，肯定已经有许多非常优秀的源码解析文章了。所以这篇文章是着重讲解和介绍 AFN 的整个网络请求的处理流程而且很多的技术细节。相信如果对流程熟悉的话，那么要想找对应的细节处理过程也就比较简单的，再配合一些调试手段的话，基本上对于 AFN 的细节处理的理解也就不再话下了。由于个人水平有限，文章有不对之处恳请指出，我稍作修改，大家共同进步。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="http://blog.cnbang.net/tech/2320/">http://blog.cnbang.net/tech/2320/</a><br><a target="_blank" rel="noopener" href="http://blog.cnbang.net/tech/2371/">http://blog.cnbang.net/tech/2371/</a><br><a target="_blank" rel="noopener" href="http://blog.cnbang.net/tech/2416/">http://blog.cnbang.net/tech/2416/</a><br><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html">http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html</a><br><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html">http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html</a><br><a target="_blank" rel="noopener" href="http://bugly.qq.com/bbs/forum.php">http://bugly.qq.com/bbs/forum.php</a>?<br><a target="_blank" rel="noopener" href="http://www.guokr.com/post/114121/mod=viewthread&amp;tid=417&amp;fromuid=6">http://www.guokr.com/post/114121/mod=viewthread&amp;tid=417&amp;fromuid=6</a><br><a target="_blank" rel="noopener" href="http://www.guokr.com/post/116169/">http://www.guokr.com/post/116169/</a><br><a target="_blank" rel="noopener" href="http://www.guokr.com/blog/148613/">http://www.guokr.com/blog/148613/</a><br><a target="_blank" rel="noopener" href="http://www.cnblogs.com/hyddd/archive/2009/01/07/1371292.html">http://www.cnblogs.com/hyddd/archive/2009/01/07/1371292.html</a><br><a target="_blank" rel="noopener" href="http://www.cnblogs.com/polobymulberry/p/5140806.html">http://www.cnblogs.com/polobymulberry/p/5140806.html</a><br><a target="_blank" rel="noopener" href="https://github.com/AFNetworking/AFNetworking/tree/3.1.0">https://github.com/AFNetworking/AFNetworking/tree/3.1.0</a></p>
+</blockquote>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">#源码解读</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>iOS 网络框架－AFNetworking 3.1.0 源码解读</div>
+      <div>https://junbinchencn.github.io/2016/07/31/reading-source-code-of-AFNetworking/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2016年7月31日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/23/talking-about-the-value-of-architecture/" title="谈谈软件架构的价值">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">谈谈软件架构的价值</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2016/03/09/reading-source-code-of-SDWebImage/" title="iOS 图片加载框架－SDWebImage 解读">
+                        <span class="hidden-mobile">iOS 图片加载框架－SDWebImage 解读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
