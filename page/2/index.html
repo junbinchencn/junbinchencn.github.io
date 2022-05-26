@@ -18,8 +18,8 @@
   
     <meta name="description" content="要上班的斌哥的随笔博客">
 <meta property="og:type" content="website">
-<meta property="og:title" content="归档">
-<meta property="og:url" content="https://junbinchencn.github.io/archives/index.html">
+<meta property="og:title" content="要上班的斌哥">
+<meta property="og:url" content="https://junbinchencn.github.io/page/2/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
 <meta property="og:description" content="要上班的斌哥的随笔博客">
 <meta property="og:locale" content="zh_CN">
@@ -28,7 +28,7 @@
   
   
   
-  <title>归档 - 要上班的斌哥</title>
+  <title>要上班的斌哥</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -80,7 +80,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 60vh;">
+<div class="header-inner" style="height: 100vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -185,13 +185,17 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="归档"></span>
+            <span id="subtitle" data-typed-text="记录，总结，分享....."></span>
           
         </div>
 
         
       </div>
 
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
       
     </div>
   </div>
@@ -205,96 +209,61 @@
     
       <div class="container nopadding-x-md">
         <div id="board"
-          >
+          style="margin-top: 0">
           
           <div class="container">
             <div class="row">
               <div class="col-12 col-md-10 m-auto">
                 
 
-<div class="list-group">
-  <p class="h4">共计 11 篇文章</p>
-  <hr>
-  
-  
+
+  <div class="row mx-auto index-card">
     
-      
-      <p class="h5">2022</p>
     
-    <a href="/2022/05/25/functional-procedural-programming/" class="list-group-item list-group-item-action">
-      <time>05-25</time>
-      <div class="list-group-item-title">结构化编程 &amp; 函数式编程</div>
-    </a>
-  
-    
-    <a href="/2022/05/24/object-oriented-programming/" class="list-group-item list-group-item-action">
-      <time>05-24</time>
-      <div class="list-group-item-title">面向对象编程</div>
-    </a>
-  
-    
-    <a href="/2022/05/23/talking-about-the-value-of-architecture/" class="list-group-item list-group-item-action">
-      <time>05-23</time>
-      <div class="list-group-item-title">谈谈软件架构的价值</div>
-    </a>
-  
-    
-      
-      <p class="h5">2017</p>
-    
-    <a href="/2017/09/23/reading-source-code-of-Reachability/" class="list-group-item list-group-item-action">
-      <time>09-23</time>
-      <div class="list-group-item-title">iOS 网络监控框架 - Reachability 源码解读</div>
-    </a>
-  
-    
-    <a href="/2017/05/07/reading-source-code-of-Aspects/" class="list-group-item list-group-item-action">
-      <time>05-07</time>
-      <div class="list-group-item-title">iOS AOP 框架 - Aspects 源码解读</div>
-    </a>
-  
-    
-    <a href="/2017/03/26/reading-source-code-of-SPStackedNav/" class="list-group-item list-group-item-action">
-      <time>03-26</time>
-      <div class="list-group-item-title">iPad 分屏框架 - SPStackedNav 源码解读</div>
-    </a>
-  
-    
-      
-      <p class="h5">2016</p>
-    
-    <a href="/2016/11/04/reading-source-code-of-Mantle/" class="list-group-item list-group-item-action">
-      <time>11-04</time>
-      <div class="list-group-item-title">iOS 模型框架- Mantle 解读</div>
-    </a>
-  
-    
-    <a href="/2016/08/31/reading-source-code-of-FLAnimatedImage/" class="list-group-item list-group-item-action">
-      <time>08-31</time>
-      <div class="list-group-item-title">iOS GIF 动画加载框架 - FLAnimatedImage 解读</div>
-    </a>
-  
-    
-    <a href="/2016/07/31/reading-source-code-of-AFNetworking/" class="list-group-item list-group-item-action">
-      <time>07-31</time>
-      <div class="list-group-item-title">iOS 网络框架－AFNetworking 3.1.0 源码解读</div>
-    </a>
-  
-    
-    <a href="/2016/03/09/reading-source-code-of-SDWebImage/" class="list-group-item list-group-item-action">
-      <time>03-09</time>
-      <div class="list-group-item-title">iOS 图片加载框架－SDWebImage 解读</div>
-    </a>
-  
-</div>
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2016/01/13/reading-source-code-of-PINCache/" target="_self">
+          iOS缓存框架－PINCache 解读
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/2016/01/13/reading-source-code-of-PINCache/" target="_self">
+        <div>
+          
+          PINCache 解读在项目中总是需要缓存一些网络请求数据以减轻服务器压力，业内也有许多优秀的开源的解决方案。通常的缓存方案都是由内存缓存和磁盘缓存组成的，内存缓存速度快容量小，磁盘缓存容量大速度慢可持久化。常见的内存缓存有 NSCache、TMMemoryCache、PINMemoryCache、YYMemoryCache。常见的磁盘缓存有 TMDiskCache、PINDiskCache、SD
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2016-01-13 17:26" pubdate>
+              2016-01-13
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">#源码解读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/#board">2</a><a class="extend next" rel="next" href="/archives/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
     </span>
   </nav>
-
 
 
 

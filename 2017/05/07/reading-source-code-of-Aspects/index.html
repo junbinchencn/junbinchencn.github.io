@@ -1,0 +1,740 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Aspects 解读Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects123456789101112&#x2F;&#x2F;&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS AOP 框架 - Aspects 源码解读">
+<meta property="og:url" content="https://junbinchencn.github.io/2017/05/07/reading-source-code-of-Aspects/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="Aspects 解读Aspects 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。 怎么使用 Aspects123456789101112&#x2F;&#x2F;&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-05-07T02:56:10.000Z">
+<meta property="article:modified_time" content="2022-05-26T03:00:51.233Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="源码解读">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>iOS AOP 框架 - Aspects 源码解读 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="iOS AOP 框架 - Aspects 源码解读"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-05-07 10:56" pubdate>
+          2017年5月7日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          101 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS AOP 框架 - Aspects 源码解读</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="Aspects-解读"><a href="#Aspects-解读" class="headerlink" title="Aspects 解读"></a>Aspects 解读</h1><p><a target="_blank" rel="noopener" href="https://github.com/steipete/Aspects">Aspects</a> 是 iOS 上的一个轻量级 AOP 库。它利用 method swizzling 技术为已有的类或者实例方法添加额外的代码，它是著名框架 PSPDFKit （an iOS PDF framework that ships with apps like Dropbox or Evernote）的一部分。</p>
+<h3 id="怎么使用-Aspects"><a href="#怎么使用-Aspects" class="headerlink" title="怎么使用 Aspects"></a>怎么使用 Aspects</h3><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">/// Adds a block of code before/instead/after the current `selector` for a specific class.</span><br>+ (<span class="hljs-type">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector<br>                      withOptions:(AspectOptions)options<br>                       usingBlock:(<span class="hljs-type">id</span>)block<br>                            error:(<span class="hljs-built_in">NSError</span> **)error;<br><br><span class="hljs-comment">/// Adds a block of code before/instead/after the current `selector` for a specific instance.</span><br>- (<span class="hljs-type">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector<br>                      withOptions:(AspectOptions)options<br>                       usingBlock:(<span class="hljs-type">id</span>)block<br>                            error:(<span class="hljs-built_in">NSError</span> **)error;<br><br></code></pre></td></tr></table></figure>
+<p>Aspects 提供了2个 AOP 方法，一个用于类，一个用于实例。在确定 hook 的 方法之后， Aspects 允许我们选择 hook 的时机是在方法执行之前，还是方法执行之后，甚至可以直接替换掉方法的实现。Aspects 的常见使用情景是 log 和 打点统计 等和业务无关的操作。比如 hook ViewController 的 viewWillLayoutSubviews 方法。</p>
+<span id="more"></span>
+
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">[aspectsController aspect_hookSelector:<span class="hljs-keyword">@selector</span>(viewWillLayoutSubviews) withOptions:<span class="hljs-number">0</span> usingBlock:^&#123;<br>            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Controller is layouting!&quot;</span>);<br>        &#125; error:<span class="hljs-literal">NULL</span>];<br></code></pre></td></tr></table></figure>
+
+
+<h3 id="Aspects-使用的技术"><a href="#Aspects-使用的技术" class="headerlink" title="Aspects 使用的技术"></a>Aspects 使用的技术</h3><p>在阅读 Aspects 源码之前需要一些 Runtime 的相应知识，可以参考我自己的一些博客。</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/8295f2503594">Objective-C 之 objc_msgSend 简单实现</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/e0682171f0a2">Objective-C 方法签名和调用</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/6186320a79db">Objective-C 动态实现</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/bdf84c417e4f">Objective-C 消息转发</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/1d59d266b8be">Objective-C 方法混写</a></li>
+</ol>
+<h3 id="Aspects-的代码"><a href="#Aspects-的代码" class="headerlink" title="Aspects 的代码"></a>Aspects 的代码</h3><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">/// Adds a block of code before/instead/after the current `selector` for a specific instance.</span><br>- (<span class="hljs-type">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector<br>                      withOptions:(AspectOptions)options<br>                       usingBlock:(<span class="hljs-type">id</span>)block<br>                            error:(<span class="hljs-built_in">NSError</span> **)error;<br></code></pre></td></tr></table></figure>
+
+<p>接下来的源码解读，主要是分析 Aspects 的 实例方法的执行流程，以及 Aspects 的设计思路。至于 Aspects 的类方法的执行流程和思路也是大同小异，这里就不再累赘了。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">/// @return A token which allows to later deregister the aspect.</span><br>- (<span class="hljs-type">id</span>&lt;AspectToken&gt;)aspect_hookSelector:(SEL)selector<br>                           withOptions:(AspectOptions)options<br>                            usingBlock:(<span class="hljs-type">id</span>)block<br>                                 error:(<span class="hljs-built_in">NSError</span> **)error &#123;<br>    <span class="hljs-keyword">return</span> aspect_add(<span class="hljs-keyword">self</span>, selector, options, block, error);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>该方法返回一个 AspectToken 对象，这个对象主要是 aspect 的唯一标识符。 该方法调用了 static id aspect_add(id self, SEL selector, AspectOptions options, id block, NSError **error) 方法，这个方法用于给一个实例添加 aspect 。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-keyword">static</span> <span class="hljs-type">id</span> aspect_add(<span class="hljs-type">id</span> <span class="hljs-keyword">self</span>, SEL selector, AspectOptions options, <span class="hljs-type">id</span> block, <span class="hljs-built_in">NSError</span> **error) &#123;<br><br>   <span class="hljs-comment">// ...... 省略代码    </span><br>    __block AspectIdentifier *identifier = <span class="hljs-literal">nil</span>;<br>    <span class="hljs-comment">// 给 block 加锁</span><br>    aspect_performLocked(^&#123;<br>        <span class="hljs-comment">// 判断 selector 是否可以被 hook</span><br>        <span class="hljs-keyword">if</span> (aspect_isSelectorAllowedAndTrack(<span class="hljs-keyword">self</span>, selector, options, error)) &#123;<br>            <span class="hljs-comment">// 创建一个 AspectsContainer 对象,用 selector 关联到实例对象</span><br>            AspectsContainer *aspectContainer = aspect_getContainerForObject(<span class="hljs-keyword">self</span>, selector);<br>            <span class="hljs-comment">// 创建一个 AspectIdentifier 对象，</span><br>            identifier = [AspectIdentifier identifierWithSelector:selector object:<span class="hljs-keyword">self</span> options:options block:block error:error];<br>            <span class="hljs-keyword">if</span> (identifier) &#123;<br>                <span class="hljs-comment">// 把 AspectIdentifier 对象加入 AspectsContainer 对象中</span><br>                [aspectContainer addAspect:identifier withOptions:options];<br>                <br>                <span class="hljs-comment">// Modify the class to allow message interception.</span><br>                aspect_prepareClassAndHookSelector(<span class="hljs-keyword">self</span>, selector, error);<br>            &#125;<br>        &#125;<br>    &#125;);<br>    <span class="hljs-keyword">return</span> identifier;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>给 block 加锁 </li>
+<li>判断 selector 是否符合 hook 的规则</li>
+<li>创建一个 AspectsContainer 对象,用 selector 关联到实例对象。用于管理一个对象或者类的一个方法的所有 aspects </li>
+<li>创建一个 AspectIdentifier 对象，并放入 AspectsContainer 对象管理。AspectIdentifier 对象 表示一个 aspect 的内容</li>
+</ol>
+<p>细看 aspect_isSelectorAllowedAndTrack 方法的内容，看如何判断一个 selector 是否符合 hook 规则</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// 判断 selector 是否能被 hook</span><br><span class="hljs-keyword">static</span> <span class="hljs-type">BOOL</span> aspect_isSelectorAllowedAndTrack(<span class="hljs-built_in">NSObject</span> *<span class="hljs-keyword">self</span>, SEL selector, AspectOptions options, <span class="hljs-built_in">NSError</span> **error) &#123;<br>    <span class="hljs-comment">// 不能被 hook 的方法集合</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-built_in">NSSet</span> *disallowedSelectorList;<br>    <span class="hljs-keyword">static</span> <span class="hljs-built_in">dispatch_once_t</span> pred;<br>    <span class="hljs-built_in">dispatch_once</span>(&amp;pred, ^&#123;<br>        <span class="hljs-comment">// 这些方法不能被 hook</span><br>        disallowedSelectorList = [<span class="hljs-built_in">NSSet</span> setWithObjects:<span class="hljs-string">@&quot;retain&quot;</span>, <span class="hljs-string">@&quot;release&quot;</span>, <span class="hljs-string">@&quot;autorelease&quot;</span>, <span class="hljs-string">@&quot;forwardInvocation:&quot;</span>, <span class="hljs-literal">nil</span>];<br>    &#125;);<br>    <br>    <span class="hljs-comment">// Check against the blacklist.</span><br>    <span class="hljs-comment">// ...... 省略代码</span><br>    <br>    <span class="hljs-comment">// Additional checks.</span><br>    AspectOptions position = options&amp;AspectPositionFilter;<br>    <span class="hljs-comment">// dealloc 方法不允许在执行之后被 hook，因为对象会被销毁</span><br>    <span class="hljs-keyword">if</span> ([selectorName isEqualToString:<span class="hljs-string">@&quot;dealloc&quot;</span>] &amp;&amp; position != AspectPositionBefore) &#123;<br>       <span class="hljs-comment">// ...... 省略代码</span><br>    &#125;<br>    <span class="hljs-comment">// 被 hook 的方法不存在于类中</span><br>    <span class="hljs-keyword">if</span> (![<span class="hljs-keyword">self</span> respondsToSelector:selector] &amp;&amp; ![<span class="hljs-keyword">self</span>.class instancesRespondToSelector:selector]) &#123;<br>       <span class="hljs-comment">// ...... 省略代码</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// Search for the current class and the class hierarchy IF we are modifying a class object</span><br>    <span class="hljs-keyword">if</span> (class_isMetaClass(object_getClass(<span class="hljs-keyword">self</span>))) &#123;<br>        Class klass = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>];<br>        <span class="hljs-built_in">NSMutableDictionary</span> *swizzledClassesDict = aspect_getSwizzledClassesDict();<br>        Class currentClass = [<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>];<br>        <br>        AspectTracker *tracker = swizzledClassesDict[currentClass];<br>        <span class="hljs-comment">// 判断子类是否已经 hook 该方法</span><br>        <span class="hljs-keyword">if</span> ([tracker subclassHasHookedSelectorName:selectorName]) &#123;<br>            <span class="hljs-comment">// ...... 省略代码</span><br>        &#125;<br>        <br>        <span class="hljs-keyword">do</span> &#123;<br>            <span class="hljs-comment">// 判断是否已经 hook 了该方法</span><br>            tracker = swizzledClassesDict[currentClass];<br>            <span class="hljs-keyword">if</span> ([tracker.selectorNames containsObject:selectorName]) &#123;<br>                <span class="hljs-keyword">if</span> (klass == currentClass) &#123;<br>                    <span class="hljs-comment">// Already modified and topmost!</span><br>                    <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>                &#125;<br>                <span class="hljs-built_in">NSString</span> *errorDescription = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;Error: %@ already hooked in %@. A method can only be hooked once per class hierarchy.&quot;</span>, selectorName, <span class="hljs-built_in">NSStringFromClass</span>(currentClass)];<br>                AspectError(AspectErrorSelectorAlreadyHookedInClassHierarchy, errorDescription);<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>            &#125;<br>        &#125; <span class="hljs-keyword">while</span> ((currentClass = class_getSuperclass(currentClass)));<br>        <br>        <span class="hljs-comment">// ...... 省略代码</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>selector 不允许被 hook 的判断规则</p>
+<ol>
+<li>@”retain”, @”release”, @”autorelease”, @”forwardInvocation:” 这些方法是不允许被 hook 的</li>
+<li>dealloc 方法不允许在执行之后被 hook</li>
+<li>被 hook 的方法不存在于类中</li>
+<li>一个方法只能被 hook 一次</li>
+</ol>
+<p>接下来看看 static void aspect_prepareClassAndHookSelector(NSObject *self, SEL selector, NSError **error) 方法实现。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> aspect_prepareClassAndHookSelector(<span class="hljs-built_in">NSObject</span> *<span class="hljs-keyword">self</span>, SEL selector, <span class="hljs-built_in">NSError</span> **error) &#123;<br>    <span class="hljs-built_in">NSCParameterAssert</span>(selector);<br>    Class klass = aspect_hookClass(<span class="hljs-keyword">self</span>, error);<span class="hljs-comment">// 1  swizzling forwardInvocation</span><br>    <span class="hljs-comment">// 被 hook 的 selector</span><br>    Method targetMethod = class_getInstanceMethod(klass, selector);<br>    IMP targetMethodIMP = method_getImplementation(targetMethod);<br>    <span class="hljs-keyword">if</span> (!aspect_isMsgForwardIMP(targetMethodIMP)) &#123;<span class="hljs-comment">//2  swizzling method</span><br>        <span class="hljs-comment">// 使用一个 aliasSelector 来指向原来 selector 的方法实现</span><br>        <span class="hljs-comment">// Make a method alias for the existing method implementation, it not already copied.</span><br>        <span class="hljs-keyword">const</span> <span class="hljs-type">char</span> *typeEncoding = method_getTypeEncoding(targetMethod);<br>        SEL aliasSelector = aspect_aliasForSelector(selector);<br>        <span class="hljs-keyword">if</span> (![klass instancesRespondToSelector:aliasSelector]) &#123;<br>            __unused <span class="hljs-type">BOOL</span> addedAlias = class_addMethod(klass, aliasSelector, method_getImplementation(targetMethod), typeEncoding);<br>            <span class="hljs-built_in">NSCAssert</span>(addedAlias, <span class="hljs-string">@&quot;Original implementation for %@ is already copied to %@ on %@&quot;</span>, <span class="hljs-built_in">NSStringFromSelector</span>(selector), <span class="hljs-built_in">NSStringFromSelector</span>(aliasSelector), klass);<br>        &#125;<br>        <br>        <span class="hljs-comment">// We use forwardInvocation to hook in.</span><br>        <span class="hljs-comment">// 把 selector 指向 _objc_msgForward 函数</span><br>        <span class="hljs-comment">// 用 _objc_msgForward 函数指针代替 selector 的 imp,然后执行这个 imp</span><br>        class_replaceMethod(klass, selector, aspect_getMsgForwardIMP(<span class="hljs-keyword">self</span>, selector), typeEncoding);<br>        AspectLog(<span class="hljs-string">@&quot;Aspects: Installed hook for -[%@ %@].&quot;</span>, klass, <span class="hljs-built_in">NSStringFromSelector</span>(selector));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>swizzling forwardInvocation。</li>
+<li>拿到原始 selector 的 方法实现，再生成一个 aliasSelector 来指向原来 selector 的方法实现</li>
+<li>把 selector 指向 _objc_msgForward 函数，用 _objc_msgForward 函数指针代替 selector 的 IMP ，这样执行 selector 的时候就会执行 _objc_msgForward 函数。</li>
+</ol>
+<p>接下来看看 static Class aspect_hookClass(NSObject *self, NSError **error) 的实现</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><br><span class="hljs-keyword">static</span> Class aspect_hookClass(<span class="hljs-built_in">NSObject</span> *<span class="hljs-keyword">self</span>, <span class="hljs-built_in">NSError</span> **error) &#123;<br>    <span class="hljs-built_in">NSCParameterAssert</span>(<span class="hljs-keyword">self</span>);<br>    Class statedClass = <span class="hljs-keyword">self</span>.class;<br>    Class baseClass = object_getClass(<span class="hljs-keyword">self</span>);<br>    <span class="hljs-built_in">NSString</span> *className = <span class="hljs-built_in">NSStringFromClass</span>(baseClass);<br>    <span class="hljs-comment">// 是否有 _Aspects_ 后缀</span><br>    <span class="hljs-comment">// Already subclassed</span><br>    <span class="hljs-keyword">if</span> ([className hasSuffix:AspectsSubclassSuffix]) &#123;<br>        <span class="hljs-keyword">return</span> baseClass;<br>        <span class="hljs-comment">// We swizzle a class object, not a single object.</span><br>    &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (class_isMetaClass(baseClass)) &#123;<br>        <span class="hljs-keyword">return</span> aspect_swizzleClassInPlace((Class)<span class="hljs-keyword">self</span>);<br>        <span class="hljs-comment">// Probably a KVO&#x27;ed class. Swizzle in place. Also swizzle meta classes in place.</span><br>    &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (statedClass != baseClass) &#123;<br>        <span class="hljs-keyword">return</span> aspect_swizzleClassInPlace(baseClass);<br>    &#125;<br>    <br>    <span class="hljs-comment">// 动态生成一个当前对象的子类，并将当前对象与子类关联,然后替换子类的 forwardInvocation 方法</span><br>    <span class="hljs-comment">// Default case. Create dynamic subclass.</span><br>    <span class="hljs-keyword">const</span> <span class="hljs-type">char</span> *subclassName = [className stringByAppendingString:AspectsSubclassSuffix].UTF8String;<br>    Class subclass = objc_getClass(subclassName);<br>    <br>    <span class="hljs-keyword">if</span> (subclass == <span class="hljs-literal">nil</span>) &#123;<br>        <span class="hljs-comment">// 生成 baseClass 对象的子类</span><br>        subclass = objc_allocateClassPair(baseClass, subclassName, <span class="hljs-number">0</span>);<br>        <span class="hljs-keyword">if</span> (subclass == <span class="hljs-literal">nil</span>) &#123;<br>            <span class="hljs-built_in">NSString</span> *errrorDesc = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;objc_allocateClassPair failed to allocate class %s.&quot;</span>, subclassName];<br>            AspectError(AspectErrorFailedToAllocateClassPair, errrorDesc);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;<br>        &#125;<br>        <span class="hljs-comment">// 替换子类的 forwardInvocation 方法</span><br>        aspect_swizzleForwardInvocation(subclass);<br>        <span class="hljs-comment">// 修改了 subclass 以及其 subclass metaclass 的 class 方法,使他返回当前对象的 class。</span><br>        aspect_hookedGetClass(subclass, statedClass);<br>        aspect_hookedGetClass(object_getClass(subclass), statedClass);<br>        objc_registerClassPair(subclass);<br>    &#125;<br>    <span class="hljs-comment">// 将当前对象 isa 指针指向了 subclass</span><br>    <span class="hljs-comment">// 将当前 self 设置为子类，这里其实只是更改了 self 的 isa 指针而已</span><br>    object_setClass(<span class="hljs-keyword">self</span>, subclass);<br>    <span class="hljs-keyword">return</span> subclass;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>该方法的作用是动态生成一个当前对象的子类，并将当前对象与子类关联,然后替换子类的 forwardInvocation 方法，这样做的好处是不需要去更改对象本身的实例。该方法调用了static void aspect_swizzleForwardInvocation(Class klass) 方法对子类的 forwardInvocation: 方法进行混写;</p>
+<p>接下来看看 static void aspect_swizzleForwardInvocation(Class klass) 的方法实现，看它如何实现对 forwardInvocation: 方法的混写</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//swizzling forwardinvation 方法</span><br><span class="hljs-keyword">static</span> <span class="hljs-built_in">NSString</span> *<span class="hljs-keyword">const</span> AspectsForwardInvocationSelectorName = <span class="hljs-string">@&quot;__aspects_forwardInvocation:&quot;</span>;<br><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> aspect_swizzleForwardInvocation(Class klass) &#123;<br>    <span class="hljs-built_in">NSCParameterAssert</span>(klass);<br>    <span class="hljs-comment">// If there is no method, replace will act like class_addMethod.</span><br>    <span class="hljs-comment">// 使用 __ASPECTS_ARE_BEING_CALLED__ 替换子类的 forwardInvocation 方法实现</span><br>    <span class="hljs-comment">// 由于子类本身并没有实现 forwardInvocation ，</span><br>    <span class="hljs-comment">// 所以返回的 originalImplementation 将为空值，所以子类也不会生成 AspectsForwardInvocationSelectorName 这个方法</span><br>    IMP originalImplementation = class_replaceMethod(klass, <span class="hljs-keyword">@selector</span>(forwardInvocation:), (IMP)__ASPECTS_ARE_BEING_CALLED__, <span class="hljs-string">&quot;v@:@&quot;</span>);<br>    <span class="hljs-keyword">if</span> (originalImplementation) &#123;<br>        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;class_addMethod&quot;</span>);<br>        class_addMethod(klass, <span class="hljs-built_in">NSSelectorFromString</span>(AspectsForwardInvocationSelectorName), originalImplementation, <span class="hljs-string">&quot;v@:@&quot;</span>);<br>    &#125;<br>    AspectLog(<span class="hljs-string">@&quot;Aspects: %@ is now aspect aware.&quot;</span>, <span class="hljs-built_in">NSStringFromClass</span>(klass));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>关键实现在在这句代码,将 forwardInvocation: 的实现换成 __ASPECTS_ARE_BEING_CALLED__实现</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">IMP originalImplementation = class_replaceMethod(klass, <span class="hljs-keyword">@selector</span>(forwardInvocation:), (IMP)__ASPECTS_ARE_BEING_CALLED__, <span class="hljs-string">&quot;v@:@&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>到这里我们可以知道了，知道 hook 了一个方法，那么最后都会执行 <strong>ASPECTS_ARE_BEING_CALLED</strong> 这个方法，代码执行到这里基本就到末尾了。我们看看这个方法实现</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// This is the swizzled forwardInvocation: method.</span><br><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> __ASPECTS_ARE_BEING_CALLED__(__<span class="hljs-keyword">unsafe_unretained</span> <span class="hljs-built_in">NSObject</span> *<span class="hljs-keyword">self</span>, SEL selector, <span class="hljs-built_in">NSInvocation</span> *invocation) &#123;<br>    <span class="hljs-comment">// ... 省略代码</span><br><br>    <span class="hljs-comment">// Before hooks. 在切面之前执行</span><br>    aspect_invoke(classContainer.beforeAspects, info);<br>    aspect_invoke(objectContainer.beforeAspects, info);<br>    <br>    <span class="hljs-comment">// Instead hooks. 替换切面</span><br>    <span class="hljs-type">BOOL</span> respondsToAlias = <span class="hljs-literal">YES</span>;<br>    <span class="hljs-keyword">if</span> (objectContainer.insteadAspects.count || classContainer.insteadAspects.count) &#123;<br>        aspect_invoke(classContainer.insteadAspects, info);<br>        aspect_invoke(objectContainer.insteadAspects, info);<br>    &#125;<span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">// 重新转回原来的 selector 所指向的函数</span><br>        Class klass = object_getClass(invocation.target);<br>        <span class="hljs-keyword">do</span> &#123;<br>            <span class="hljs-keyword">if</span> ((respondsToAlias = [klass instancesRespondToSelector:aliasSelector])) &#123;<br>                [invocation invoke];<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<span class="hljs-keyword">while</span> (!respondsToAlias &amp;&amp; (klass = class_getSuperclass(klass)));<br>    &#125;<br>    <br>    <span class="hljs-comment">// After hooks. 在切面之后执行</span><br>    aspect_invoke(classContainer.afterAspects, info);<br>    aspect_invoke(objectContainer.afterAspects, info);<br>    <br>    <span class="hljs-comment">// If no hooks are installed, call original implementation (usually to throw an exception)</span><br>    <span class="hljs-comment">// 找不到 aliasSelector 的方法实现，也就是没有找到被 hook 的 selector 的原始方法实现，那么进行消息转发</span><br>    <span class="hljs-keyword">if</span> (!respondsToAlias) &#123;<br>        invocation.selector = originalSelector;<br>        SEL originalForwardInvocationSEL = <span class="hljs-built_in">NSSelectorFromString</span>(AspectsForwardInvocationSelectorName);<br>        <span class="hljs-keyword">if</span> ([<span class="hljs-keyword">self</span> respondsToSelector:originalForwardInvocationSEL]) &#123;<br>            ((<span class="hljs-type">void</span>( *)(<span class="hljs-type">id</span>, SEL, <span class="hljs-built_in">NSInvocation</span> *))objc_msgSend)(<span class="hljs-keyword">self</span>, originalForwardInvocationSEL, invocation);<br>        &#125;<span class="hljs-keyword">else</span> &#123;<br>            [<span class="hljs-keyword">self</span> doesNotRecognizeSelector:invocation.selector];<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-comment">// Remove any hooks that are queued for deregistration.</span><br>    [aspectsToRemove makeObjectsPerformSelector:<span class="hljs-keyword">@selector</span>(remove)];<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>根据切面的时机点，执行相应的代码</li>
+<li>执行完额外的代码之后，看下是否需要回到原来的代码上，若是需要则执行原来的代码</li>
+<li>若是没有找到被 hook 的 selector 的原始方法实现，那么进行消息转发</li>
+<li>Aspects 做对应的清理工作</li>
+</ol>
+<h3 id="Aspects-的思路"><a href="#Aspects-的思路" class="headerlink" title="Aspects 的思路"></a>Aspects 的思路</h3><ol>
+<li><p>找到被 hook 的 originalSelector 的 方法实现</p>
+</li>
+<li><p>新建一个 aliasSelector 指向原来的 originalSelector 的方法实现</p>
+</li>
+<li><p>动态创建一个 originalSelector 所在实例的子类，然后 hook 子类的 forwardInvocation: 方法并将方法的实现替换成 <strong>ASPECTS_ARE_BEING_CALLED</strong> 方法</p>
+</li>
+<li><p>originalSelector 指向 _objc_msgForward 方法实现</p>
+</li>
+<li><p>实例的 originalSelector 的方法执行的时候，实际上是指向 <em>objc_msgForward ，而 <em>objc_msgForward 的方法实现被替换成  <strong>ASPECTS_ARE_BEING_CALLED</strong> 的方法实现，也就是说 originalSelector 的方法执行之后，实际上执行的是__ASPECTS_ARE_BEING_CALLED</em></em> 的方法实现。而 aliasSelector 的作用就是用来保存 originalSelector 的方法实现，当 hook 代码执行完成之后，可以回到 originalSelector 的原始方法实现上继续执行。</p>
+</li>
+</ol>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/steipete/Aspects">https://github.com/steipete/Aspects</a></li>
+<li><a target="_blank" rel="noopener" href="https://wereadteam.github.io/2016/06/30/Aspects/">https://wereadteam.github.io/2016/06/30/Aspects/</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Introduction/Introduction.html">https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Introduction/Introduction.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/8295f2503594">Objective-C 之 objc_msgSend 简单实现</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/e0682171f0a2">Objective-C 方法签名和调用</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/6186320a79db">Objective-C 动态实现</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/bdf84c417e4f">Objective-C 消息转发</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/1d59d266b8be">Objective-C 方法混写</a></li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">#源码解读</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>iOS AOP 框架 - Aspects 源码解读</div>
+      <div>https://junbinchencn.github.io/2017/05/07/reading-source-code-of-Aspects/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年5月7日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/09/23/reading-source-code-of-Reachability/" title="iOS 网络监控框架 - Reachability 源码解读">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iOS 网络监控框架 - Reachability 源码解读</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/26/reading-source-code-of-SPStackedNav/" title="iPad 分屏框架 - SPStackedNav 源码解读">
+                        <span class="hidden-mobile">iPad 分屏框架 - SPStackedNav 源码解读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

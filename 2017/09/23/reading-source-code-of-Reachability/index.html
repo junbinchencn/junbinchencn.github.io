@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Reachability 解读Reachability 项目是 Apple 提供的一个官方 Demo， 用于演示如何使用 System Configuration framework 来监控 iOS 设备的网络状态。值得注意的是 Reachability 仅仅能检测到数据包是否可以离开本设备，而不能检测到数据包是否能达到目的地。也就是说不能把它当成 Ping 来使用。Reachability 使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 网络监控框架 - Reachability 源码解读">
+<meta property="og:url" content="https://junbinchencn.github.io/2017/09/23/reading-source-code-of-Reachability/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="Reachability 解读Reachability 项目是 Apple 提供的一个官方 Demo， 用于演示如何使用 System Configuration framework 来监控 iOS 设备的网络状态。值得注意的是 Reachability 仅仅能检测到数据包是否可以离开本设备，而不能检测到数据包是否能达到目的地。也就是说不能把它当成 Ping 来使用。Reachability 使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-09-23T14:22:11.000Z">
+<meta property="article:modified_time" content="2022-05-26T03:04:51.778Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="源码解读">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>iOS 网络监控框架 - Reachability 源码解读 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="iOS 网络监控框架 - Reachability 源码解读"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2017-09-23 22:22" pubdate>
+          2017年9月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          54 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">iOS 网络监控框架 - Reachability 源码解读</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="Reachability-解读"><a href="#Reachability-解读" class="headerlink" title="Reachability 解读"></a>Reachability 解读</h1><p>Reachability 项目是 Apple 提供的一个官方 Demo， 用于演示如何使用 System Configuration framework 来监控 iOS 设备的网络状态。值得注意的是 Reachability 仅仅能检测到数据包是否可以离开本设备，而不能检测到数据包是否能达到目的地。也就是说不能把它当成 Ping 来使用。Reachability 使用起来也特别的简单，接下来我们来看看如何使用 Reachability。</p>
+<h3 id="Reachability-使用"><a href="#Reachability-使用" class="headerlink" title="Reachability 使用"></a>Reachability 使用</h3><p>设置欲检测的域名，启动网络状态监控，Reachability 会在设备的网络状态发生变化的时候会发出一个名为 kReachabilityChangedNotification 的通知，我们可以通过接收这个通知，然后根据设备的网络状态做业务应对处理。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// 接收 kReachabilityChangedNotification 通知</span><br>[[<span class="hljs-built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="hljs-keyword">self</span> selector:<span class="hljs-keyword">@selector</span>(reachabilityChanged:) name:kReachabilityChangedNotification object:<span class="hljs-literal">nil</span>];<br><br><span class="hljs-comment">// 检测某个域名是否可达</span><br><span class="hljs-keyword">self</span>.hostReachability = [Reachability reachabilityWithHostName:remoteHostName];<br><br><span class="hljs-comment">// 开始监控</span><br>[<span class="hljs-keyword">self</span>.hostReachability startNotifier];<br><br><span class="hljs-comment">// 收到 kReachabilityChangedNotification 通知</span><br>- (<span class="hljs-type">void</span>) reachabilityChanged:(<span class="hljs-built_in">NSNotification</span> *)note<br>&#123;<br>	Reachability* curReach = [note object];<br>	<span class="hljs-built_in">NSParameterAssert</span>([curReach isKindOfClass:[Reachability <span class="hljs-keyword">class</span>]]);<br>      <span class="hljs-comment">// 做业务应对处理 </span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h3 id="Reachability-的组成"><a href="#Reachability-的组成" class="headerlink" title="Reachability 的组成"></a>Reachability 的组成</h3><p>Reachability 项目仅仅由一个 Reachability.h 和 Reachability.m 文件组成。麻雀虽小，五脏俱全。Reachability 也是这样的。Reachability 的接口提供了以下的能力：</p>
+<ol>
+<li>检测一个域名是否可达，使用  reachabilityWithHostName:  方法。</li>
+<li>检测一个 IP 是否可达，使用 reachabilityWithAddress: 方法。</li>
+<li>检测设备网络的可到达性，使用 reachabilityForInternetConnection 方法。</li>
+<li>开始监控网络状况，使用 startNotifier 方法。</li>
+<li>停止监控网络状况，使用 stopNotifier 方法。与 startNotifier 方法配合使用。</li>
+<li>获取当前的网络连接方式，使用 currentReachabilityStatus 方法。</li>
+<li>判断设备的网络是否是按需连接方式，使用 connectionRequired 方法。</li>
+</ol>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">Reachability</span> : <span class="hljs-title">NSObject</span></span><br><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment"> * Use to check the reachability of a given host name.</span><br><span class="hljs-comment"> */</span><br>+ (<span class="hljs-keyword">instancetype</span>)reachabilityWithHostName:(<span class="hljs-built_in">NSString</span> *)hostName;<br><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment"> * Use to check the reachability of a given IP address.</span><br><span class="hljs-comment"> */</span><br>+ (<span class="hljs-keyword">instancetype</span>)reachabilityWithAddress:(<span class="hljs-keyword">const</span> <span class="hljs-keyword">struct</span> sockaddr *)hostAddress;<br><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment"> * Checks whether the default route is available. Should be used by applications that do not connect to a particular host.</span><br><span class="hljs-comment"> */</span><br>+ (<span class="hljs-keyword">instancetype</span>)reachabilityForInternetConnection;<br><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment"> * Start listening for reachability notifications on the current run loop.</span><br><span class="hljs-comment"> */</span><br>- (<span class="hljs-type">BOOL</span>)startNotifier;<br>- (<span class="hljs-type">void</span>)stopNotifier;<br><br>- (NetworkStatus)currentReachabilityStatus;<br><br><span class="hljs-comment">/*!</span><br><span class="hljs-comment"> * WWAN may be available, but not active until a connection has been established. WiFi may require a connection for VPN on Demand.</span><br><span class="hljs-comment"> */</span><br>- (<span class="hljs-type">BOOL</span>)connectionRequired;<br><br><span class="hljs-keyword">@end</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Reachability-的实现"><a href="#Reachability-的实现" class="headerlink" title="Reachability 的实现"></a>Reachability 的实现</h3><p>Reachability 的实现依赖于系统的 SCNetworkReachability 类，SCNetworkReachability 允许应用程序获取当前系统的网络配置情况，也可以用来判断一个 target host 的可达性。值得注意的是，当应用程序可以将一个 data packet 发送到 network stack,并且该 data packet 可以离开本地设备，这个时候 SCNetworkReachability 就会判断网络是可达的。正是由于这个原因，Reachability 不能保证 data packet 会被送到 target host 。SCNetworkReachability 的使用分为<strong>同步模式和异步模式</strong>。</p>
+<h4 id="异步模式"><a href="#异步模式" class="headerlink" title="异步模式"></a>异步模式</h4><p>我们先从异步模式开始解读，这毕竟是比较常用的模式！</p>
+<p>第一步<br>我们从  startNotifier 方法开始。把 SCNetworkReachabilityRef 放到当前 runloop 的 kCFRunLoopDefaultMode 模式，当网络连接状态发生变化，SCNetworkReachabilityRef 会执行通过 SCNetworkReachabilitySetCallback 方法设定好的 ReachabilityCallback 方法。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (<span class="hljs-type">BOOL</span>)startNotifier<br>&#123;<br>	<span class="hljs-type">BOOL</span> returnValue = <span class="hljs-literal">NO</span>;<br>	<span class="hljs-built_in">SCNetworkReachabilityContext</span> context = &#123;<span class="hljs-number">0</span>, (__bridge <span class="hljs-type">void</span> *)(<span class="hljs-keyword">self</span>), <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>&#125;;<br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">SCNetworkReachabilitySetCallback</span>(_reachabilityRef, ReachabilityCallback, &amp;context))<br>	&#123;<br>        <span class="hljs-comment">//把 SCNetworkReachabilityRef 放到当前 runloop 的 kCFRunLoopDefaultMode 模式</span><br>        <span class="hljs-comment">//当 SCNetworkReachabilityRef 判断到网络状态发生变化，会执行 ReachabilityCallback 回调</span><br>		<span class="hljs-keyword">if</span> (<span class="hljs-built_in">SCNetworkReachabilityScheduleWithRunLoop</span>(_reachabilityRef, <span class="hljs-built_in">CFRunLoopGetCurrent</span>(), kCFRunLoopDefaultMode))<br>		&#123;<br>			returnValue = <span class="hljs-literal">YES</span>;<br>		&#125;<br>	&#125;<br>    <br>	<span class="hljs-keyword">return</span> returnValue;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>第二步<br>接下来看 ReachabilityCallback 回调方法，在这里主要是发送一个  名为 kReachabilityChangedNotification 通知，并将 Reachability 对象作为参数，将网络连接状态通知应用程序。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> ReachabilityCallback(<span class="hljs-built_in">SCNetworkReachabilityRef</span> target, <span class="hljs-built_in">SCNetworkReachabilityFlags</span> flags, <span class="hljs-type">void</span>* info)<br>&#123;<br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unused (target, flags)</span><br>	<span class="hljs-built_in">NSCAssert</span>(info != <span class="hljs-literal">NULL</span>, <span class="hljs-string">@&quot;info was NULL in ReachabilityCallback&quot;</span>);<br>	<span class="hljs-built_in">NSCAssert</span>([(__bridge <span class="hljs-built_in">NSObject</span>*) info isKindOfClass: [Reachability <span class="hljs-keyword">class</span>]], <span class="hljs-string">@&quot;info was wrong class in ReachabilityCallback&quot;</span>);<br>    <span class="hljs-comment">// 发送 kReachabilityChangedNotification 通知，并将 Reachability 作为参数</span><br>    Reachability* noteObject = (__bridge Reachability *)info;<br>    <span class="hljs-comment">// Post a notification to notify the client that the network reachability changed.</span><br>    [[<span class="hljs-built_in">NSNotificationCenter</span> defaultCenter] postNotificationName: kReachabilityChangedNotification object: noteObject];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<p>第三步<br>startNotifier 和 stopNotifier 方法是配合使用的。stopNotifier 的主要任务是对 startNotifier 做的操作进行逆向处理。把 SCNetworkReachabilityRef 从当前 runloop 的 kCFRunLoopDefaultMode 模式移除。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (<span class="hljs-type">void</span>)stopNotifier<br>&#123;<br>	<span class="hljs-keyword">if</span> (_reachabilityRef != <span class="hljs-literal">NULL</span>)<br>	&#123;<br>		<span class="hljs-built_in">SCNetworkReachabilityUnscheduleFromRunLoop</span>(_reachabilityRef, <span class="hljs-built_in">CFRunLoopGetCurrent</span>(), kCFRunLoopDefaultMode);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>第四步<br>上面主要是主流程解读，解读 Reachability 开始网络监控，网络状态发生变化处理，到停止网络监控的流程。这过程 Reachability 都<br> 依赖于 SCNetworkReachabilityRef 的对象，接下来我们来说说 Reachability 怎么创建  SCNetworkReachabilityRef 对象。SCNetworkReachabilityRef 对象的创建依赖于 IP 或者域名。依赖于域名使用 SCNetworkReachabilityCreateWithName 方法，依赖于 IP 使用 SCNetworkReachabilityCreateWithAddress 方法。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// 通过域名创建 SCNetworkReachabilityRef 对象</span><br>+ (<span class="hljs-keyword">instancetype</span>)reachabilityWithHostName:(<span class="hljs-built_in">NSString</span> *)hostName<br>&#123;<br>	Reachability* returnValue = <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-built_in">SCNetworkReachabilityRef</span> reachability = <span class="hljs-built_in">SCNetworkReachabilityCreateWithName</span>(<span class="hljs-literal">NULL</span>, [hostName UTF8String]);<br>	<span class="hljs-keyword">if</span> (reachability != <span class="hljs-literal">NULL</span>)<br>	&#123;<br>		returnValue= [[<span class="hljs-keyword">self</span> alloc] init];<br>		<span class="hljs-keyword">if</span> (returnValue != <span class="hljs-literal">NULL</span>)<br>		&#123;<br>			returnValue-&gt;_reachabilityRef = reachability;<br>		&#125;<br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-built_in">CFRelease</span>(reachability);<br>        &#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> returnValue;<br>&#125;<br><br><span class="hljs-comment">// 通过 IP 创建 SCNetworkReachabilityRef 对象</span><br>+ (<span class="hljs-keyword">instancetype</span>)reachabilityWithAddress:(<span class="hljs-keyword">const</span> <span class="hljs-keyword">struct</span> sockaddr *)hostAddress<br>&#123;<br>	<span class="hljs-built_in">SCNetworkReachabilityRef</span> reachability = <span class="hljs-built_in">SCNetworkReachabilityCreateWithAddress</span>(kCFAllocatorDefault, hostAddress);<br><br>	Reachability* returnValue = <span class="hljs-literal">NULL</span>;<br><br>	<span class="hljs-keyword">if</span> (reachability != <span class="hljs-literal">NULL</span>)<br>	&#123;<br>		returnValue = [[<span class="hljs-keyword">self</span> alloc] init];<br>		<span class="hljs-keyword">if</span> (returnValue != <span class="hljs-literal">NULL</span>)<br>		&#123;<br>			returnValue-&gt;_reachabilityRef = reachability;<br>		&#125;<br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-built_in">CFRelease</span>(reachability);<br>        &#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> returnValue;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>以上是异步模式的解读，Reachability 的异步模式顾名思义就是网络连接发生了变化，Reachability 发通知告知应用程序。而同步模式呢？ 那就是应用程序主动找 Reachability 获取当前的网络连接状态。</p>
+<h4 id="同步模式"><a href="#同步模式" class="headerlink" title="同步模式"></a>同步模式</h4><p>应用程序主动找 Reachability 获取当前的网络连接状态，使用 currentReachabilityStatus 方法。Reachability 能够实现同步模式依赖于 SCNetworkReachabilityRef 的 SCNetworkReachabilityGetFlags 方法。SCNetworkReachabilityGetFlags 方法使用同步模式获取设备的网络连接状态。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">- (NetworkStatus)currentReachabilityStatus<br>&#123;<br>	<span class="hljs-built_in">NSAssert</span>(_reachabilityRef != <span class="hljs-literal">NULL</span>, <span class="hljs-string">@&quot;currentNetworkStatus called with NULL SCNetworkReachabilityRef&quot;</span>);<br>	NetworkStatus returnValue = NotReachable;<br>	<span class="hljs-built_in">SCNetworkReachabilityFlags</span> flags;<br>        <span class="hljs-comment">// 同步模式获取网络连接状态</span><br>	<span class="hljs-keyword">if</span> (<span class="hljs-built_in">SCNetworkReachabilityGetFlags</span>(_reachabilityRef, &amp;flags))<br>	&#123;<br>        returnValue = [<span class="hljs-keyword">self</span> networkStatusForFlags:flags];<br>	&#125;<br>    <br>	<span class="hljs-keyword">return</span> returnValue;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Reachability 可以用来检测网络状态变化和网络的可达性的一个框架。但是 Reachability 仅仅能检测到数据包是否可以离开本设备，而不能检测到数据包是否能达到目的地，也就是说不能把它当成 Ping 来使用。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li>Reachability 的代码和 Demo<br> <a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/samplecode/Reachability/Introduction/Intro.html">https://developer.apple.com/library/content/samplecode/Reachability/Introduction/Intro.html</a></li>
+<li>SCNetworkReachability 参考<br><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d">https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d</a></li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">#源码解读</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>iOS 网络监控框架 - Reachability 源码解读</div>
+      <div>https://junbinchencn.github.io/2017/09/23/reading-source-code-of-Reachability/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2017年9月23日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/23/talking-about-the-value-of-architecture/" title="谈谈软件架构的价值">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">谈谈软件架构的价值</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/05/07/reading-source-code-of-Aspects/" title="iOS AOP 框架 - Aspects 源码解读">
+                        <span class="hidden-mobile">iOS AOP 框架 - Aspects 源码解读</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
