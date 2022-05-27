@@ -1,0 +1,733 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="设计原则想要构建一个好的软件系统，首先应该从写整洁的代码开始做起。软件设计如同建筑一样，SOLID 指导我们如何将砖头砌成墙与房间。它的主要作用是告诉我们如何将数据和函数组织成类，以及如何将这些类链接起来成为程序，SOLID 原则主要适应于模块级别的编程。 单一职责原则 （SRP，Single Responsibility Principle)SRP 原则指的是任何一个软件模块都应该只对某一类行为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计原则">
+<meta property="og:url" content="https://junbinchencn.github.io/2022/05/27/solid/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="设计原则想要构建一个好的软件系统，首先应该从写整洁的代码开始做起。软件设计如同建筑一样，SOLID 指导我们如何将砖头砌成墙与房间。它的主要作用是告诉我们如何将数据和函数组织成类，以及如何将这些类链接起来成为程序，SOLID 原则主要适应于模块级别的编程。 单一职责原则 （SRP，Single Responsibility Principle)SRP 原则指的是任何一个软件模块都应该只对某一类行为">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled1.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled2.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled3.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled4.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled5.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled6.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled7.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled8.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled9.png">
+<meta property="article:published_time" content="2022-05-27T08:47:01.000Z">
+<meta property="article:modified_time" content="2022-05-27T08:53:10.611Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="架构设计">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2022/05/27/solid/Untitled.png">
+  
+  
+  
+  <title>设计原则 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="设计原则"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-27 16:47" pubdate>
+          2022年5月27日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          35 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">设计原则</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="设计原则"><a href="#设计原则" class="headerlink" title="设计原则"></a>设计原则</h1><p>想要构建一个好的软件系统，首先应该从写整洁的代码开始做起。软件设计如同建筑一样，SOLID 指导我们如何将砖头砌成墙与房间。它的主要作用是告诉我们如何将数据和函数组织成类，以及如何将这些类链接起来成为程序，SOLID 原则主要适应于模块级别的编程。</p>
+<h2 id="单一职责原则-（SRP，Single-Responsibility-Principle"><a href="#单一职责原则-（SRP，Single-Responsibility-Principle" class="headerlink" title="单一职责原则 （SRP，Single Responsibility Principle)"></a>单一职责原则 （SRP，Single Responsibility Principle)</h2><p>SRP 原则指的是任何一个软件模块都应该只对某一类行为者负责。这里的软件模块可以理解为一个源代码文件，某一类行为者可以理解成对软件模块有相似变更原因的一类人。</p>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><img src="/2022/05/27/solid/Untitled.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<img src="/2022/05/27/solid/Untitled1.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>举个工资管理程序例子，如上图。Employee 这个类有三个函数，三个函数分别对应的是三个不同的行为者，违反了 SRP 原则。calculatePay() 函数是财务部门制定的，向 CFO 汇报。reportHours() 函数是人力资源部门制定的，向 COO 汇报。save() 函数是 DBA 制定的，向 CTO 汇报。这三个函数被放在同一个类中，这样做相当于把三个不同的行为者耦合在一起了，这有可能导致 CFO 团队的行为影响了 COO 团队的行为。在这里 calculatePay() 函数和 reportHours() 函数使用同样的逻辑来计算正常的工作时数，并将这个算法单独实现成 regularHours() 函数。</p>
+<p>假设接下来 CFO 团队需要修改工作时长的计算方法 ，负责修改的程序员按照新的变更需求修改了regularHours() 函数实现，而 COO 团队不需要修改  regularHours() 函数实现，那么这个时候就会出问题了。作为程序员，类似的问题肯定经历的不少，总结一下这类问题的原因就是我们把不同行为者所依赖的代码凑到了一起，而 <strong>SRP 原则强调这类代码一定要分开</strong>。</p>
+<p>要解决上面的问题最简单的方法就是把数据与函数分离，设计三个类共同使用一个只包含数据的 EmployeeData 类，每个类只包含与之相关的函数，这样就不存在互相依赖的情况。</p>
+<img src="/2022/05/27/solid/Untitled2.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>上面的方案也有一个缺点，我们需要在程序里处理三个类，更近一步的解决方案是使用 Facade 设计模式来解决这个问题，这样一来我们只需要关注 EmployeeFacade 类里面的少量代码了。</p>
+<img src="/2022/05/27/solid/Untitled3.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>SRP原则主要讨论的是函数和类之间的关系，强调将服务不同行为者的代码进行切分</p>
+<h2 id="开闭原则（OCP，Open-Closed-Principle）"><a href="#开闭原则（OCP，Open-Closed-Principle）" class="headerlink" title="开闭原则（OCP，Open Closed Principle）"></a>开闭原则（OCP，Open Closed Principle）</h2><p>OCP 原则认为设计良好的计算机软件应该易于拓展，同时抗拒修改。OCP 原则是架构设计中的主导原则，主要目标就是让系统易于拓展，同时要限制其每次被修改所影响的范围。</p>
+<h3 id="案例-1"><a href="#案例-1" class="headerlink" title="案例"></a>案例</h3><p>假设要设计一个在 Web 页面上展示财务数据的系统，同时该系统可以根据需要形成一个报表，该报表可以使用打印机打印。</p>
+<p>设计思路是这样的，我们根据 SRP 原则先将满足不同需求的代码分组，然后再根据 DIP 原则来调整这些分组之间的依赖关系。</p>
+<img src="/2022/05/27/solid/Untitled4.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>根据 SRP 原则，我们梳理出了数据流。先用一段<strong>财务分析程序</strong>处理原始的财务数据，形成<strong>财务报表数据结构</strong>，最后再用 2 个不同的<strong>报表生成器</strong>来生成报表。这里的核心就是把生成过程和展示过程拆分开了。</p>
+<img src="/2022/05/27/solid/Untitled5.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>接下来，我们修改源代码之间的依赖关系了，这样的目的是保证其中一个操作被修改之后不会影响到另外的一个操作。同时我们所构建的代码组织形式应该保证该程序后续在行为上的拓展都无需修改现有代码。如上图所示，我们将程序划分为不同的组件，包括 Controller，Presenter，View，Interactor，Database 组件。图中的开放箭头表示的是使用关系，图中的箭头都指向那些我们不想经常更改的组件，所有的组件的依赖关系都是单向的。</p>
+<p><strong>这里有一个设计原则，如果 A 组件不想被 B 组件上发生的修改所影响，那么就应该让 B 组件依赖于 A 组件</strong>。我们不想让发生在 Presenter 上的修改影响到 Controller，不想让发生在 View 上面的修改影响到 Presenter ,最关键的是不想让任何修改影响到 Interactor。在这个设计中 Interactor 是最符合 OCP 原则的，发生在 Controller，Presenter，View，Database 组件上的修改都不会影响 Interactor。</p>
+<p>这里我们根据组件离输入输出端的远近来定义组件的层级，比如 View 组件就是输出端，所以在最低层级，Presenter 组件 比 View 层级更高，Controller 组件比 Presenter 和 View 层级更高，而 Interactor 组件离输入输出端最远，为最高层级组件。</p>
+<p>进一步思考，为什么 Interactor 组件要放在这种重要的位置上呢？因为它是整个软件的核心业务逻辑所在，包含了最高层次的应用策略，是最高层的抽象，其他组件都是辅助逻辑，所以 Interactor 需要被保护得最严密。</p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>OCP 原则在软件架构层次上的应用，先根据相关函数的修改原因，修改方式以及修改时间来对其进行分组隔离，这些互相隔离的函数分组整理成组件，将这些组件间的依赖关系按层次结构进行组织，使得高层级组件不会因为低层级组件被修改而受到影响。</p>
+<h2 id="里氏替换原则（LSP，Liskov-Substitution-principle）"><a href="#里氏替换原则（LSP，Liskov-Substitution-principle）" class="headerlink" title="里氏替换原则（LSP，Liskov Substitution principle）"></a>里氏替换原则（LSP，Liskov Substitution principle）</h2><p>LSP 原则认为子类对象可以在程序中代替其基类对象，LSP 原则不仅仅是指导我们如何使用继承关系的一种方法，更是一种更广泛的，指导接口与其实现方式的设计原则。</p>
+<h3 id="案例-2"><a href="#案例-2" class="headerlink" title="案例"></a>案例</h3><img src="/2022/05/27/solid/Untitled6.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>上图所示，我们有一个 License 类，该类有一个 calcFee() 的方法，该方法被 Billing 程序调用。License 类有 2 个子类，它们会用不同的算法来计算授权费用。这个设计是符合 LSP 原则的，因为 Billing 程序的行为不依赖于使用的任何一个具体的衍生类，也就是说这 2 个子类是可以用来替换 License 类对象的。</p>
+<h3 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h3><p>软件设计中应该更多依赖于接口，并且实现该接口的类之间能具有可替换性。</p>
+<h2 id="接口隔离原则（ISP-Interface-Segregation-Principles）"><a href="#接口隔离原则（ISP-Interface-Segregation-Principles）" class="headerlink" title="接口隔离原则（ISP,Interface Segregation Principles）"></a>接口隔离原则（ISP,Interface Segregation Principles）</h2><p>ISP 原则认为客户不应被迫使用对其而言无用的方法或功能</p>
+<h3 id="案例-3"><a href="#案例-3" class="headerlink" title="案例"></a>案例</h3><img src="/2022/05/27/solid/Untitled7.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>有多个用户需要使用 OPS 类，User1 只需要使用 op1 接口，User2 只需要使用 op2 接口，User3 只需要使用 op3 接口。但是显然 User1 不需要使用 op2 和 op3，但是在源代码层面上也会与它们形成依赖关系，这种依赖关系导致我们在 OPS 中对 op2 做任何的修改，即使不会影响 User1 的功能，也会导致它需要重新编译和部署。</p>
+<img src="/2022/05/27/solid/Untitled8.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>通过将不同的操作隔离成不同的接口可以解决上面的问题，现在 User1 的源代码只会依赖 U1Ops 和 op1 但不会依赖于 OPS。这样一来，以后关于 OPS 的修改只要不会影响到 User1 的功能，User1 就不需要重新编译和部署了。</p>
+<h3 id="小结-3"><a href="#小结-3" class="headerlink" title="小结"></a>小结</h3><p>ISP 原则告诉我们，任何层次的软件设计如果依赖了它并不发需要的东西，就会带来意料之外的麻烦</p>
+<h2 id="依赖反转原则（DIP，Dependency-Inversion-Principle）"><a href="#依赖反转原则（DIP，Dependency-Inversion-Principle）" class="headerlink" title="依赖反转原则（DIP，Dependency Inversion Principle）"></a>依赖反转原则（DIP，Dependency Inversion Principle）</h2><p>DIP 原则告诉我们，如果想要设计一个灵活的系统，在源代码层级的依赖关系中应该多使用抽象类型而非具体实现。</p>
+<p>将 DIP 原则归纳成具体的编码规则：</p>
+<ul>
+<li>应在代码中多使用抽象接口，尽量避免使用哪些多变的具体实现类，对象的创建过程需要受到严格限制，通常可以使用抽象工厂这个设计模式</li>
+<li>不要在具体实现类上创建衍生类。在静态类型的编程语言中，依赖关系是所有一切源代码中依赖关系最强的，最难以被修改的，所以我们对继承的使用要格外小心</li>
+<li>不要 override 包含具体实现的函数，调用包含具体实现的函数也就意味着引入了源代码界别的依赖，即使 override 了这些函数，我们也无法消除继承中的依赖关系。应该创建一个抽象函数，为这个抽象函数提供多种具体实现</li>
+<li>应避免在代码中写入与任何具体实现相关的名字，或者是其他容易变动的事物名字</li>
+</ul>
+<h3 id="案例-4"><a href="#案例-4" class="headerlink" title="案例"></a>案例</h3><img src="/2022/05/27/solid/Untitled9.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>对象的创建操作都免不了在源代码上依赖于对象的具体实现，在大部分的面向对象编程语言中，我们都可以选择用抽象工厂模式来解决源码依赖的问题。</p>
+<ol>
+<li>Application 类通过 Service 接口来使用 ConcreteImpl ,然而 Application 还需要构造 Concrete Impl 类的实例。</li>
+<li>Application 类为了避免在源代码层次上引入对 ConcreteImpl 类具体实现的依赖，现在 Application 类调用 ServiceFactory 接口的 makeSvc 方法，这个方法由 ServiceFactoryImpl 类来提供具体实现。</li>
+<li>ServiceFactoryImpl 类的 makeSvc 方法的具体实现就是初始化一个 ConcreteImpl 类的实例，并且将其以 Service 类型返回。</li>
+</ol>
+<p>如上图所示，中间的曲线代表了软件架构中的抽现层与实现层的边界</p>
+<ol>
+<li>所有跨越这条边界的源代码级别的依赖都是单向的，即具体实现层依赖抽象层。</li>
+<li>曲线将系统划分成 2 个部分的组件，抽象接口和具体实现。抽象接口包含应用的高阶业务逻辑，具体实现这包含业务规则的具体操作。</li>
+<li>程序控制流跨越架构边界的方向与源代码依赖关系跨越架构边界的方向正好相反，即源代码依赖方向永远是控制流方向的反转，这就是 DIP 被称为依赖反转原则的原因。</li>
+<li>在软件系统中不可能完全消除违反 DIP 原则的情况，通常只需要把它们集中于少部分具体实现组件中，将其与其他部分隔离即可。ServiceFactoryImpl 对 ConcreteImpl 的依赖就是这样的情况。</li>
+</ol>
+<h3 id="小结-4"><a href="#小结-4" class="headerlink" title="小结"></a>小结</h3><p>在应用 DIP 时，我们也不必考虑稳定的操作系统和平台设计，因为这些系统接口变动很少。如果想要在软件架构设计上追求稳定，就必须多使用稳定的抽象接口，少依赖多变的具体实现。我们需要花费很大的精力来设计接口，以减少未来对其进行改动。我们主要应该关注软件系统内部哪些会经常发生变动的具体实现模块。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li>来自 <a target="_blank" rel="noopener" href="https://book.douban.com/subject/30333919/">架构整洁之道</a> 总结</li>
+<li><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/SOLID_(%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%AE%BE%E8%AE%A1)">https://zh.m.wikipedia.org/zh-hans/SOLID_(面向对象设计)</a> </li>
+<li><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/%E5%8D%95%E4%B8%80%E5%8A%9F%E8%83%BD%E5%8E%9F%E5%88%99">https://zh.m.wikipedia.org/zh-hans/单一功能原则</a> </li>
+<li><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99">https://zh.m.wikipedia.org/zh-hans/开闭原则</a> </li>
+<li><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/%E9%87%8C%E6%B0%8F%E6%9B%BF%E6%8D%A2%E5%8E%9F%E5%88%99">https://zh.m.wikipedia.org/zh-hans/里氏替换原则</a> </li>
+<li><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/%E6%8E%A5%E5%8F%A3%E9%9A%94%E7%A6%BB%E5%8E%9F%E5%88%99">https://zh.m.wikipedia.org/zh-hans/接口隔离原则</a> </li>
+<li><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-hans/%E4%BE%9D%E8%B5%96%E5%8F%8D%E8%BD%AC%E5%8E%9F%E5%88%99">https://zh.m.wikipedia.org/zh-hans/依赖反转原则</a></li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/">#架构设计</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>设计原则</div>
+      <div>https://junbinchencn.github.io/2022/05/27/solid/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月27日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/26/blog-note/" title="博客迁移">
+                        <span class="hidden-mobile">博客迁移</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
