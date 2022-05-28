@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>组件聚合</title>
+    <link href="/2022/05/28/component-aggregation/"/>
+    <url>/2022/05/28/component-aggregation/</url>
+    
+    <content type="html"><![CDATA[<h1 id="组件聚合"><a href="#组件聚合" class="headerlink" title="组件聚合"></a>组件聚合</h1><p>软件的构建过程和建筑物修建很类似，都是由一个一个小组件组成。如果说 SOLID 原理是用于指导我们如何将砖块砌成墙与房间，那么组件构建原则就是用来指导我们如何将这些房间组合成房子的。在软件的构建过程中，组件就是软件的部署单元，是整个软件系统在部署过程中可以独立完成部署的最小实体。对 Java 来说，组件就是 jar，对 Android 来说，组件就是一个 aar，对 iOS 来说，组件就是一个 framework。聚合原则主要讨论哪些类可以组合成一个组件。</p><h3 id="复用-x2F-发布等同原则-（REP-The-Reuse-x2F-Release-Equivalence-Principle）"><a href="#复用-x2F-发布等同原则-（REP-The-Reuse-x2F-Release-Equivalence-Principle）" class="headerlink" title="复用&#x2F;发布等同原则 （REP: The Reuse&#x2F;Release Equivalence Principle）"></a>复用&#x2F;发布等同原则 （<strong>REP</strong>: The Reuse&#x2F;Release Equivalence Principle）</h3><p>软件复用的最小粒度应等同于其发布的最小粒度，从软件设计的角度看，REP 原则就是指组件中的类与模块必须是密切相关的，它们之间应该有一个共同的主题。</p><h3 id="共同闭包原则-（CCP-The-Common-Closure-Principle）"><a href="#共同闭包原则-（CCP-The-Common-Closure-Principle）" class="headerlink" title="共同闭包原则 （CCP: The Common Closure Principle）"></a>共同闭包原则 （<strong>CCP</strong>: The Common Closure Principle）</h3><p>我们应该将哪些会同时修改，并且为相同目的而修改的类放到同一个组件中，而将哪些不会同时修改，并且不会为了相同目的而修改的哪些类放到不同的组件中。CCP 的主要作用是提示我们要将所有可能会被一起修改的类集中在一起成为同一个组件，通过遵守 CCP 原则可以有效降低因软件发布，验证以及部署带来的工作压力。</p><p><strong>CCP 原则其实是 SRP 原则在组件构建层面的体现</strong>。SRP 原则指导我们把不同变更原因的函数放入不同的类，而 CCP 原则指导我们将变更原因不同的类放入不同的组件中。</p><p><strong>CCP 和 OCP 开闭原则也是紧密关联的，2 个原则都有讨论闭包</strong>。OCP 原则认为一个类应该便于扩展而抗拒修改，完全闭包是不可能的，我们可以有选择性的闭包。CCP 则进一步指导我们将某一类变更所涉及的类聚合在一起，以最大限度减少该组件变更造成的影响。</p><h3 id="共同复用原则-（CRP-The-Common-Reuse-Principle）"><a href="#共同复用原则-（CRP-The-Common-Reuse-Principle）" class="headerlink" title="共同复用原则 （CRP: The Common Reuse Principle）"></a>共同复用原则 （<strong>CRP</strong>: The Common Reuse Principle）</h3><p>不要强迫一个组件的用户依赖它们不需要的东西，CRP 原则指导我们将经常共同复用的类和模块放在同一个组件中。举一个常见的例子，容器类 Collection 和其相关的遍历类 Iterator 通常都放置同一个组件中。CRP 更像是在实际上指导我们，不是紧密相连的类不应该被放在同一个组件里。</p><p><strong>CRP 原则其实是 ISP 原则在组件构建层面的体现</strong>，ISP 原则指导不要依赖带有不需要函数的类，而 CRP 则是指导我们不要依赖带有不需要的类的组件。</p><h3 id="组件聚合张力图"><a href="#组件聚合张力图" class="headerlink" title="组件聚合张力图"></a>组件聚合张力图</h3><img src="/2022/05/28/component-aggregation/Untitled.png" class="" title="this is an example image"><p><strong>这是组件构建原则中最有价值的一张图，REP 原则是为了复用性而组合类，CRP 原则是为了避免不必要的发布而拆分，CCP 原则是为了维护性而组合。</strong>在 REP 和 CRP 原则用力过度，会造成太多组件变更。在 REP 和 CCP 原则用力过度，会造成太多不必要的发布。在 CRP 和 CCP 原则用力过度，会造成复用困难。</p><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>一个项目在三角张力区域的哪个位置是随着时间推移而动态调整的，在项目的早期，为了能够快速上线，会牺牲项目的复用性，项目的重心会从三角区域的右侧开始。随着项目的逐渐成熟，其他项目会开始对其产生依赖，项目的重心会逐渐向三角区域的左侧滑动。在构建组件时，必须要考虑到研发型和复用性之间的矛盾关系，同时也必须平衡项目的成本。</p>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>软件架构</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>设计原则</title>
     <link href="/2022/05/27/solid/"/>
     <url>/2022/05/27/solid/</url>
