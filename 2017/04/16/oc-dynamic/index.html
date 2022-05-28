@@ -16,21 +16,22 @@
   <meta name="author" content="斌哥">
   <meta name="keywords" content="">
   
-    <meta name="description" content="以前的一些博客平台写着写着就停更了，转而使用封闭的笔记软件进行总结。恰巧这几天有时间，把部分文章从简书平台 要上班的斌哥 迁移到这里来，同时也把自己的过往的一些笔记进行整理分享。">
+    <meta name="description" content="Objective-C @dynamic 原理在 Objective-C 中，我们偶尔会看到一个属性被声明为 @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了。那么 @dynamic 合成属性的方法是怎么样的呢？ 我们这里使用一个 Demo 来说明这个过程。这个 Demo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="博客迁移">
-<meta property="og:url" content="https://junbinchencn.github.io/2022/05/26/blog-note/index.html">
+<meta property="og:title" content="Objective-C @dynamic 原理">
+<meta property="og:url" content="https://junbinchencn.github.io/2017/04/16/oc-dynamic/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
-<meta property="og:description" content="以前的一些博客平台写着写着就停更了，转而使用封闭的笔记软件进行总结。恰巧这几天有时间，把部分文章从简书平台 要上班的斌哥 迁移到这里来，同时也把自己的过往的一些笔记进行整理分享。">
+<meta property="og:description" content="Objective-C @dynamic 原理在 Objective-C 中，我们偶尔会看到一个属性被声明为 @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了。那么 @dynamic 合成属性的方法是怎么样的呢？ 我们这里使用一个 Demo 来说明这个过程。这个 Demo">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-05-26T06:26:14.000Z">
-<meta property="article:modified_time" content="2022-05-28T14:37:58.068Z">
+<meta property="article:published_time" content="2017-04-16T05:45:15.000Z">
+<meta property="article:modified_time" content="2022-05-28T14:41:57.763Z">
 <meta property="article:author" content="斌哥">
+<meta property="article:tag" content="Objective-C">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>博客迁移 - 要上班的斌哥</title>
+  <title>Objective-C @dynamic 原理 - 要上班的斌哥</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -193,7 +194,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="博客迁移"></span>
+            <span id="subtitle" data-typed-text="Objective-C @dynamic 原理"></span>
           
         </div>
 
@@ -204,8 +205,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-05-26 14:26" pubdate>
-          2022年5月26日 下午
+        <time datetime="2017-04-16 13:45" pubdate>
+          2017年4月16日 下午
         </time>
       </span>
     
@@ -216,7 +217,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          87 字
+          2.4k 字
         
       </span>
     
@@ -227,7 +228,7 @@
         
         
         
-          1 分钟
+          21 分钟
         
       </span>
     
@@ -265,11 +266,23 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">博客迁移</h1>
+            <h1 style="display: none">Objective-C @dynamic 原理</h1>
             
             <div class="markdown-body">
               
-              <p>以前的一些博客平台写着写着就停更了，转而使用封闭的笔记软件进行总结。恰巧这几天有时间，把部分文章从简书平台 <a target="_blank" rel="noopener" href="https://www.jianshu.com/u/cea4fc286dd3">要上班的斌哥</a> 迁移到这里来，同时也把自己的过往的一些笔记进行整理分享。</p>
+              <h2 id="Objective-C-dynamic-原理"><a href="#Objective-C-dynamic-原理" class="headerlink" title="Objective-C @dynamic 原理"></a>Objective-C @dynamic 原理</h2><p>在 Objective-C 中，我们偶尔会看到一个属性被声明为 @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了。那么 @dynamic 合成属性的方法是怎么样的呢？ 我们这里使用一个 Demo 来说明这个过程。<br>这个 Demo 使用动态实现来为 NSMutableDictionary 中存储的属性动态创建获取方法和设置方法。</p>
+<span id="more"></span> 
+
+<p>创建一个 Person 对象，该对象有 firstName 和 lastName 这两个属性。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">// Person.h</span><br><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">Person</span> : <span class="hljs-title">NSObject</span></span><br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>,<span class="hljs-keyword">copy</span>) <span class="hljs-built_in">NSString</span> *firstName;<br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>,<span class="hljs-keyword">copy</span>) <span class="hljs-built_in">NSString</span> *lastName;<br><span class="hljs-keyword">@end</span><br></code></pre></td></tr></table></figure>
+<p>接下来看 Person.m 文件</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-meta">#import <span class="hljs-string">&quot;Person.h&quot;</span></span><br><span class="hljs-meta">#import <span class="hljs-string">&lt;objc/runtime.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">Person</span> ()</span><br><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>,<span class="hljs-keyword">strong</span>) <span class="hljs-built_in">NSMutableDictionary</span> *properties;<br><span class="hljs-keyword">@end</span><br><br><span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">Person</span></span><br><span class="hljs-comment">// @dynamic, 其实这个是在向编译器保证，虽然现在这个属性找不到 setter 和 getter 方法，</span><br><span class="hljs-comment">// 但是在运行时会有可用的实现，你编译器不要自动帮我合成 ivar 了</span><br><span class="hljs-keyword">@dynamic</span> firstName,lastName;<br><br>- (<span class="hljs-type">id</span>)init&#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span> = [<span class="hljs-variable language_">super</span> init]) &#123;<br>        _properties = [[<span class="hljs-built_in">NSMutableDictionary</span> alloc] init];<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;<br>&#125;<br><br><span class="hljs-comment">// getter 方法</span><br><span class="hljs-keyword">static</span> <span class="hljs-type">id</span> propertyIMP(<span class="hljs-type">id</span> <span class="hljs-keyword">self</span>, SEL _cmd)&#123;<br>    <span class="hljs-keyword">return</span> [[<span class="hljs-keyword">self</span> properties] valueForKey:<span class="hljs-built_in">NSStringFromSelector</span>(_cmd)];<br>&#125;<br><br><span class="hljs-comment">// setter 方法</span><br><span class="hljs-keyword">static</span> <span class="hljs-type">void</span> setPropertyIMP(<span class="hljs-type">id</span> <span class="hljs-keyword">self</span>,SEL _cmd, <span class="hljs-type">id</span> aValue)&#123;<br>    <span class="hljs-type">id</span> value = [aValue <span class="hljs-keyword">copy</span>];<br>    <span class="hljs-comment">// 使用 mutableCopy 而不是 copy</span><br>    <span class="hljs-built_in">NSMutableString</span> *key = [<span class="hljs-built_in">NSStringFromSelector</span>(_cmd) mutableCopy];<br>    <span class="hljs-comment">// 删除 “set”</span><br>    [key deleteCharactersInRange:<span class="hljs-built_in">NSMakeRange</span>(<span class="hljs-number">0</span>, <span class="hljs-number">3</span>)];<br>    <span class="hljs-comment">// 删除 “：”</span><br>    [key deleteCharactersInRange:<span class="hljs-built_in">NSMakeRange</span>([key length] <span class="hljs-number">-1</span>, <span class="hljs-number">1</span>)];<br>    <span class="hljs-comment">// 将第一个字母变为小写</span><br>    <span class="hljs-built_in">NSString</span> *firstC = [key substringToIndex:<span class="hljs-number">1</span>];<br>    [key replaceCharactersInRange:<span class="hljs-built_in">NSMakeRange</span>(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) withString:[firstC lowercaseString]];<br>    <span class="hljs-comment">// 保存对应属性的值</span><br>    [[<span class="hljs-keyword">self</span> properties] setValue:value forKey:key];<br>&#125;<br><br><span class="hljs-comment">// 这里假设所有不能识别的方法都是 setter 方法或者 getter 方法</span><br>+ (<span class="hljs-type">BOOL</span>)resolveInstanceMethod:(SEL)sel&#123;<br>    <span class="hljs-keyword">if</span> ([<span class="hljs-built_in">NSStringFromSelector</span>(sel) hasPrefix:<span class="hljs-string">@&quot;set&quot;</span>]) &#123;<br>        <span class="hljs-comment">// 第一个字符 v 表明返回值是一个 void。</span><br>        <span class="hljs-comment">// 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL</span><br>        <span class="hljs-comment">// 最后一个字符是方法的显式参数 @ 表示是一个 id</span><br>        class_addMethod([<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>], sel, (IMP)setPropertyIMP, <span class="hljs-string">&quot;v@:@&quot;</span>);<br>    &#125;<span class="hljs-keyword">else</span>&#123;<br>        <span class="hljs-comment">// 第一个字符 @ 表明返回值是一个 id。</span><br>        <span class="hljs-comment">// 对于消息传递系统来说，所以的 Objective-C 对象都是 id 类型。</span><br>        <span class="hljs-comment">// 接下来的二个字符 @： 表明该方法接受一个 id 和一个 SEL</span><br>        class_addMethod([<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>], sel, (IMP)propertyIMP, <span class="hljs-string">&quot;@:@&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>&#125;<br><span class="hljs-keyword">@end</span><br></code></pre></td></tr></table></figure>
+<p>从代码中可以看到，我们将 firstName,lastName 这2个属性设置成 @dynamic 。然后提供了 <code> static void setPropertyIMP(id self,SEL _cmd, id aValue)  </code> 这个 setter 方法，也提供了 <code> static id propertyIMP(id self, SEL _cmd) </code> 这个 getter 方法。在 setter 和 getter 中使用了 NSMutableDictionary 来存储和读取属性。</p>
+<p>当 Person 无法识别一些方法的时候，Objective-C 的消息分派就会调用 Person 类的 <code>+ (BOOL)resolveInstanceMethod:(SEL)sel </code> 方法。那么我们在这个方法里面 为 Person 这个类动态的添加属性的 setter 和 getter 方法。这样 Person 就可以正确的响应属性的 setter 和 getter。这个就是 Objective-C 的动态实现，在运行过程中提供方法实现。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html#//apple_ref/doc/uid/TP40008048-CH100-SW1">Runtime Type Encoding</a></li>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/25976913/">iOS 编程实战</a> 读书笔记</li>
+</ol>
 
               
             </div>
@@ -277,6 +290,13 @@
             <div>
               <div class="post-metas my-3">
   
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Objective-C/">#Objective-C</a>
+      
+    </div>
   
 </div>
 
@@ -286,8 +306,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>博客迁移</div>
-      <div>https://junbinchencn.github.io/2022/05/26/blog-note/</div>
+      <div>Objective-C @dynamic 原理</div>
+      <div>https://junbinchencn.github.io/2017/04/16/oc-dynamic/</div>
     </div>
     <div class="license-meta">
       
@@ -299,7 +319,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年5月26日</div>
+          <div>2017年4月16日</div>
         </div>
       
       
@@ -329,9 +349,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/05/27/solid/" title="设计原则">
+                      <a href="/2017/04/16/oc-signature-invocation/" title="Objective-C 方法签名和调用">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">设计原则</span>
+                        <span class="hidden-mobile">Objective-C 方法签名和调用</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -339,8 +359,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/05/25/functional-procedural-programming/" title="结构化编程 &amp; 函数式编程">
-                        <span class="hidden-mobile">结构化编程 &amp; 函数式编程</span>
+                      <a href="/2017/04/16/oc-fast-forwarding/" title="Objective-C 消息转发流程">
+                        <span class="hidden-mobile">Objective-C 消息转发流程</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

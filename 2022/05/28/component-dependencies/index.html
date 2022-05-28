@@ -16,21 +16,30 @@
   <meta name="author" content="斌哥">
   <meta name="keywords" content="">
   
-    <meta name="description" content="以前的一些博客平台写着写着就停更了，转而使用封闭的笔记软件进行总结。恰巧这几天有时间，把部分文章从简书平台 要上班的斌哥 迁移到这里来，同时也把自己的过往的一些笔记进行整理分享。">
+    <meta name="description" content="组件耦合前面讲了怎么利用三个原则构建组件 ，现在利用接下来的三个原则来组织组件之间的关系。 无依赖环原则（ADP）在项目中经常出现有人修改了你依赖的某个组件导致你的程序出错的这类型场景。为了解决这个类型的问题逐渐演化出了两种解决方案，第一种是“每周构建”， 第二种是“无依赖环原则” 。 每周构建比较容易理解，就是每周五要求所有人将自己所有的更改提交，进行统一构建，把一些问题集中解决掉。 无依赖环原">
 <meta property="og:type" content="article">
-<meta property="og:title" content="博客迁移">
-<meta property="og:url" content="https://junbinchencn.github.io/2022/05/26/blog-note/index.html">
+<meta property="og:title" content="组件耦合">
+<meta property="og:url" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/index.html">
 <meta property="og:site_name" content="要上班的斌哥">
-<meta property="og:description" content="以前的一些博客平台写着写着就停更了，转而使用封闭的笔记软件进行总结。恰巧这几天有时间，把部分文章从简书平台 要上班的斌哥 迁移到这里来，同时也把自己的过往的一些笔记进行整理分享。">
+<meta property="og:description" content="组件耦合前面讲了怎么利用三个原则构建组件 ，现在利用接下来的三个原则来组织组件之间的关系。 无依赖环原则（ADP）在项目中经常出现有人修改了你依赖的某个组件导致你的程序出错的这类型场景。为了解决这个类型的问题逐渐演化出了两种解决方案，第一种是“每周构建”， 第二种是“无依赖环原则” 。 每周构建比较容易理解，就是每周五要求所有人将自己所有的更改提交，进行统一构建，把一些问题集中解决掉。 无依赖环原">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-05-26T06:26:14.000Z">
-<meta property="article:modified_time" content="2022-05-28T14:37:58.068Z">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled1.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled2.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled3.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled4.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled5.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled6.png">
+<meta property="article:published_time" content="2022-05-28T14:34:58.000Z">
+<meta property="article:modified_time" content="2022-05-28T14:42:30.754Z">
 <meta property="article:author" content="斌哥">
+<meta property="article:tag" content="软件架构">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2022/05/28/component-dependencies/Untitled.png">
   
   
   
-  <title>博客迁移 - 要上班的斌哥</title>
+  <title>组件耦合 - 要上班的斌哥</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -193,7 +202,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="博客迁移"></span>
+            <span id="subtitle" data-typed-text="组件耦合"></span>
           
         </div>
 
@@ -204,8 +213,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-05-26 14:26" pubdate>
-          2022年5月26日 下午
+        <time datetime="2022-05-28 22:34" pubdate>
+          2022年5月28日 晚上
         </time>
       </span>
     
@@ -216,7 +225,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          87 字
+          1.4k 字
         
       </span>
     
@@ -227,7 +236,7 @@
         
         
         
-          1 分钟
+          13 分钟
         
       </span>
     
@@ -265,11 +274,45 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">博客迁移</h1>
+            <h1 style="display: none">组件耦合</h1>
             
             <div class="markdown-body">
               
-              <p>以前的一些博客平台写着写着就停更了，转而使用封闭的笔记软件进行总结。恰巧这几天有时间，把部分文章从简书平台 <a target="_blank" rel="noopener" href="https://www.jianshu.com/u/cea4fc286dd3">要上班的斌哥</a> 迁移到这里来，同时也把自己的过往的一些笔记进行整理分享。</p>
+              <h1 id="组件耦合"><a href="#组件耦合" class="headerlink" title="组件耦合"></a>组件耦合</h1><p>前面讲了怎么利用三个原则<a href="https://junbinchencn.github.io/2022/05/28/component-aggregation/">构建组件</a> ，现在利用接下来的三个原则来组织组件之间的关系。</p>
+<h2 id="无依赖环原则（ADP）"><a href="#无依赖环原则（ADP）" class="headerlink" title="无依赖环原则（ADP）"></a>无依赖环原则（ADP）</h2><p>在项目中经常出现有人修改了你依赖的某个组件导致你的程序出错的这类型场景。为了解决这个类型的问题逐渐演化出了两种解决方案，第一种是“每周构建”， 第二种是“无依赖环原则” 。</p>
+<p>每周构建比较容易理解，就是每周五要求所有人将自己所有的更改提交，进行统一构建，把一些问题集中解决掉。</p>
+<p><strong>无依赖环原则认为组件依赖关系图中不应该出现环。</strong>必须控制好组件之间的依赖结构，绝对不能允许该结构中存在着循环依赖关系。当有人或者团队完成某个组件的某个版本的时候，给这个组件打一个版本号，然后放入共享目录，并通知其他程序员，这样依赖每个程序员都可以依赖于这个组件公开发布的版本来进行开发，而组件的拥有者则可以继续去修改自己的私有版本。</p>
+<img src="/2022/05/28/component-dependencies/Untitled.png" srcset="/img/loading.gif" lazyload class="" title="this is image">
+
+<p>如上图，这个是一个程序的组件结构图。该组件依赖结构就是一个有向图，图中的每个节点都是一个项目组件，依赖关系就是有向图中的边。不管我们从哪个组件开始，沿着哪条边走，最终都不会回到起始点。假如 Presenters 组件要发布新版本，根据组件依赖结构，我们很容易判断出 View 和 Main 组件会受这次变更影响。假如是 Main 组件发布新版本，我们也可以知道不会有组件受影响。</p>
+<p>如下图，红色框内的组件依赖关系违反了无依赖环原则，这种情况下要怎么打破循环依赖呢？</p>
+<img src="/2022/05/28/component-dependencies/Untitled1.png" srcset="/img/loading.gif" lazyload class="" title="this is image">
+
+<ul>
+<li><strong>应用依赖反转原则（DIP）</strong></li>
+</ul>
+<p>假设 Entities 组件中的 User 类依赖的是 Authorizer 组件中的 Permissions 类。</p>
+<img src="/2022/05/28/component-dependencies/Untitled2.png" srcset="/img/loading.gif" lazyload class="" title="this is image">
+
+<p>我们可以使用 DIP 原则来解决这个问题，将 Entities 与 Authorizer 组件之间的依赖关系反转。在 Entities 组件内部增加一个 Permissions 接口，User 类直接使用该接口， Authorizer 组件的 Permissions 类实现 Permissions 接口。这样一来，Entities 组件就不再依赖 Authorizer 组件，而 Authorizer 组件依赖 Entities 组件。</p>
+<img src="/2022/05/28/component-dependencies/Untitled3.png" srcset="/img/loading.gif" lazyload class="" title="this is image">
+
+<ul>
+<li><strong>创建一个新组件</strong></li>
+</ul>
+<p>把 Authorizer 组件中被依赖的 Permissions 类拿出来，单独成为一个组件，Entities 组件和 Authorizer 组件同时依赖它。</p>
+<img src="/2022/05/28/component-dependencies/Untitled4.png" srcset="/img/loading.gif" lazyload class="" title="this is image">
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>程序的组件结构图的一个重要的目标就是指导我们如何隔离频繁的变更，我们不希望频繁变更的组件影响到本来应该稳定的组件。</p>
+<h2 id="稳定依赖原则（SDP）"><a href="#稳定依赖原则（SDP）" class="headerlink" title="稳定依赖原则（SDP）"></a>稳定依赖原则（SDP）</h2><p>这原则指导我们依赖关系必须要指向更稳定的方向。任何一个预期会经常变更的组件都不应该被一个难于修改的组件所依赖，否则这个多变的组件也会变得难以修改。</p>
+<p>如下图所示，有三个组件依赖这 X，所以 X 有三个不应该被修改的原因，同时 X 不依赖于任何组件，不会有任何原因导致 X 需要被修改，所以 X 是一个稳定的组件。</p>
+<img src="/2022/05/28/component-dependencies/Untitled5.png" srcset="/img/loading.gif" lazyload class="" title="this is image">
+
+<p>如下图所示，Y 依赖三个组件，所以 Y 有三个来自外部的变化源，所以 Y 依赖的，是一个不稳定的组件。 </p>
+<img src="/2022/05/28/component-dependencies/Untitled6.png" srcset="/img/loading.gif" lazyload class="" title="this is image">
+
+<h2 id="稳定抽象原则-（SAP）"><a href="#稳定抽象原则-（SAP）" class="headerlink" title="稳定抽象原则 （SAP）"></a>稳定抽象原则 （SAP）</h2><p>一个组件的抽象化程度应该与其稳定性一致。如果一个组件要成为稳定组件，那么它就应该由接口和抽象类组成，这样将来可以做拓展。SAP 原则告诉我们依赖关系应该指向更抽象的方向。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>无环依赖原则，稳定依赖原则，稳定抽象原则关注的是组件之间的关系。在应用这些原则的时候，作为架构师应该需要在研发能力和逻辑设计之间的冲突做权衡，影响组件结构的不仅仅有技术水平同时还有团队的组织架构。在组件耦合背后需要各种用于依赖关系管理的指标，可以用来量化分析软件设计与优秀设计之间的契合度。当然不同团队的指标是不一致的，这个需要团队摸索出适合自己的指标。</p>
 
               
             </div>
@@ -277,6 +320,13 @@
             <div>
               <div class="post-metas my-3">
   
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">#软件架构</a>
+      
+    </div>
   
 </div>
 
@@ -286,8 +336,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>博客迁移</div>
-      <div>https://junbinchencn.github.io/2022/05/26/blog-note/</div>
+      <div>组件耦合</div>
+      <div>https://junbinchencn.github.io/2022/05/28/component-dependencies/</div>
     </div>
     <div class="license-meta">
       
@@ -299,7 +349,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年5月26日</div>
+          <div>2022年5月28日</div>
         </div>
       
       
@@ -329,18 +379,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/05/27/solid/" title="设计原则">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">设计原则</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/05/25/functional-procedural-programming/" title="结构化编程 &amp; 函数式编程">
-                        <span class="hidden-mobile">结构化编程 &amp; 函数式编程</span>
+                      <a href="/2022/05/28/component-aggregation/" title="组件聚合">
+                        <span class="hidden-mobile">组件聚合</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
