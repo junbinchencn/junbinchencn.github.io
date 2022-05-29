@@ -223,6 +223,46 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2017/04/16/oc-fast-forwarding/" target="_self">
+          Objective-C 消息转发流程
+        </a>
+      </h1>
+
+      <a class="index-excerpt" href="/2017/04/16/oc-fast-forwarding/" target="_self">
+        <div>
+          
+          快速转发什么是快速转发呢？我们假设有这么一个对象 CacheProxy，若是有未知的选择器发送到 CacheProxy，objc_msgSend 都会调用 CacheProxy 的 forwardingTargetForSelector: 方法，如果这个方法返回一个对象，那么 objc_msgSend 会试着将这个未知的选择器发送给返回的那个对象这就是快速转发（fast forwarding）。那
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-04-16 12:49" pubdate>
+              2017-04-16
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Objective-C/">#Objective-C</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2017/03/26/reading-source-code-of-SPStackedNav/" target="_self">
           iPad 分屏框架 - SPStackedNav 源码解读
         </a>

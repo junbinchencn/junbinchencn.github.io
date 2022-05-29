@@ -1,0 +1,708 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="什么是软件架构可能你一直认为软件架构设计的目标应该是让一个系统能够正确的工作，然而一个软件系统的架构质量和该系统是否能正常工作的关系并不大。毕竟世界上还是有非常多架构设计糟糕但是工作正常的软件系统，真正的麻烦往往会出现再这个软件系统的开发，部署以及后续的持续迭代开发中。 软件架构这项工作的实质就是规划如何将系统切分成组件，并安排好组件之间的排列关系，以及组件之间互相通信的方式。软件架构设计的主要目">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件架构">
+<meta property="og:url" content="https://junbinchencn.github.io/2022/05/30/software-architecture/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="什么是软件架构可能你一直认为软件架构设计的目标应该是让一个系统能够正确的工作，然而一个软件系统的架构质量和该系统是否能正常工作的关系并不大。毕竟世界上还是有非常多架构设计糟糕但是工作正常的软件系统，真正的麻烦往往会出现再这个软件系统的开发，部署以及后续的持续迭代开发中。 软件架构这项工作的实质就是规划如何将系统切分成组件，并安排好组件之间的排列关系，以及组件之间互相通信的方式。软件架构设计的主要目">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/30/software-architecture/Untitled.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/30/software-architecture/Untitled1.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/30/software-architecture/Untitled2.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/05/30/software-architecture/Untitled3.png">
+<meta property="article:published_time" content="2022-05-29T16:54:17.000Z">
+<meta property="article:modified_time" content="2022-05-29T17:00:46.543Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="软件架构">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2022/05/30/software-architecture/Untitled.png">
+  
+  
+  
+  <title>软件架构 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="软件架构"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-30 00:54" pubdate>
+          2022年5月30日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          38 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">软件架构</h1>
+            
+            <div class="markdown-body">
+              
+              <h2 id="什么是软件架构"><a href="#什么是软件架构" class="headerlink" title="什么是软件架构"></a>什么是软件架构</h2><p>可能你一直认为软件架构设计的目标应该是让一个系统能够正确的工作，然而一个软件系统的架构质量和该系统是否能正常工作的关系并不大。毕竟世界上还是有非常多架构设计糟糕但是工作正常的软件系统，真正的麻烦往往会出现再这个软件系统的开发，部署以及后续的持续迭代开发中。</p>
+<p>软件架构这项工作的实质就是规划如何将系统切分成组件，并安排好组件之间的排列关系，以及组件之间互相通信的方式。软件架构设计的主要目标是支撑软件系统的全生命周期，设计良好的架构可以让系统便于理解，易于修改，方便维护，并且能轻松部署。软件架构的终极目标就是最大化程序员的生产力，同时最小化系统的总运营成本。</p>
+<h2 id="软件架构的解耦"><a href="#软件架构的解耦" class="headerlink" title="软件架构的解耦"></a>软件架构的解耦</h2><p>基本上所有的软件系统都可以降解为策略和细节这两种主要原色，策略体现的是软件中所有的业务规则，它是软件系统的真正价值所在。而细节指的是哪些让操作该系统的人，其他系统以及程序员们与业务规则进行交互，但是又不会影响到策略本身的行为，百科 I&#x2F;O 设备，数据库，Web 系统，服务器，框架，交互协议等。</p>
+<p>一个设计良好的软件架构必须支持系统的用例正常运行，系统的维护，系统的开发，系统的部署。架构师可以通过采用单一职责（SRP）和共同闭包（CCP），以及既定的系统设计意图来隔离哪些变更原因不同的部分，集成变更原因相同的部分。</p>
+<p>这样一来，我们发现可以把一个系统解耦成若干个水平分层 - UI 层，业务层，数据库等，在水平分层的基础上，我们还可以根据系统的用例来做垂直切片，通过这种方式来实现解耦。</p>
+<p>举个购物车的例子，添加新订单和删除订单的用例在发生变更的原因上应该不一致，而且发生的频率也应该不一样。为了实现解耦，我们应该将添加新订单这个用例的 UI 与 删除订单用例的 UI 分开，而且对业务逻辑部分，数据库部分也同样要做分开。</p>
+<p>只要系统按照其水平分层和用例进行了恰当的解耦，整个系统的架构就可以支持多团队开发，不管团队的组织形式是分功能开发、分组件开发、分层开发、还是按照其他的变量分工都可以。</p>
+<p>按水平分层和用例垂直切分一个系统有很多种方式，比如在源代码层面解耦，在二进制层面解耦。</p>
+<ol>
+<li>源码层面，可以控制源代码模块之间的依赖关系，以此来实现一个模块的变更不会导致其他模块也需要变更或者重现编译。在这种解耦模式下，系统所有的组件都在同一个地址空间内执行，组件之间的交互可以通过简单的函数调用来实现。这类系统在运行时是作为一个执行文件被加载到计算机内存中的，这种模式被称为单体结构</li>
+<li>部署层面，可以控制部署单元（jar，dll，共享库）之间的依赖关系，以此来实现一个模块的变更不会导致其他的模块重现构建和部署</li>
+</ol>
+<p>当然一个设计良好的系统应该允许从一个单体结构开始，以单一文件的形式部署，然后逐渐成长为一组互相独立的可部署单元，甚至是独立的独立或者微服务，然后还能随着情况的变化，允许系统逐渐退回到单体结构。</p>
+<h2 id="软件架构的边界"><a href="#软件架构的边界" class="headerlink" title="软件架构的边界"></a>软件架构的边界</h2><p>前面提到架构师追求的目标是最大限度降低构建和维护一个系统所需要的人力资源，那么一个在一个系统中最消耗人力资源的是什么呢？答案是系统中存在的耦合。为了解决这个问题，我们就需要划分边界，利用边界把软件分割成各种元素，以便约束边界两侧之间的依赖关系。</p>
+<p>应该在何时，何处划分边界呢？边界线应该画在不相干的事情中间，比如业务逻辑与数据库无关，所以两者之间应该有一条边界线。</p>
+<p>如下图所示，BusinessRules 是 通过 Database Interface 来加载和保存数据的。而 DatabaseAccess 则负责实现该接口，并与实际 Database 交互。那么这里的边界线应该穿过继承关系，在 Database Interface 之下。DatabaseAccess 类有两个对外箭头，这两个箭头都指向了远离 DatabaseAccess 类的方向，这意味着它们所指向的两个类都不知道 DatabaseAccess 的存在。把抽象程度拉高一些，Database 组件可以被替换为多种实现，BusinessRules组件并不需要这个事情，数据库可以使用 MySQL，Oracle ,甚至大文件来实现都可以。</p>
+<img src="/2022/05/30/software-architecture/Untitled.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>进一步来分析由于 GUI 能够被直观的感受到，GUI 很容易被开发者当成了系统本身，这个是错误的视角，I&#x2F;O 应该是无关紧要的，GUI 也是 I&#x2F;O 的一部分。所以如下图所示，GUI 和 BusinessRules 之间应该也要有一条边界线，通过边界线和箭头方向，我们可以得出 GUI 可以使用任何一种其他形式的界面来代替，BusinessRules 组件不需要了解这些细节，这就是插件式架构。</p>
+<img src="/2022/05/30/software-architecture/Untitled1.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<h2 id="软件架构的业务"><a href="#软件架构的业务" class="headerlink" title="软件架构的业务"></a>软件架构的业务</h2><p>所有的软件都是一组业务逻辑的集合。整体的业务逻辑正常都可以被拆解为多组更小的业务逻辑。一部分业务逻辑可能用于描述计算部分，一部分业务逻辑可能描述计算报告的格式，可能还有另外一部分业务逻辑用于描述输入数据的校验。软件架构设计的工作重心之一就是将这些业务逻辑彼此分离，然后将它们按照变更的方式进行重新分组。在一个设计良好的架构中，依赖关系的方向通常取决于它们所管理的组件层次，一般来说，低层组件被设计为依赖于高层组件。这里的层次是严格按照“输入与输入之间的距离”来定义的，也就是说业务逻辑距离系统的输入&#x2F;输入越远，它所属的层次就越高。而直接管理输入&#x2F;输出的业务逻辑在系统中的层次最低。</p>
+<img src="/2022/05/30/software-architecture/Untitled2.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<p>如上图所示，这个是一个简单加密程序的数据流向图，留意被虚线框起来的 Encrypt 类，CharReader 接口和 CharWriter 接口。Encrypt 类的所有的依赖关系都指向边界内部，这说明它是该系统中最高层次的组件。ConsoleReader 和 ConsoleWriter 都属于具体类，由于它们和输入&#x2F;输出最近，因此属于低层组件。</p>
+<p>值得注意的是这个架构将高层的加密逻辑与低层的输入&#x2F;输出逻辑解耦了，也就是说当输入输出发生变化了，它们不太可能会影响高层加密组件的业务逻辑。通过将业务逻辑隔离，并让源码中的依赖方向都统一调整为指向高层业务逻辑，我们可以大幅度降低系统变更所带来的影响。因为一些针对系统低层组件的小修改基本不会影响系统中更高级，更重要的组件。</p>
+<h2 id="整洁的软件架构"><a href="#整洁的软件架构" class="headerlink" title="整洁的软件架构"></a>整洁的软件架构</h2><p>一个良好的架构设计应该围绕着用例来展开，这样的架构设计可以在脱离框架、工具以及使用环境的情况下完整的描述用例，并且尽可能的允许用户推迟和延后决定采用什么框架，数据库，Web 服务以及其他与环境相关的工具。这样的话，我们就可以在不依赖任何框架的情况下对这些用例进行单元测试。</p>
+<p>那么一个良好的架构设计应该是怎么样的呢？一个良好的架构设计通常具备如下特点：</p>
+<ol>
+<li>独立于框架，可以把框架当成工具来使用，但是不需要让系统适应框架</li>
+<li>可以被测试，业务逻辑可以脱离 UI，数据库，Web 服务以及其他的外部元素来进行测试</li>
+<li>独立于 UI，系统的 UI 变更很简单，不需要修改其他的系统部分</li>
+<li>独立于数据库，可以轻易替换系统使用的数据库</li>
+<li>独立于任何外部系统，系统的业务逻辑并不需要知道任何其他外部接口的存在</li>
+</ol>
+<p>这个是整洁架构的示意图，同心圆分别代表了软件系统中的不同层次，越靠近中心，其所在的软件层次就越高。外层圆表示的是机制，内层圆表示的是业务逻辑，这其中有一条贯穿整个架构设计的规则即依赖规则，源码中的依赖关系必须只指向同心圆的内层，即由低层机制指向高层业务逻辑。换句话说，内层圆中的代码不应该涉及外层圆的代码，尤其是内层圆中的代码不应该引用外层圆中代码所声明的名字，包括函数、类、变量等。</p>
+<img src="/2022/05/30/software-architecture/Untitled3.png" srcset="/img/loading.gif" lazyload class="" title="This is an example image">
+
+<ul>
+<li>业务实体，这一层封装的是整个系统的关键业务逻辑，一个业务实体可以理解为一个带有方法的对象。这一层是可以被其他不同的应用复用的。</li>
+<li>用例，包含的是特定应用场景下的业务逻辑，它封装并实现了系统的所有用例。这些用例引导数据在业务实体之间的流入和流出，并指挥着业务实体利用其中的关键业务逻辑来实现用例的设计目标。</li>
+<li>接口适配器，接口适配器层通常是一组适配器，可以将数据从用例和业务实体最方便的格式转换为最适合某些外部系统（如数据库或Web）的格式。例如，这层将完全包含 GUI 的 MVC 体系结构。展示器（presenters)，视图（views）和控制器（controllers）都属于接口适配器层。模型部分应该由控制器传递给用例，再由用例返回到展示器和视图。</li>
+<li>框架与驱动程序，最外层通常由框架和工具（如数据库和Web框架）组成，包含了所有的实现细节，Web 是一个实现细节，数据库也是一个实现细节。这些细节在最外层，它们就很难影响到其他层了。</li>
+</ul>
+<p>不同层之间会有数据交换，一般来说，会跨越边界的数据在数据结构上都是比较简单的。最重要的是这个跨边界传输的对象应该有一个独立、简单的数据结构，不要使用业务实体或者数据库记录对象。</p>
+<h2 id="软件架构的测试"><a href="#软件架构的测试" class="headerlink" title="软件架构的测试"></a>软件架构的测试</h2><h3 id="测试也是一种组件"><a href="#测试也是一种组件" class="headerlink" title="测试也是一种组件"></a>测试也是一种组件</h3><p>和程序代码一样，测试应该也是系统的一部分，甚至于测试代码优势在系统架构中的地位还有比其他部分更独特一些。</p>
+<p>究其本质而言，测试组件也要遵守依赖关系原则的。因为测试组件总是充满了各种细节信息，非常具体，所以它始终都是向内依赖于被测试部分的代码，所以我们可以将测试组件视为系统架构最外圈的程序。它们始终都是向内依赖的，而且系统中没有其他组件依赖它们。</p>
+<h3 id="可测试性设计"><a href="#可测试性设计" class="headerlink" title="可测试性设计"></a>可测试性设计</h3><p>测试代码的关键之处在于耦合，如果测试代码与系统是强耦合的，它就必须随着系统变更而变更。哪怕只是系统中的组件一个小变化，都可能会导致许多与之相耦合的测试出现问题，需要做出相应的变更。修改一个通用的系统组件可能会导致成百上千个测试出现问题，我们通常将这类问题称为脆弱的测试问题。要想解决这个问题，就必须在设计中考虑到系统的可测试性。</p>
+<p>软件设计很重要的一个原则，不管为了可测试性还是其他什么东西 ，” 是不变的，就不要依赖于多变的东西 “，比如 GUI 往往是多变的，因此通过 GUI 来验证系统的测试一定是脆弱的。因此，我们在系统设计与测试设计时，应该让业务逻辑不通过 GUI 也可以被测试。</p>
+<h3 id="测试专用-API"><a href="#测试专用-API" class="headerlink" title="测试专用 API"></a>测试专用 API</h3><p>专门为验证业务逻辑的测试创建一个 API，这个 API 允许测试代码忽视安全限制，绕过成本高昂的资源（比如数据库），强制将系统设置到某种可以测试的状态中。总而言之，测试 API 应该成为用户界面所用到的交互器与接口适配器的一个超集。</p>
+<p>结构耦合是测试耦合中最强，最隐蔽的形式之一。设想一个测试套件，它对每个产品类都有一个测试类，对每个产品方法都有一套测试方法。这样的测试套件与应用程序的结构紧密相关。当这些产品方法或类之一改变时，大量的测试也必须改变。因此这些测试是脆弱的，它们会让产品代码变得非常死板。测试专用 API 的作用就是将应用程序与测试代码解耦。这样我们的产品代码就可以在不影响测试的情况下进行重构和演进。同样的，这种设计也允许测试代码在不影响生成的情况下进行重构和演进。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>软件架构的终极目标就是最大化程序员的生产力，同时最小化系统的总运营成本。为了达到这个目标，在软件设计中需要关注业务解耦，关注组件边界，封装核心业务逻辑。通过前人不断的经验总结，摸索出了一个整洁结构的设计方法论。除了关注业务代码，还需要关注测试代码的设计，它也是系统的一部分。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li>来自 <a target="_blank" rel="noopener" href="https://book.douban.com/subject/30333919/">架构整洁之道</a> 总结</li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">#软件架构</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>软件架构</div>
+      <div>https://junbinchencn.github.io/2022/05/30/software-architecture/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月30日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/28/component-dependencies/" title="组件耦合">
+                        <span class="hidden-mobile">组件耦合</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
