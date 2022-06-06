@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>传输层的作用</title>
+    <link href="/2022/06/06/transport-layer/"/>
+    <url>/2022/06/06/transport-layer/</url>
+    
+    <content type="html"><![CDATA[<h1 id="传输层的作用"><a href="#传输层的作用" class="headerlink" title="传输层的作用"></a>传输层的作用</h1><p><strong>TCP 提供可靠的通信传输，而 UDP 则常被用于让广播和细节控制交给应用的通信传输。</strong></p><p>TCP&#x2F;IP的众多应用协议大多以客户端&#x2F;服务端的形式运行。客户端类似于客户的意思，是请求的发起端。而服务端则表示提供服务的意思，是请求的处理端。另外，作为服务端的程序有必要提前启动，准备接收客户端的请求。否则即使有客户端的请求发过来，也无法做到相应的处理。</p><img src="/2022/06/06/transport-layer/Untitled.png" class="" title="this is an example image"><p>这些服务端程序在UNIX 系统当中叫做<strong>守护进程</strong>。例如 HTTP 的服务端程序是 httpd（HTTP 守护进程），而 ssh 的服务端程序是 sshd（SSH 守护进程）。在 <strong>UNIX 中并不需要将这些守护进程逐个启动，而是启动一个可以代表它们接收客户端请求的 inetd（互联网守护进程）服务程序即可。它是一种超级守护进程。该超级守护进程收到客户端请求以后会创建（fork）新的进程并转换（exec）为 sshd 等各个守护进程</strong>。确认一个请求究竟发给的是哪个服务端（守护进程），可以通过所收到数据包的目标端口号轻松识别。当收到 TCP 的建立连接请求时，如果目标端口为 22，则转给 sshd，如果是 80 则转给 httpd。然后，这些守护进程会继续对该连接上的通信传输进行处理。传输协议 TCP、UDP 通过接收数据中的目标端口号识别目标处理程序。以上图为例，传输协议的数据将被传递给 HTTP、TELNET 以及 FTP 等应用层协议。</p><h2 id="TCP-特点"><a href="#TCP-特点" class="headerlink" title="TCP 特点"></a>TCP 特点</h2><p><strong>TCP 是面向连接的、可靠的流协议</strong>。流就是指不间断的数据结构，你可以把它想象成排水管道中的水流。当应用程序采用 TCP 发送消息时，虽然可以保证发送的顺序，但还是犹如没有任何间隔的数据流发送给接收端。</p><p>TCP 是一种提供了<strong>可靠性传输，实行”顺序控制”或”重发控制” 的机制</strong>。</p><p>此外还具备<strong>流量控制、拥塞控制、提高网络利用率</strong>等众多功能。</p><h2 id="UDP-特点"><a href="#UDP-特点" class="headerlink" title="UDP 特点"></a>UDP 特点</h2><p>UDP 是<strong>不具有可靠性的数据报协议</strong>。<strong>细微的处理交给上层的应用去完成</strong>。在 UDP 的情况下，虽然<strong>可以确保发送消息的大小，却不能保证消息一定会到达</strong>。因此，应用有时会根据自己的需要进行重发处理。</p><h2 id="TCP-和-UDP-区分"><a href="#TCP-和-UDP-区分" class="headerlink" title="TCP 和 UDP 区分"></a><strong>TCP 和 UDP 区分</strong></h2><p>可能有人会认为，鉴于 TCP 是可靠的传输协议，那么它一定优于 UDP。其实不然，TCP 与 UD P的优缺点无法简单地、绝对地去做比较。那么对这两种协议应该如何加以区分使用呢? 对此问题做一简单说明。</p><p><strong>TCP用于在传输层有必要实现可靠传输的情况</strong>。由于它是面向有连接并具备<strong>顺序控制、重发控制</strong>等机制的，所以它可以为应用提供可靠传输。而在一方面，<strong>UDP 主要用于那些对高速传输和实时性有较高要求的通信或广播通信</strong>。</p><p>我们举一个通过 <strong>IP 电话进行通话</strong>的例子。如果使用 TCP，数据在传送途中如果丢失会被重发，但这样无法流畅地传输通话人的声音，会导致无法进行正常交流。而采用 UDP，它不会进行重发处理。从而也就不会有声音大幅度延迟到达的问题。即使有部分数据丢失，也只是会影响某一小部分的通话。</p>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>TCP/IP</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>软件架构</title>
     <link href="/2022/05/30/software-architecture/"/>
     <url>/2022/05/30/software-architecture/</url>
