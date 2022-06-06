@@ -1,0 +1,743 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="TCP 与 UDPTCP 为了通过 IP 数据报实现可靠性传输，需要考虑很多事情，例如数据的破坏、丢包、重复以及分片顺序混乱等问题。TCP 通过 CheckSum、序列号、确认应答、重发控制、连接管理以及窗口控制等机制实现可靠性传输。TCP 的适用场景主要面向于在传输层有必要实现可靠性传输的场景 UDP 不提供复杂的控制机制，利用 IP 提供面向无连接的通信服务。换句话说它将部分控制转移给应用程序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP 那些事儿">
+<meta property="og:url" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="TCP 与 UDPTCP 为了通过 IP 数据报实现可靠性传输，需要考虑很多事情，例如数据的破坏、丢包、重复以及分片顺序混乱等问题。TCP 通过 CheckSum、序列号、确认应答、重发控制、连接管理以及窗口控制等机制实现可靠性传输。TCP 的适用场景主要面向于在传输层有必要实现可靠性传输的场景 UDP 不提供复杂的控制机制，利用 IP 提供面向无连接的通信服务。换句话说它将部分控制转移给应用程序">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled1.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled2.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled3.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled4.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled5.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled6.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled7.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled8.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled9.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled10.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled11.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled12.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled13.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled14.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled15.png">
+<meta property="article:published_time" content="2022-06-06T07:50:27.000Z">
+<meta property="article:modified_time" content="2022-06-06T07:58:51.722Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="TCP&#x2F;IP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2022/06/06/TCP-protocol/Untitled.png">
+  
+  
+  
+  <title>TCP 那些事儿 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TCP 那些事儿"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-06 15:50" pubdate>
+          2022年6月6日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          33 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TCP 那些事儿</h1>
+            
+            <div class="markdown-body">
+              
+              <h2 id="TCP-与-UDP"><a href="#TCP-与-UDP" class="headerlink" title="TCP 与 UDP"></a><strong>TCP 与 UDP</strong></h2><p>TCP 为了通过 IP 数据报实现可靠性传输，需要考虑很多事情，例如数据的破坏、丢包、重复以及分片顺序混乱等问题。<br>TCP 通过 CheckSum、序列号、确认应答、重发控制、连接管理以及窗口控制等机制实现可靠性传输。<br>TCP 的适用场景主要面向于在传输层有必要实现可靠性传输的场景</p>
+<p>UDP 不提供复杂的控制机制，利用 IP 提供面向无连接的通信服务。换句话说它将部分控制转移给应用程序去处理，自己却只提供作为传输层协议的最基本功能。<strong>UDP 是一种在收到应用程序发来的数据的那一刻，立即按照原样发送到网络上的机制。</strong>即使是出现网络拥堵的情况下，UDP 也<strong>无法进行流量控制等避免网络拥塞的行为，</strong>传输途中即使<strong>出现丢包，UDP 也不负责重发，</strong>甚至当出现<strong>包的到达顺序乱掉时也没有纠正</strong>的功能。</p>
+<p>UDP 适用场景：</p>
+<ol>
+<li>包总量较少的通信（DNS、SNMP等）</li>
+<li>视频、音频等多媒体通信（即时通信）</li>
+<li>限定于 LAN 等特定网络中的应用通信</li>
+<li>广播通信（广播、多播）</li>
+</ol>
+<h2 id="通过序列号与确认应答提高可靠性"><a href="#通过序列号与确认应答提高可靠性" class="headerlink" title="通过序列号与确认应答提高可靠性"></a><strong>通过序列号与确认应答提高可靠性</strong></h2><p>如下图：发送端主机发送数据，接收端主机确认消息</p>
+<img src="/2022/06/06/TCP-protocol/Untitled.png" srcset="/img/loading.gif" lazyload class="" title="image">
+<p>如下图：发送端主机丢失数据</p>
+<img src="/2022/06/06/TCP-protocol/Untitled1.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>如下图：发送端主机没有接收到 ACK 消息</p>
+<img src="/2022/06/06/TCP-protocol/Untitled2.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p><strong>问题场景：</strong>在 TCP 中，当发送端的数据到达接收主机时，接收端主机会返回一个已收到消息的通知，这个消息叫做确认应答（ACK），源发送主机没有收到确认应答会按照机制重发数据，对于目标主机来说，它会反复收到相同的数据，这简直是一种”灾难”。</p>
+<p><strong>解决方案：</strong>引入一种机制，<strong>它能够识别数据是否已经接收，又能够判断数据是否需要接收，</strong>这些<strong>确认应答处理、重发控制、重复控制等功能都可以通过序列号实现，</strong>序列号是按顺序给发送数据的每一个字节都标上号码的编号。接收端<strong>查询接收数据 TCP 首部中的序列号和数据的长度，将自己下一步应该接收的序号作为确认应答返送回去。</strong>通过序列号和确认应答号，TCP 可以实现可靠传输。</p>
+<p>如下图：TCP 发送数据的过程</p>
+<img src="/2022/06/06/TCP-protocol/Untitled3.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="重发超时如何确认"><a href="#重发超时如何确认" class="headerlink" title="重发超时如何确认"></a>重发超时如何确认</h2><p><strong>问题场景</strong>：网络环境不可信赖，发送端主机发送的数据可能在传输过程中丢失，接收端主机的确认应答消息也可以在回送过程丢失。</p>
+<p><strong>解决方案</strong>：<strong>设定超时时间</strong>。最初的数据包还不知道往返时间，<strong>所以其重发超时一般设置为 6 秒左右。数据被重发之后若还是收不到确认应答，则进行再次发送。此时，等待确认应答的时间将会以 2 倍、4 倍的指数函数延长。当然数据也不会被无限、反复地重发</strong>。达到一定重发次数之后，如果仍没有任何确认应答返回，就会判断为网络或对端主机发生了异常，强制关闭连接，并且通知应用通信异常强行终止。</p>
+<p>如下图：往返时间的计算与重发超时的时间推移，在 BSD 的 Unix 以及 Windows 系统中，<strong>超时都以0.5 秒为单位进行控制，重发超时都是 0.5 秒的整数倍。偏差的设小值也是 0.5 秒。因此最小的重发时间至少是 1 秒。</strong></p>
+<img src="/2022/06/06/TCP-protocol/Untitled4.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="连接管理"><a href="#连接管理" class="headerlink" title="连接管理"></a><strong>连接管理</strong></h2><p><strong>问题场景</strong>：TCP 提供面向连接的通信传输，面向连接是指在数据通信开始之前先做好通信两端之间的准备工作，在通信结束时会进行断开连接处理。那么在多变的网络环境中如何进行连接管理？</p>
+<p><strong>解决方案</strong>：<strong>三次握手，四次挥手</strong>。发送一个 SYN 包作为建立连接的请求等待确认应答，如果对端发来确认应答，则认为可以进行数据通信，如果对端的确认应答未能到达，就不会进行数据通信。在通信结束时发送 FIN 包进行断开连接处理。<strong>可以使用 TCP 首部用于控制的字段来管理 TCP 连接，一个连接的建立与断开，正常过程至少需要来回发送 7 个包才能完成。</strong></p>
+<p>如下图：TCP 的三次握手，四次挥手</p>
+<img src="/2022/06/06/TCP-protocol/Untitled5.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="以段为单位发送数据"><a href="#以段为单位发送数据" class="headerlink" title="以段为单位发送数据"></a>以段为单位发送数据</h2><p><strong>问题场景</strong>：怎么在各类不同性能的网络线路中确定自己的包大小？</p>
+<p><strong>解决方案</strong>：使用最大消息长度（MSS∶Maximum Segment Size） 的机制。在建立 TCP 连接的同时，也可以确定发送数据包的单位，最理想的情况是，最大消息长度正好是 IP 包中不会被分片处理的最大数据长度。</p>
+<p><strong>实现机制</strong>：TCP在传送大量数据时，是以 MSS 的大小将数据进行分割发送，进行重发时也是以 MSS 为单位。MSS 是在三次握手的时候，在两端主机之间被计算得出。两端的主机在发出建立连接的请求时，会在 TCP 首部中写入 MSS 选项，告诉对方自己的接口能够适应的 MSS 的大小，然后会在两者之间选择一个较小的值投入使用。</p>
+<p>如下图：建立连接的时候计算 MSS</p>
+<img src="/2022/06/06/TCP-protocol/Untitled6.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="利用窗口控制提高速度"><a href="#利用窗口控制提高速度" class="headerlink" title="利用窗口控制提高速度"></a>利用窗口控制提高速度</h2><p><strong>问题场景：</strong>发送端主机每发送一个段，都需要等待接收端主机回送一个确认应答消息，这会造成一个问题，段的往返时间越长通信性能就越低。</p>
+<p><strong>解决方案：</strong>为解决这个问题，TCP 引入了窗口概念，<strong>窗口大小就是指无需等待确认应答而可以继续发送数据的最大值，在这个窗口内的数据即便没有收到确认应答也可以发送出去</strong>。即使在往返时间较长的情况下，它也能控制网络性能的下降。确认应答不再是以每个分段而是以更大的单位进行确认时，转发时间将会被大幅度的缩短。也就是说发送端主机在发送了一个段以后不必要一直等待确认应答，而是继续发送。</p>
+<p><strong>滑动窗口控制机制：</strong>通过使用缓冲区对窗口中的多个段进行同时确认，发送端主机在等到确认应答返回之前，必须在缓冲区中保留这部分数据。当数据发出后，若如期收到确认应答就可以不用再进行重发，此时数据就可以从缓存区清除。收到确认应答的情况下，将窗口滑动到确认应答中的序列号的位置。这样可以顺序地将多个段同时发送提高通信性能。在滑动窗口以外尚未发送的数据，这部分数据不需要保存在缓冲区。</p>
+<p>如下图：发送端主机发送段消息，接收确认应答消息</p>
+<img src="/2022/06/06/TCP-protocol/Untitled7.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>如下图： 使用窗口机制发送消息</p>
+<img src="/2022/06/06/TCP-protocol/Untitled8.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>如下图：滑动窗口控制机制</p>
+<img src="/2022/06/06/TCP-protocol/Untitled9.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="窗口控制与重发控制"><a href="#窗口控制与重发控制" class="headerlink" title="窗口控制与重发控制"></a><strong>窗口控制与重发控制</strong></h2><p><strong>问题场景</strong>：通过滑动窗口控制这个机制来控制网络性能，如果出现了段丢失应该怎么处理？</p>
+<p><strong>解决方案</strong>：发送端主机如果连续 3  次收到同一个确认应答，就会将其所对应的数据进行重发，这种机制被称作高速重发控制。</p>
+<p><strong>实现机制</strong>：我们先考虑确认应答未能返回的情况，在这种情况下由于数据已经到达对端，这个时候是不需要再进行重发的。然而在没有使用窗口控制的时候，没有收到确认应答的数据都会被重发。而使用了窗口控制，如下图所示，某些确认应答即便丢失也无需重发。</p>
+<img src="/2022/06/06/TCP-protocol/Untitled10.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>接收主机如果收到一个自己应该接收的序号以外的数据时，会针对<strong>之前收到的数据</strong>返回确认应答，不过即使接收端主机收到的包序号并不连续，也<strong>不会将数据丢弃而是暂时保存至缓冲区中</strong>。</p>
+<p>如下图所示，当某一报文段丢失后，发送端会一直收到序号为 1001 的确认应答，这个确认应答好像在提醒发送端” 我想接收的是从 1001 开始的数据”。<strong>因此在窗口比较大又出现报文段丢失的情况下，同一个序号的确认应答将会被重复不断地返回</strong>。</p>
+<img src="/2022/06/06/TCP-protocol/Untitled11.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="流控制"><a href="#流控制" class="headerlink" title="流控制"></a>流控制</h2><p><strong>问题场景</strong>：发送端根据自己的实际情况发送数据。但是接收端在此时可能收到了一个其他毫无关系的数据包，也有可能在处理其他问题上花费时间，甚至在高负荷的情况下无法接收任何数据。如此一来，如果接收端将本应该接收的数据丢弃的话，就又会触发重发机制，从而导致网络流量的无端浪费。</p>
+<p><strong>解决思路</strong>：为了防止这种现象的发生，<strong>解决接收端主机的接收问题。</strong>TCP 提供一种机制可以让发送端根据接收端的实际接收能力控制发送的数据量。这就是所谓的<strong>流控制</strong>。<strong>它的具体操作是接收端主机向发送端主机通知自己可以接收数据的大小，于是发送端会发送不超过这个限度的数据，该大小限度就被称作窗口大小。</strong></p>
+<p><strong>实现机制：</strong>如下图所示，当接收端收到从 3001 号开始的数据段后其缓冲区即满，不得不暂时停止接收数据。之后在收到发送窗口更新通知后通信才得以继续进行，如果这个窗口的更新通知在传送途中丢失，可能会导致无法继续通信。为避免此类问题的发生，<strong>发送端主机会时不时的发送一个叫做窗口探测的数据段，此数据段仅含一个字节以获取最新的窗口大小信息</strong>。</p>
+<img src="/2022/06/06/TCP-protocol/Untitled12.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h2><p><strong>问题场景：</strong>一般来说主机都处在一个共享的网络环境，因此有可能会因为其他主机之间的通信使得网络拥堵。在网络出现拥堵时，如果突然发送一个较大量的数据，极有可能会导致整个网络的瘫痪。</p>
+<p><strong>解决方案：</strong>为了在发送端调节所要发送数据的量，定义了一个叫做“拥塞窗口”的概念。在通信一开始时就会通过一个叫做<strong>慢启动的算法</strong>得出的数值对发送数据量进行控制。</p>
+<p>实现机制：<strong>在慢启动的时候，</strong>将这个拥塞窗口的大小设置为 1 个数据段（1 MSS），发送数据之后每收到一次确认应答（ACK），拥塞窗口的值就加 1 。在发送数据包时将<strong>拥塞窗口的大小</strong>与<strong>接收端主机通知的窗口大小</strong>做比较，然后按照它们当中较小那个值，发送比其还要小的数据量。具体操作如下图所示：</p>
+<img src="/2022/06/06/TCP-protocol/Untitled13.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p><strong>如果数据发送超时，那么就采用超时机制，</strong>拥塞窗口的初始值可以设置为 1 以后再进行慢启动修正。有了上述这些机制，就可以有效地减少通信开始时连续发包导致的网络拥堵，还可以避免网络拥塞情况的发生。不过，随着包的每次往返，拥塞窗口也会以1、2、4等指数函数的增长，拥堵状况激增甚至导致网络拥塞的发生。为了防止这些拥堵状况，引入了<strong>慢启动阀值</strong>的概念。<strong>只要拥塞窗口的值超出这个阀值，在每收到一次确认应答时，只允许这种比例放大拥塞窗口。如下图所示：</strong></p>
+<img src="/2022/06/06/TCP-protocol/Untitled14.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<p>TCP 的通信开始时，并没有设置相应的慢启动阀值。在<strong>超时重发</strong>时，才会把<strong>慢启动阀值设置为当时拥塞窗口一半的大小</strong>。<strong>重复确认应答</strong>要求至少 3  次的确认应答数据段到达发送方主机后才会触发，重复确认应答机制相比超时重发机制，网络的拥堵要轻一些。而由重复确认应答机制进行高速重发控制时，<strong>慢启动阀值的大小被设置为当时窗口大小的一半，</strong>然后将<strong>窗口的大小设置为该慢启动阀值 + 3个数据段的大小</strong>。当TCP 通信开始以后，网络吞吐量会逐渐上升，但是随着网络拥堵的发生吞吐量也会急速下降。于是会再次进入吞吐量慢慢上升的过程。因此所谓 <strong>TCP 的吞吐量的特点就好像是在逐步占领网络带宽的感觉。如下图所示：</strong></p>
+<img src="/2022/06/06/TCP-protocol/Untitled15.png" srcset="/img/loading.gif" lazyload class="" title="image">
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/24737674/">图解 TCP&#x2F;IP </a> 读书总结</li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/TCP-IP/">#TCP/IP</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TCP 那些事儿</div>
+      <div>https://junbinchencn.github.io/2022/06/06/TCP-protocol/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月6日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/06/transport-layer/" title="传输层的作用">
+                        <span class="hidden-mobile">传输层的作用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -24,8 +24,12 @@
 <meta property="og:description" content="传输层的作用TCP 提供可靠的通信传输，而 UDP 则常被用于让广播和细节控制交给应用的通信传输。 TCP&#x2F;IP的众多应用协议大多以客户端&#x2F;服务端的形式运行。客户端类似于客户的意思，是请求的发起端。而服务端则表示提供服务的意思，是请求的处理端。另外，作为服务端的程序有必要提前启动，准备接收客户端的请求。否则即使有客户端的请求发过来，也无法做到相应的处理。   这些服务端程序在U">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/transport-layer/Untitled.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/transport-layer/Untitled1.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/transport-layer/Untitled2.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/transport-layer/Untitled3.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/06/transport-layer/Untitled4.png">
 <meta property="article:published_time" content="2022-06-06T07:19:26.000Z">
-<meta property="article:modified_time" content="2022-06-06T07:24:50.378Z">
+<meta property="article:modified_time" content="2022-06-06T07:43:11.918Z">
 <meta property="article:author" content="斌哥">
 <meta property="article:tag" content="TCP&#x2F;IP">
 <meta name="twitter:card" content="summary_large_image">
@@ -219,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.2k 字
+          1.4k 字
         
       </span>
     
@@ -230,7 +234,7 @@
         
         
         
-          10 分钟
+          12 分钟
         
       </span>
     
@@ -284,6 +288,23 @@
 <h2 id="TCP-和-UDP-区分"><a href="#TCP-和-UDP-区分" class="headerlink" title="TCP 和 UDP 区分"></a><strong>TCP 和 UDP 区分</strong></h2><p>可能有人会认为，鉴于 TCP 是可靠的传输协议，那么它一定优于 UDP。其实不然，TCP 与 UD P的优缺点无法简单地、绝对地去做比较。那么对这两种协议应该如何加以区分使用呢? 对此问题做一简单说明。</p>
 <p><strong>TCP用于在传输层有必要实现可靠传输的情况</strong>。由于它是面向有连接并具备<strong>顺序控制、重发控制</strong>等机制的，所以它可以为应用提供可靠传输。而在一方面，<strong>UDP 主要用于那些对高速传输和实时性有较高要求的通信或广播通信</strong>。</p>
 <p>我们举一个通过 <strong>IP 电话进行通话</strong>的例子。如果使用 TCP，数据在传送途中如果丢失会被重发，但这样无法流畅地传输通话人的声音，会导致无法进行正常交流。而采用 UDP，它不会进行重发处理。从而也就不会有声音大幅度延迟到达的问题。即使有部分数据丢失，也只是会影响某一小部分的通话。</p>
+<h2 id="端口号"><a href="#端口号" class="headerlink" title="端口号"></a>端口号</h2><p><strong>数据链路的地址</strong>指的是 MAC 地址，用来识别同一链路中不同的计算机。</p>
+<p><strong>网络层的地址</strong>指的是 IP 地址，用来识别 TCP&#x2F;IP 网络中互连的主机和路由器。</p>
+<p><strong>传输层的地址指的是端口号，用来识别同一台计算机中进行通信的不同应用程序。</strong></p>
+<img src="/2022/06/06/transport-layer/Untitled1.png" srcset="/img/loading.gif" lazyload class="" title="this is an example image">
+
+<p>TCP&#x2F;IP 或 UDP&#x2F;IP 通信中通常采用 5 个信息来识别一个通信。它们是”源 IP 地址”、”目标 IP 地址”、”协议号”、”源端口号”、”目标端口号”。只要其中某一项不同，则被认为是不同的通信。</p>
+<img src="/2022/06/06/transport-layer/Untitled2.png" srcset="/img/loading.gif" lazyload class="" title="this is an example image">
+
+<p>UDP 首部格式：</p>
+<img src="/2022/06/06/transport-layer/Untitled3.png" srcset="/img/loading.gif" lazyload class="" title="this is an example image">
+
+<p>TCP 首部格式：</p>
+<img src="/2022/06/06/transport-layer/Untitled4.png" srcset="/img/loading.gif" lazyload class="" title="this is an example image">
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/24737674/">图解 TCP&#x2F;IP </a> 读书总结</li>
+</ol>
 
               
             </div>
@@ -349,6 +370,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2022/06/06/TCP-protocol/" title="TCP 那些事儿">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">TCP 那些事儿</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
