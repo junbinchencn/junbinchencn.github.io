@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="斌哥">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="App 架构App 架构是软件设计的一个分支，它关心如何设计一个 App 的结构。具体来说主要关注 2 个方面，一个方面是如何将 app 分解为不同的接⼝和概念层次部件，另一个方面是这些部件之间和⾃⾝的不同操作中所使⽤的控制流和数据流路径。 App 的本质是反馈回路在最⾼的层级上，app 架构其实就是⼀套分类，app 中不同的部件会被归纳到某个类型中去。我们将这些不同的种类叫做层次：⼀个层次指的是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="App 架构">
+<meta property="og:url" content="https://junbinchencn.github.io/2022/06/07/app-architecture/index.html">
+<meta property="og:site_name" content="要上班的斌哥">
+<meta property="og:description" content="App 架构App 架构是软件设计的一个分支，它关心如何设计一个 App 的结构。具体来说主要关注 2 个方面，一个方面是如何将 app 分解为不同的接⼝和概念层次部件，另一个方面是这些部件之间和⾃⾝的不同操作中所使⽤的控制流和数据流路径。 App 的本质是反馈回路在最⾼的层级上，app 架构其实就是⼀套分类，app 中不同的部件会被归纳到某个类型中去。我们将这些不同的种类叫做层次：⼀个层次指的是">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/07/app-architecture/Untitled.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/07/app-architecture/Untitled1.png">
+<meta property="og:image" content="https://junbinchencn.github.io/2022/06/07/app-architecture/Untitled2.png">
+<meta property="article:published_time" content="2022-06-07T13:04:23.000Z">
+<meta property="article:modified_time" content="2022-06-07T13:07:08.165Z">
+<meta property="article:author" content="斌哥">
+<meta property="article:tag" content="软件架构">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://junbinchencn.github.io/2022/06/07/app-architecture/Untitled.png">
+  
+  
+  
+  <title>App 架构 - 要上班的斌哥</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"junbinchencn.github.io","root":"/","version":"1.9.0","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="App 架构"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-07 21:04" pubdate>
+          2022年6月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">App 架构</h1>
+            
+            <div class="markdown-body">
+              
+              <h1 id="App-架构"><a href="#App-架构" class="headerlink" title="App 架构"></a>App 架构</h1><p>App 架构是软件设计的一个分支，它关心如何设计一个 App 的结构。具体来说主要关注 2 个方面，一个方面是如何将 app 分解为不同的接⼝和概念层次部件，另一个方面是这些部件之间和⾃⾝的不同操作中所使⽤的控制流和数据流路径。</p>
+<h2 id="App-的本质是反馈回路"><a href="#App-的本质是反馈回路" class="headerlink" title="App 的本质是反馈回路"></a>App 的本质是反馈回路</h2><p>在最⾼的层级上，app 架构其实就是⼀套分类，app 中不同的部件会被归纳到某个类型中去。我们将这些不同的种类叫做<strong>层次</strong>：⼀个层次指的是，遵循⼀些基本规则并负责特定功能的接⼝和其他代码的集合。Model 层和 View 层是这些分类中最为常⻅的两个。<strong>Model 层</strong>是 app 的内容，它不依赖于 (像 UIKit 那样的) 任何 app 框架。也就是说程序员对 model 层有完全的控制，Model 层通常包括 model 对象和协调对象 。<strong>View 层</strong>是依赖于 app 框架的部分，它使 model 层可⻅，并允许⽤⼾进⾏交互，从⽽将 model 层转变为⼀个 app。</p>
+<p>由于 View 层和 model 层需要交流，所以两者之间需要存在连接。假设 view 层和 model 层是被清<br>晰地分开，⽽且不存在⽆法解耦的联结的话，两者之间的通讯就需要⼀些形式的翻译，如下图：</p>
+<img src="/2022/06/07/app-architecture/Untitled.png" srcset="/img/loading.gif" lazyload class="" title="example image">
+
+<p>每个 app 设计模式所⾯临的挑战是如何处理这张图表中箭头所包含的交流，依赖和变换。</p>
+<p>⽤⼾发起的事件会导致 view 的响应，我们把由此引起的代码路径称为 <strong>view action</strong>，像是点击按钮或者选中 table view 中的某⼀⾏就属于 view action。当⼀个 view action 被送到 model 层时，它会被转变为 <strong>model action</strong> (或者说，让 model 对象执⾏⼀个 action 或者进⾏更新的命令)。将 view action 转变为 model action 的操作，以及路径上的其他逻辑被叫做<strong>交互逻辑</strong>。</p>
+<p>⼀个或者多个 model 对象上状态的改变叫做 <strong>model 变更</strong>。Model 的变更通常会触发⼀个 <strong>model 通知</strong>，⽐如说从 model 层发出⼀个可观测的通知，它描述 model 层中什么内容发⽣了改变。当 view 依赖于 model 数据时，通知会触发⼀个 <strong>view 变更</strong>，来更改 view 层中的内容。这些通知可以以多种形式存在：Foundation 中的 Notiĩcation，代理，回调，或者是其他机制，都是可以的。将 model 通知和数据转变为 view 更改的操作，以及路径上的其他逻辑被叫做<strong>表现逻辑</strong>。</p>
+<p>当任意的 view 对象或者中间层对象只能够通过 model 发出的通知来进⾏创建和更新 (换句话说，view 或者中间层不能通过捷径来更新⾃⾝或者其他的view) 时，这个模式通常就是单向的，app 设计模式的一个目标就是设计单向数据流。</p>
+<h2 id="App-任务"><a href="#App-任务" class="headerlink" title="App 任务"></a>App 任务</h2><p>要让程序正常⼯作，view 必须依赖于 model 数据来⽣成和存在，我们配置 view，让它可以对<br>model 进⾏更改，并且能在 model 更新时也得到更新。</p>
+<p>所以我们需要决定在 app 中如何执⾏下列任务：</p>
+<ol>
+<li><p><strong>构建</strong> — 谁负责构建 model 和 view，以及将两者连接起来？</p>
+</li>
+<li><p><strong>更新 model</strong> — 如何处理 view action？</p>
+</li>
+<li><p><strong>改变 view</strong> — 如何将 model 的数据应⽤到 view 上去？</p>
+</li>
+<li><p><strong>view state</strong> — 如何处理导航和其他⼀些 model state 以外的状态？</p>
+</li>
+<li><p><strong>测试</strong> — 为了达到⼀定程度的测试覆盖，要采取怎样的测试策略？</p>
+</li>
+</ol>
+<p>对于上⾯五个问题的回答，是构成 app 设计模式的基础要件</p>
+<p><strong>Model-View-Controller</strong></p>
+<p>MVC 的核⼼思想是 controller 层负责将 model 层和 view 层撮合到⼀起⼯作。Controller 对<br>另外两层进⾏构建和配置，并对 model 对象和 view 对象之间的双向通讯进⾏协调。所以在<br>⼀个 MVC app 中，controller 层是作为核⼼来参与形成 app 的反馈回路的。下⾯是 MVC 模式的框图，它展⽰了⼀个 MVC app 的主要通讯路径：</p>
+<img src="/2022/06/07/app-architecture/Untitled1.png" srcset="/img/loading.gif" lazyload class="" title="example image">
+
+<p>图中的虚线部分代表运⾏时的引⽤，view 层和 model 层都不会直接在代码中引⽤ controller。<br>实线部分代表编译期间的引⽤，controller 实例知道⾃⼰所连接的 view 和 model 对象的接⼝。</p>
+<h3 id="构建-MVC"><a href="#构建-MVC" class="headerlink" title="构建 MVC"></a>构建 MVC</h3><ol>
+<li><strong>构建</strong> — 谁负责构建 model 和 view，以及将两者连接起来？</li>
+</ol>
+<p>App 对象负责创建最顶层的 view controller，这个 view controller 将加载 view，并且知道应<br>该从 model 中获取哪些数据，然后把它们显⽰出来。Controller 要么显式地创建和持有 model<br>层，要么通过⼀个延迟创建的 model 单例来获取 model。</p>
+<ol start="2">
+<li><strong>更新 model</strong> — 如何处理 view action？</li>
+</ol>
+<p>在 MVC 中，controller 主要通过 target&#x2F;action 机制和 delegate 来接收 view 事件。Controller 知道⾃⼰所连接的 view，但是 view 在编译期间却没有关于 controller 接⼝的信息。当⼀个 view 事件到达时，controller 有能⼒改变⾃⾝的内部状态，更改 model、或者直接改变 view 层级。</p>
+<ol start="3">
+<li><strong>改变 view</strong> — 如何将 model 的数据应⽤到 view 上去？</li>
+</ol>
+<p>在我们所理解的 MVC 中，当⼀个更改 model 的 view action 发⽣时，controller 不应该直接去<br>操作 view 层级。正确的做法是，controller 去订阅 model 通知，并且在当通知到达时再更改<br>view 层级。这样⼀来，数据流就可以单向进⾏：view action 被转变为 model 变更，然后<br>model 发送通知，这个通知最后被转为 view 变更。</p>
+<ol start="4">
+<li><strong>view state</strong> — 如何处理导航和其他⼀些 model state 以外的状态？</li>
+</ol>
+<p>View state 可以按需要被 store 在 view 或者 controller 的属性中。相对于影响 model 的 view<br>action，那些只影响 view 或 controller 状态的 action 则不需要通过 model 进⾏传递。</p>
+<ol start="5">
+<li><strong>测试</strong> — 为了达到⼀定程度的测试覆盖，要采取怎样的测试策略？</li>
+</ol>
+<p>在 MVC 中，view controller 与 app 的其他部件紧密相连。边界的缺失使得为 controller 编写<br>单元测试和接⼝测试⼗分困难，集成测试是余下的为数不多的可⾏测试⼿段之⼀。在集成测试<br>中，我们构建相连接的 view、model 和 controller 层，然后操作 model 或者 view，来测试是<br>否能得到我们想要的结果。</p>
+<h3 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h3><p><strong>第⼀个问题是 model 和 view 的同步可能失效</strong>。当围绕 model 的观察者模式没有被完美执⾏<br>时，这个问题就会发⽣。常⻅的错误是，在构建 view 时读取了 model 的值，⽽没有对后续的<br>通知进⾏订阅。另⼀个常⻅错误是在变更 model 的同时去更改 view 层级，这种做法假设了变<br>更的结果，⽽没有等待 model 进⾏通知，如果 model 拒绝了这个变更的话，就会发⽣错误。这<br>类错误会使得 view 和 model 不同步，奇怪的⾏为也随之⽽来</p>
+<p><strong>第二个问题是这个模式经常会造成 view controller 臃肿</strong>。View controller 需要负责处理 view 层 (设置 view 属性，展⽰ view 等)，但是它同时也负责 controller 层的任务 (观察 model 以及更新 view)，最后，它还要负责 model 层 (获取数据，对其变形或者处理)。结合它在架构中的中⼼⻆⾊，这使得我们很容易在不经意间把所有的职责都赋予 view controller，从⽽迅速让程序变得难以管理。</p>
+<h3 id="改进方式"><a href="#改进方式" class="headerlink" title="改进方式"></a>改进方式</h3><p>针对 <strong>model 和 view 的同步可能失效</strong>的问题。我们选择使⽤ Foundation 的 NoticationCenter 来进⾏ model 通知的⼴播。</p>
+<p>针对 <strong>view controller 臃肿的问题，有更多的改进方式：</strong></p>
+<ol>
+<li>解决这个问题的最佳途径就是主动地将尽可能多的功能移动到 model 层中。⽐如排序，数据获取和处理等⽅法，因为不是 app 的存储状态的⼀部分，所以通常会被放到 controller 中。但是它们依然与 app 的数据和专⽤逻辑相关，把它们放在 model 中会是更好的选择。</li>
+<li>在 view controller 中使⽤扩展共享代码。在多个 view controller 中都出现的⽅法有时候能够被添加到 UIViewController 的扩展中去。这样⼀来，所有的 view controller 就都能获取这个⽅法了。⽐如，我们可以为 UIViewController 添加⼀个显⽰⽂本警告的简便⽅法。</li>
+<li>Child view controller 是在 view controller 之间共享代码的另⼀种选项。</li>
+<li>将遵守协议的代码抽离到单独的对象中，可以有效减少 view controller 的代码量。⽐如 view controller 中遵守 UITableViewDataSource 的部分，⽐较适合被提取为 DataSourceController。通常⽤来遵守某个协议的代码⽐较适合被提取为⼀个可重⽤的 controller 对象，我们称这个对象为调解 controller 。</li>
+</ol>
+<h2 id="Model-View-ViewModel"><a href="#Model-View-ViewModel" class="headerlink" title="Model-View-ViewModel"></a>Model-View-ViewModel</h2><p>Model-View-ViewModel (MVVM) 是⼀种基于 MVC 进⾏改进的模式，它将所有 model 相关的<br>任务 (包括更新 model，观察变更，将 model 变形为可以显⽰的形式等) 从 controller 层抽离出<br>来，放到新的叫做 view-model 的⼀层对象中。在通常的 iOS 实现中，view-model 位于 model<br>和 controller 之间：</p>
+<img src="/2022/06/07/app-architecture/Untitled2.png" srcset="/img/loading.gif" lazyload class="" title="example image">
+
+<p>MVVM 架构加入加⼊⼀层新的 view-model 层的⽬的有两个原因：</p>
+<ol>
+<li>⿎励将 model 和 view 之间的关系构建为⼀系列的变形管道。</li>
+<li>提供⼀套独⽴于 app 框架的接⼝，但是它在相当程度上代表了 view 应该展⽰的状态。</li>
+</ol>
+<p>两者结合起来，对 MVC 中两个最⼤的被⼈诟病的地⽅进⾏了修正：</p>
+<ol>
+<li>第⼀项通过把 model 相关的观察和变形从 controller 层移除出去，减少了 controller 所需要承担的责任。</li>
+<li>第⼆项为场景的 view state 提供了⼀套⼲净的接⼝，让它可以独⽴于 app 框架进⾏测试，而不需要使用 MVC 的集成测试。</li>
+</ol>
+<p>MVVM 为了保持 view 与 view-model 的同步，MVVM 强制使⽤某种形式的绑定，也就是说需要⼀种保证⼀个对象上的属性与另⼀个对象上的属性同步的⽅式。在 iOS 上通常使用响应式编程的方式来实现绑定。</p>
+<h3 id="构建-MVVM"><a href="#构建-MVVM" class="headerlink" title="构建 MVVM"></a>构建 MVVM</h3><ol>
+<li><strong>构建</strong> — 谁负责构建 model 和 view，以及将两者连接起来？</li>
+</ol>
+<p>对于 model 的创建和 MVC 中的保持不变，通常它是⼀个顶层 controller 的职责。不过单独<br>的 model 对象现在属于 view-model，⽽不属于 view controller。</p>
+<p>初始的 view 层级的创建和 MVC 中的⼀样，通过 storyboard 或者代码来完成。和 MVC 不同的<br>是，view controller 不再直接为每个 view 获取和准备数据，它会把这项⼯作交给 view-model。<br>View controller 在创建的时候会⼀并创建 view-model，并且将每个 view 绑定到 view-model<br>所暴露出的相应属性上去</p>
+<ol start="2">
+<li><strong>更新 model</strong> — 如何处理 view action？</li>
+</ol>
+<p>在 MVVM 中，view controller 接收 view 事件的⽅式和 MVC 中⼀样 (在 view 和 view<br>controller 之间建⽴连接的⽅式也相同)。不过，当⼀个 view 事件到达时，view controller 不会<br>去改变⾃⾝的内部状态、view state、或者是 model。相对地，它⽴即调⽤ view-model 上的⽅<br>法，再由 view-model 改变内部状态或者 model。</p>
+<ol start="3">
+<li><strong>改变 view</strong> — 如何将 model 的数据应⽤到 view 上去？</li>
+</ol>
+<p>和 MVC 不同，view controller 不监听 model。View-model 将负责观察 model，并将 model<br>的通知转变为 view controller 可以理解的形式。View controller 订阅 view-model 的变更，这<br>通常通过⼀个响应式编程框架来完成，但也可以使⽤任意其他的观察机制。当⼀个<br>view-model 事件来到时，由 view controller 去更改 view 层级。</p>
+<p>为了实现单向数据流，view-model 总是应该将变更 model 的 view action 发送给 model，并<br>且仅仅在 model 变化实际发⽣之后再通知相关的观察者。</p>
+<ol start="4">
+<li><strong>view state</strong> — 如何处理导航和其他⼀些 model state 以外的状态？</li>
+</ol>
+<p>View state 要么存在于 view ⾃⾝之中，要么存在于 view-model ⾥。和 MVC 不同，view<br>controller 中不存在任何 view state。View-model 中的 view state 的变更，会被 controller 观<br>察到，不过 controller ⽆法区分 model 的通知和 view state 变更的通知。当使⽤协调器时，<br>view controller 层级将由协调器进⾏管理。</p>
+<ol start="5">
+<li><strong>测试</strong> — 为了达到⼀定程度的测试覆盖，要采取怎样的测试策略？</li>
+</ol>
+<p>因为 view-model 和 view 层与 controller 层是解耦合的，所以可以使⽤接⼝测试来测试<br>view-model，⽽不需要像 MVC ⾥那样使⽤集成测试。接⼝测试要⽐集成测试简单得多，因为<br>不需要为它们建⽴完整的组件层次结构。<br>为了让接⼝测试尽可能覆盖更多的范围，view controller 应当尽可能简单，但是那些没有被移<br>出 view controller 的部分仍然需要单独进⾏测试。</p>
+<h3 id="MVVM-存在的问题"><a href="#MVVM-存在的问题" class="headerlink" title="MVVM 存在的问题"></a>MVVM 存在的问题</h3><p>MVVM 对响应式编程技术的依赖成为了使⽤该模式的⼀种遏制因素，响应式编程框架有着陡峭的学习曲线，⽽且需要花上⼀段时间才能调整到这种编程⻛格。虽然响应式编程在概念上来说⼗分优雅，但是由于响应式编程框架依赖⾼度抽象的变形以及⼤量的类型，对它们的大量应用会极大降低代码的可读性。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="%5Bhttps://objccn.io/products/app-architecture%5D(https://objccn.io/products/app-architecture)">App 架构</a> 读书笔记</li>
+</ol>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84/">#软件架构</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>App 架构</div>
+      <div>https://junbinchencn.github.io/2022/06/07/app-architecture/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>斌哥</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月7日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/06/TCP-protocol/" title="TCP 那些事儿">
+                        <span class="hidden-mobile">TCP 那些事儿</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
